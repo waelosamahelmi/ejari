@@ -17,7 +17,16 @@ import {
   type Period,
 } from "./dates";
 import { coversPeriod, isLive } from "./contracts";
-import { arrearsAsOf, chargeStates, daysLate, lastPaymentDate, monthsOverdue, periodStatus, agingBucketOf, type LedgerInput } from "./ledger";
+import {
+  arrearsAsOf,
+  chargeStates,
+  daysLate,
+  lastPaymentDate,
+  monthsOverdue,
+  periodStatus,
+  agingBucketOf,
+  type LedgerInput,
+} from "./ledger";
 import { mulRound, splitByWeights, splitEven, type Fils } from "./money";
 import {
   LEGAL_STATUS_LABELS_AR,
@@ -183,7 +192,8 @@ export class Index {
     for (const u of this.unitsByProperty.values()) u.sort((a, b) => a.sortOrder - b.sortOrder);
     for (const p of ds.properties) this.propertyById.set(p.id, p);
     for (const l of ds.legalCases) {
-      if (l.contractId && l.status !== "closed" && l.status !== "none") this.legalByContract.set(l.contractId, l);
+      if (l.contractId && l.status !== "closed" && l.status !== "none")
+        this.legalByContract.set(l.contractId, l);
     }
   }
 
@@ -262,7 +272,9 @@ export interface MonthlyStatement {
 export function receiptsBreakdown(idx: Index, contractId: string, period: Period) {
   const from = periodStart(period);
   const to = periodEnd(period);
-  const payments = (idx.paymentsByContract.get(contractId) ?? []).filter((p) => inRange(p.receivedAt, from, to));
+  const payments = (idx.paymentsByContract.get(contractId) ?? []).filter((p) =>
+    inRange(p.receivedAt, from, to),
+  );
   let previous = 0;
   let next = 0;
   let current = 0;
@@ -289,13 +301,19 @@ export function receiptsBreakdown(idx: Index, contractId: string, period: Period
   };
 }
 
-export function monthlyStatement(ds: Dataset | Index, propertyId: string, period: Period): MonthlyStatement {
+export function monthlyStatement(
+  ds: Dataset | Index,
+  propertyId: string,
+  period: Period,
+): MonthlyStatement {
   const idx = ds instanceof Index ? ds : new Index(ds);
   const property = idx.propertyById.get(propertyId);
   if (!property) throw new Error(`Unknown property ${propertyId}`);
   const units = (idx.unitsByProperty.get(propertyId) ?? []).filter((u) => u.active);
   const to = periodEnd(period);
-  const contracts = (idx.contractsByProperty.get(propertyId) ?? []).filter((c) => coversPeriod(c, period));
+  const contracts = (idx.contractsByProperty.get(propertyId) ?? []).filter((c) =>
+    coversPeriod(c, period),
+  );
   const covered = new Set<string>();
   const rows: StatementRow[] = [];
 
@@ -408,7 +426,9 @@ export function monthlySummary(
   const from = periodStart(period);
   const to = periodEnd(period);
   const props = idx.ds.properties.filter(
-    (p) => (!opts.propertyIds || opts.propertyIds.includes(p.id)) && (!opts.ownerId || p.ownerIds.includes(opts.ownerId)),
+    (p) =>
+      (!opts.propertyIds || opts.propertyIds.includes(p.id)) &&
+      (!opts.ownerId || p.ownerIds.includes(opts.ownerId)),
   );
   const propIds = new Set(props.map((p) => p.id));
   const rows: SummaryPropertyRow[] = props.map((p) => {
@@ -429,11 +449,15 @@ export function monthlySummary(
       arrears += arrearsAsOf(l, to);
     }
     const expenses = sumBy(
-      idx.ds.expenseAllocations.filter((e) => e.propertyId === p.id && inRange(e.voucherDate, from, to)),
+      idx.ds.expenseAllocations.filter(
+        (e) => e.propertyId === p.id && inRange(e.voucherDate, from, to),
+      ),
       (e) => e.amountFils,
     );
     const deposits = sumBy(
-      idx.ds.deposits.filter((d) => inRange(d.date, from, to)).flatMap((d) => d.properties.filter((dp) => dp.propertyId === p.id)),
+      idx.ds.deposits
+        .filter((d) => inRange(d.date, from, to))
+        .flatMap((d) => d.properties.filter((dp) => dp.propertyId === p.id)),
       (dp) => dp.amountFils,
     );
     return {
@@ -460,7 +484,8 @@ export function monthlySummary(
         idx.ds.deposits.filter(
           (d) =>
             inRange(d.date, from, to) &&
-            ((opts.ownerId && d.ownerId === opts.ownerId) || d.properties.some((dp) => propIds.has(dp.propertyId))),
+            ((opts.ownerId && d.ownerId === opts.ownerId) ||
+              d.properties.some((dp) => propIds.has(dp.propertyId))),
         ),
         (d) => d.amountFils,
       )
@@ -468,7 +493,14 @@ export function monthlySummary(
         idx.ds.deposits.filter((d) => inRange(d.date, from, to)),
         (d) => d.amountFils,
       );
-  return { period, collectedFils: collected, depositsFils: deposits, expensesFils: expenses, differenceFils: collected - expenses - deposits, rows };
+  return {
+    period,
+    collectedFils: collected,
+    depositsFils: deposits,
+    expensesFils: expenses,
+    differenceFils: collected - expenses - deposits,
+    rows,
+  };
 }
 
 // ================================================================ late units
@@ -491,7 +523,11 @@ export interface LateRow {
   legalStatus: LegalStatus;
 }
 
-export function lateUnits(ds: Dataset | Index, asOf: ISODate, opts: { propertyIds?: readonly string[] } = {}): LateRow[] {
+export function lateUnits(
+  ds: Dataset | Index,
+  asOf: ISODate,
+  opts: { propertyIds?: readonly string[] } = {},
+): LateRow[] {
   const idx = ds instanceof Index ? ds : new Index(ds);
   const out: LateRow[] = [];
   for (const c of idx.ds.contracts) {
@@ -523,7 +559,9 @@ export function lateUnits(ds: Dataset | Index, asOf: ISODate, opts: { propertyId
       legalStatus: idx.legalStatus(c.id),
     });
   }
-  return out.sort((a, b) => a.propertyName.localeCompare(b.propertyName) || b.amountFils - a.amountFils);
+  return out.sort(
+    (a, b) => a.propertyName.localeCompare(b.propertyName) || b.amountFils - a.amountFils,
+  );
 }
 
 export function lateTotals(rows: readonly LateRow[]) {
@@ -550,16 +588,27 @@ export interface VacantRow {
 
 const AVG_MONTH_DAYS = 365.25 / 12;
 
-export function vacantUnits(ds: Dataset | Index, asOf: ISODate, opts: { propertyIds?: readonly string[] } = {}): VacantRow[] {
+export function vacantUnits(
+  ds: Dataset | Index,
+  asOf: ISODate,
+  opts: { propertyIds?: readonly string[] } = {},
+): VacantRow[] {
   const idx = ds instanceof Index ? ds : new Index(ds);
   const out: VacantRow[] = [];
   for (const u of idx.ds.units) {
     if (!u.active) continue;
     if (opts.propertyIds && !opts.propertyIds.includes(u.propertyId)) continue;
-    const contracts = idx.ds.contracts.filter((c) => c.unitIds.includes(u.id) && c.status !== "draft");
-    const occupied = contracts.some((c) => isLive(c.status) && c.startDate <= asOf && asOf <= effectiveEnd(c));
+    const contracts = idx.ds.contracts.filter(
+      (c) => c.unitIds.includes(u.id) && c.status !== "draft",
+    );
+    const occupied = contracts.some(
+      (c) => isLive(c.status) && c.startDate <= asOf && asOf <= effectiveEnd(c),
+    );
     if (occupied) continue;
-    const past = contracts.filter((c) => c.startDate <= asOf).map((c) => effectiveEnd(c)).filter((e) => e < asOf);
+    const past = contracts
+      .filter((c) => c.startDate <= asOf)
+      .map((c) => effectiveEnd(c))
+      .filter((e) => e < asOf);
     const lastEnd = past.sort().at(-1);
     const since = lastEnd ? addDays(lastEnd, 1) : (u.availableFrom ?? null);
     const days = since ? Math.max(0, diffDays(since, asOf)) : 0;
@@ -577,7 +626,9 @@ export function vacantUnits(ds: Dataset | Index, asOf: ISODate, opts: { property
       lostRentFils: mulRound(u.askingRentFils, days / AVG_MONTH_DAYS),
     });
   }
-  return out.sort((a, b) => a.propertyName.localeCompare(b.propertyName) || b.daysVacant - a.daysVacant);
+  return out.sort(
+    (a, b) => a.propertyName.localeCompare(b.propertyName) || b.daysVacant - a.daysVacant,
+  );
 }
 
 // ================================================================ accounting report
@@ -636,7 +687,12 @@ function unitRentShares(idx: Index, c: RContract, total: Fils): Map<string, Fils
   return m;
 }
 
-function occupiedDays(unitId: string, contracts: readonly RContract[], from: ISODate, to: ISODate): number {
+function occupiedDays(
+  unitId: string,
+  contracts: readonly RContract[],
+  from: ISODate,
+  to: ISODate,
+): number {
   let days = 0;
   for (const c of contracts) {
     if (c.status === "draft" || !c.unitIds.includes(unitId)) continue;
@@ -660,7 +716,9 @@ export function accountingReport(
   /** Arrears/collection-rate never look past "today" (future months have nothing overdue yet). */
   const cap = (d: ISODate) => (opts.asOf && d > opts.asOf ? opts.asOf : d);
   const periods = periodRange(from, to);
-  const contracts = idx.ds.contracts.filter((c) => propIds.has(c.propertyId) && c.status !== "draft");
+  const contracts = idx.ds.contracts.filter(
+    (c) => propIds.has(c.propertyId) && c.status !== "draft",
+  );
   let expectedDue = 0;
   const units = idx.ds.units.filter((u) => propIds.has(u.propertyId) && u.active);
 
@@ -723,10 +781,14 @@ export function accountingReport(
       vacancyLoss += u.askingRentFils;
     }
     const mExpenses = sumBy(
-      idx.ds.expenseAllocations.filter((e) => propIds.has(e.propertyId) && inRange(e.voucherDate, pS, pE)),
+      idx.ds.expenseAllocations.filter(
+        (e) => propIds.has(e.propertyId) && inRange(e.voucherDate, pS, pE),
+      ),
       (e) => e.amountFils,
     );
-    const avail = units.filter((u) => !u.availableFrom || u.availableFrom <= pE).length * (diffDays(pS, pE) + 1);
+    const avail =
+      units.filter((u) => !u.availableFrom || u.availableFrom <= pE).length *
+      (diffDays(pS, pE) + 1);
     const occ = sumBy(units, (u) => occupiedDays(u.id, contracts, pS, pE));
     expected += mExpected;
     collected += mCollected;
@@ -742,16 +804,25 @@ export function accountingReport(
 
   const discounts = sumBy(
     idx.ds.adjustments.filter(
-      (a) => (a.kind === "discount" || a.kind === "write_off") && inRange(a.date, fromD, toD) && contracts.some((c) => c.id === a.contractId),
+      (a) =>
+        (a.kind === "discount" || a.kind === "write_off") &&
+        inRange(a.date, fromD, toD) &&
+        contracts.some((c) => c.id === a.contractId),
     ),
     (a) => a.amountFils,
   );
   const opening = sumBy(contracts, (c) => arrearsAsOf(idx.ledger(c.id), addDays(fromD, -1)));
   const closing = sumBy(contracts, (c) => arrearsAsOf(idx.ledger(c.id), cap(toD)));
-  const expAllocs = idx.ds.expenseAllocations.filter((e) => propIds.has(e.propertyId) && inRange(e.voucherDate, fromD, toD));
+  const expAllocs = idx.ds.expenseAllocations.filter(
+    (e) => propIds.has(e.propertyId) && inRange(e.voucherDate, fromD, toD),
+  );
   const byCat = new Map<string, { categoryId: string; categoryName: string; amountFils: Fils }>();
   for (const e of expAllocs) {
-    const cur = byCat.get(e.categoryId) ?? { categoryId: e.categoryId, categoryName: e.categoryName, amountFils: 0 };
+    const cur = byCat.get(e.categoryId) ?? {
+      categoryId: e.categoryId,
+      categoryName: e.categoryName,
+      amountFils: 0,
+    };
     cur.amountFils += e.amountFils;
     byCat.set(e.categoryId, cur);
   }
@@ -765,7 +836,11 @@ export function accountingReport(
       const coll = sumBy(
         contracts
           .filter((c) => c.propertyId === pid)
-          .flatMap((c) => (idx.paymentsByContract.get(c.id) ?? []).filter((pm) => inRange(pm.receivedAt, fromD, toD))),
+          .flatMap((c) =>
+            (idx.paymentsByContract.get(c.id) ?? []).filter((pm) =>
+              inRange(pm.receivedAt, fromD, toD),
+            ),
+          ),
         (pm) => pm.amountFils,
       );
       commission += mulRound(coll, p.commission.value / 100);
@@ -775,7 +850,9 @@ export function accountingReport(
   }
 
   const deposits = sumBy(
-    idx.ds.deposits.filter((d) => inRange(d.date, fromD, toD)).flatMap((d) => d.properties.filter((dp) => propIds.has(dp.propertyId))),
+    idx.ds.deposits
+      .filter((d) => inRange(d.date, fromD, toD))
+      .flatMap((d) => d.properties.filter((dp) => propIds.has(dp.propertyId))),
     (dp) => dp.amountFils,
   );
 
@@ -797,9 +874,12 @@ export function accountingReport(
     return s <= toD ? diffDays(s, toD) + 1 : 0;
   });
   const occDays = sumBy(units, (u) => occupiedDays(u.id, contracts, fromD, toD));
-  const moveIns = contracts.filter((c) => inRange(c.startDate, fromD, toD) && !isRenewalStart(c, contracts)).length;
+  const moveIns = contracts.filter(
+    (c) => inRange(c.startDate, fromD, toD) && !isRenewalStart(c, contracts),
+  ).length;
   const moveOuts = contracts.filter(
-    (c) => (c.status === "ended" || c.status === "terminated") && inRange(effectiveEnd(c), fromD, toD),
+    (c) =>
+      (c.status === "ended" || c.status === "terminated") && inRange(effectiveEnd(c), fromD, toD),
   ).length;
 
   const report: AccountingReport & { previous?: AccountingReport } = {
@@ -831,18 +911,30 @@ export function accountingReport(
   };
   if (opts.withComparison) {
     const prev = previousRange(from, to);
-    report.previous = accountingReport(idx, prev.from, prev.to, { propertyIds: opts.propertyIds, asOf: opts.asOf });
+    report.previous = accountingReport(idx, prev.from, prev.to, {
+      propertyIds: opts.propertyIds,
+      asOf: opts.asOf,
+    });
   }
   return report;
 }
 
 function isRenewalStart(c: RContract, all: readonly RContract[]): boolean {
-  return all.some((o) => o.id !== c.id && o.status === "renewed" && o.tenantId === c.tenantId && addDays(o.endDate, 1) === c.startDate);
+  return all.some(
+    (o) =>
+      o.id !== c.id &&
+      o.status === "renewed" &&
+      o.tenantId === c.tenantId &&
+      addDays(o.endDate, 1) === c.startDate,
+  );
 }
 
 /** Δ and % between two values (null % when the base is 0). */
 export function delta(current: number, previous: number): { delta: number; pct: number | null } {
-  return { delta: current - previous, pct: previous !== 0 ? (current - previous) / Math.abs(previous) : null };
+  return {
+    delta: current - previous,
+    pct: previous !== 0 ? (current - previous) / Math.abs(previous) : null,
+  };
 }
 
 // ================================================================ owner statement
@@ -868,7 +960,12 @@ export interface OwnerStatement {
   balanceFils: Fils;
 }
 
-export function ownerStatement(ds: Dataset | Index, ownerId: string, from: Period, to: Period): OwnerStatement {
+export function ownerStatement(
+  ds: Dataset | Index,
+  ownerId: string,
+  from: Period,
+  to: Period,
+): OwnerStatement {
   const idx = ds instanceof Index ? ds : new Index(ds);
   const fromD = periodStart(from);
   const toD = periodEnd(to);
@@ -876,7 +973,9 @@ export function ownerStatement(ds: Dataset | Index, ownerId: string, from: Perio
   const propShares =
     shares.length > 0
       ? shares.map((s) => ({ propertyId: s.propertyId, pct: s.sharePct }))
-      : idx.ds.properties.filter((p) => p.ownerIds.includes(ownerId)).map((p) => ({ propertyId: p.id, pct: 100 }));
+      : idx.ds.properties
+          .filter((p) => p.ownerIds.includes(ownerId))
+          .map((p) => ({ propertyId: p.id, pct: 100 }));
   const rows = propShares.map(({ propertyId, pct }) => {
     const r = accountingReport(idx, from, to, { propertyIds: [propertyId] });
     const ratio = pct / 100;
@@ -893,9 +992,19 @@ export function ownerStatement(ds: Dataset | Index, ownerId: string, from: Perio
       netFils: collectedFils - expensesFils - commissionFils,
     };
   });
+  // Deposits split across properties count by the owner's share of each covered property;
+  // unsplit deposits count only when tagged with this owner.
+  const shareOf = new Map(propShares.map((x) => [x.propertyId, x.pct / 100]));
   const deposits = sumBy(
-    idx.ds.deposits.filter((d) => d.ownerId === ownerId && inRange(d.date, fromD, toD)),
-    (d) => d.amountFils,
+    idx.ds.deposits.filter((d) => inRange(d.date, fromD, toD)),
+    (d) =>
+      d.properties.length > 0
+        ? sumBy(d.properties, (x) =>
+            shareOf.has(x.propertyId) ? mulRound(x.amountFils, shareOf.get(x.propertyId)!) : 0,
+          )
+        : d.ownerId === ownerId
+          ? d.amountFils
+          : 0,
   );
   const net = sumBy(rows, (r) => r.netFils);
   return {
@@ -927,7 +1036,11 @@ export interface ExpiringRow {
   status: ContractStatus;
 }
 
-export function expiringContracts(ds: Dataset | Index, asOf: ISODate, withinDays: number): ExpiringRow[] {
+export function expiringContracts(
+  ds: Dataset | Index,
+  asOf: ISODate,
+  withinDays: number,
+): ExpiringRow[] {
   const idx = ds instanceof Index ? ds : new Index(ds);
   const limit = addDays(asOf, withinDays);
   return idx.ds.contracts
@@ -959,11 +1072,17 @@ export interface GraceRow {
   monthlyRentFils: Fils;
 }
 
-export function upcomingFirstCollections(ds: Dataset | Index, asOf: ISODate, withinDays = 60): GraceRow[] {
+export function upcomingFirstCollections(
+  ds: Dataset | Index,
+  asOf: ISODate,
+  withinDays = 60,
+): GraceRow[] {
   const idx = ds instanceof Index ? ds : new Index(ds);
   const limit = addDays(asOf, withinDays);
   return idx.ds.contracts
-    .filter((c) => isLive(c.status) && c.firstCollectionDate > asOf && c.firstCollectionDate <= limit)
+    .filter(
+      (c) => isLive(c.status) && c.firstCollectionDate > asOf && c.firstCollectionDate <= limit,
+    )
     .map((c) => ({
       contractId: c.id,
       contractNo: c.contractNo,
@@ -993,7 +1112,9 @@ export function expenseReport(
   const fromD = periodStart(from);
   const toD = periodEnd(to);
   const rows = idx.ds.expenseAllocations.filter(
-    (e) => inRange(e.voucherDate, fromD, toD) && (!opts.propertyIds || opts.propertyIds.includes(e.propertyId)),
+    (e) =>
+      inRange(e.voucherDate, fromD, toD) &&
+      (!opts.propertyIds || opts.propertyIds.includes(e.propertyId)),
   );
   const m = new Map<string, { key: string; label: string; amountFils: Fils; count: number }>();
   for (const e of rows) {
@@ -1010,7 +1131,9 @@ export function expenseReport(
     cur.count += 1;
     m.set(key, cur);
   }
-  return [...m.values()].sort((a, b) => (groupBy === "period" ? a.key.localeCompare(b.key) : b.amountFils - a.amountFils));
+  return [...m.values()].sort((a, b) =>
+    groupBy === "period" ? a.key.localeCompare(b.key) : b.amountFils - a.amountFils,
+  );
 }
 
 // ================================================================ dashboard helpers
@@ -1020,19 +1143,38 @@ export interface HeatmapRow {
   propertyId: string;
   propertyName: string;
   label: string;
-  cells: { period: Period; status: PeriodStatus; amountFils: Fils; paidFils: Fils; receiptNos: string[] }[];
+  cells: {
+    period: Period;
+    status: PeriodStatus;
+    amountFils: Fils;
+    paidFils: Fils;
+    receiptNos: string[];
+  }[];
 }
 
 /** Rows = units (grouped by property), columns = periods, cells = status. */
-export function paymentHeatmap(ds: Dataset | Index, periods: readonly Period[], asOf: ISODate): HeatmapRow[] {
+export function paymentHeatmap(
+  ds: Dataset | Index,
+  periods: readonly Period[],
+  asOf: ISODate,
+): HeatmapRow[] {
   const idx = ds instanceof Index ? ds : new Index(ds);
   const rows: HeatmapRow[] = [];
   for (const p of idx.ds.properties) {
     for (const u of idx.unitsByProperty.get(p.id) ?? []) {
       if (!u.active) continue;
       const cells = periods.map((period) => {
-        const c = (idx.contractsByProperty.get(p.id) ?? []).find((k) => k.unitIds.includes(u.id) && coversPeriod(k, period));
-        if (!c) return { period, status: "vacant" as PeriodStatus, amountFils: 0, paidFils: 0, receiptNos: [] };
+        const c = (idx.contractsByProperty.get(p.id) ?? []).find(
+          (k) => k.unitIds.includes(u.id) && coversPeriod(k, period),
+        );
+        if (!c)
+          return {
+            period,
+            status: "vacant" as PeriodStatus,
+            amountFils: 0,
+            paidFils: 0,
+            receiptNos: [],
+          };
         const l = idx.ledger(c.id);
         const at = periodEnd(period) < asOf ? periodEnd(period) : asOf;
         const pCharges = l.charges.filter((ch) => !ch.voided && ch.period === period);
@@ -1055,7 +1197,11 @@ export function paymentHeatmap(ds: Dataset | Index, periods: readonly Period[], 
 }
 
 /** Occupancy snapshot for a date: occupied / vacant / grace unit counts. */
-export function occupancySnapshot(ds: Dataset | Index, asOf: ISODate, opts: { propertyIds?: readonly string[] } = {}) {
+export function occupancySnapshot(
+  ds: Dataset | Index,
+  asOf: ISODate,
+  opts: { propertyIds?: readonly string[] } = {},
+) {
   const idx = ds instanceof Index ? ds : new Index(ds);
   let occupied = 0;
   let grace = 0;
@@ -1063,7 +1209,13 @@ export function occupancySnapshot(ds: Dataset | Index, asOf: ISODate, opts: { pr
   for (const u of idx.ds.units) {
     if (!u.active) continue;
     if (opts.propertyIds && !opts.propertyIds.includes(u.propertyId)) continue;
-    const c = idx.ds.contracts.find((k) => k.unitIds.includes(u.id) && isLive(k.status) && k.startDate <= asOf && asOf <= effectiveEnd(k));
+    const c = idx.ds.contracts.find(
+      (k) =>
+        k.unitIds.includes(u.id) &&
+        isLive(k.status) &&
+        k.startDate <= asOf &&
+        asOf <= effectiveEnd(k),
+    );
     if (!c) vacant++;
     else if (asOf < c.firstCollectionDate) grace++;
     else occupied++;

@@ -4,6 +4,7 @@ import { pageLocale, type LocaleParams } from "@/lib/i18n";
 import { supabaseServer } from "@/lib/supabase/server";
 import { can } from "@/lib/permissions";
 import { OwnerDetailView } from "./owner-detail-view";
+import { PortalInviteCard } from "@/components/domain/owners/portal-invite";
 
 export default async function OwnerPage({ params }: LocaleParams<{ id: string }>) {
   const { locale, id } = await pageLocale(params);
@@ -15,6 +16,7 @@ export default async function OwnerPage({ params }: LocaleParams<{ id: string }>
   return (
     <OwnerDetailView
       canEdit={full}
+      portalSlot={<PortalInviteCard ownerId={o.id} email={o.email ?? ""} linked={!!o.portal_user_id} canInvite={can(ctx.role, "manage_users")} />}
       owner={{
         id: o.id,
         fullName: o.full_name,

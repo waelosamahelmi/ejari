@@ -22,7 +22,7 @@ export default async function PrintReport({ params, searchParams }: { params: Pr
   const sp = await searchParams;
   if (!(REPORT_TYPES as readonly string[]).includes(type)) notFound();
   const { ctx, logoUrl, lang } = await requirePrintContext(sp.lang);
-  if (!can(ctx.role, "view_late_units") || (type !== "late" && !can(ctx.role, "view_reports"))) notFound();
+  if (!(ctx.role === "owner" && type === "accounting") && (!can(ctx.role, "view_late_units") || (type !== "late" && !can(ctx.role, "view_reports")))) notFound();
   const spec = await buildReport(ctx, type as ReportType, parseParams(sp), lang);
   const t = await getTranslations({ locale: lang, namespace: "reports" });
   const tc = await getTranslations({ locale: lang, namespace: "common.actions" });

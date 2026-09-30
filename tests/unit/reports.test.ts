@@ -1,8 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { buildDemoData, demoDataset } from "@/demo/demo-data";
 import {
-  accountingReport, delta, expenseReport, expiringContracts, Index, lateTotals, lateUnits, monthlyStatement, monthlySummary,
-  occupancySnapshot, ownerStatement, paymentHeatmap, upcomingFirstCollections, vacantUnits,
+  accountingReport,
+  delta,
+  expenseReport,
+  expiringContracts,
+  Index,
+  lateTotals,
+  lateUnits,
+  monthlyStatement,
+  monthlySummary,
+  occupancySnapshot,
+  ownerStatement,
+  paymentHeatmap,
+  upcomingFirstCollections,
+  vacantUnits,
 } from "@/domain/reports";
 import { tafqeetKWD } from "@/domain/tafqeet";
 
@@ -23,13 +35,18 @@ describe("Jabriya 157 — August 2026 statement (validation dataset)", () => {
   });
   it("arrears only on units 9 (20.000) and 20 (50.000)", () => {
     const late = s.rows.filter((r) => r.arrearsFils > 0).map((r) => [r.unitLabels, r.arrearsFils]);
-    expect(late).toEqual([["تسعة", 20_000], ["عشرون", 50_000]]);
+    expect(late).toEqual([
+      ["تسعة", 20_000],
+      ["عشرون", 50_000],
+    ]);
     expect(s.rows.find((r) => r.unitLabels === "تسعة")!.status).toBe("partial");
   });
   it("vacant rows are labelled and ordered; multi-unit row joined", () => {
     const vacant = s.rows.filter((r) => r.vacant).map((r) => r.unitLabels);
     expect(vacant).toEqual(["محل", "نصف السرداب الأمامي", "نصف السرداب الخلفي", "السطح"]);
-    expect(s.rows.some((r) => r.unitLabels === "22, 23, 24" && r.rentFils === 2_150_000)).toBe(true);
+    expect(s.rows.some((r) => r.unitLabels === "22, 23, 24" && r.rentFils === 2_150_000)).toBe(
+      true,
+    );
     expect(s.rows[0]!.unitLabels).toBe("واحد");
     expect(s.rows).toHaveLength(27);
   });
@@ -48,7 +65,8 @@ describe("Jabriya 157 — August 2026 statement (validation dataset)", () => {
     const unit9 = sep.rows.find((r) => r.unitLabels === "تسعة")!;
     expect(unit9.arrearsFils).toBe(20_000 + 320_000);
   });
-  it("unknown property throws", () => expect(() => monthlyStatement(idx, "nope", "2026-08")).toThrow());
+  it("unknown property throws", () =>
+    expect(() => monthlyStatement(idx, "nope", "2026-08")).toThrow());
 });
 
 describe("August 2026 cover summary", () => {
@@ -87,7 +105,9 @@ describe("late & vacant units", () => {
     const t = lateTotals(rows);
     expect(t.count).toBe(rows.length);
     expect(t.amountFils).toBe(rows.reduce((a, r) => a + r.amountFils, 0));
-    expect(lateUnits(idx, "2026-08-31", { propertyIds: [prop("الجابرية")] }).map((r) => r.amountFils)).toEqual([50_000, 20_000]);
+    expect(
+      lateUnits(idx, "2026-08-31", { propertyIds: [prop("الجابرية")] }).map((r) => r.amountFils),
+    ).toEqual([50_000, 20_000]);
     expect(lateUnits(ds, "2026-08-31", { propertyIds: ["none"] })).toEqual([]);
   });
   it("vacant units", () => {
@@ -97,7 +117,9 @@ describe("late & vacant units", () => {
     expect(jab[0]!.lostRentFils).toBeGreaterThan(0);
     // Al-Rai shop 8 is reserved (contract starts 01/10) but still vacant today.
     expect(rows.some((r) => r.propertyId === prop("الري") && r.label === "8")).toBe(true);
-    expect(vacantUnits(ds, "2026-09-30", { propertyIds: [prop("صباح")] }).map((r) => r.label)).toEqual(["1", "2"]);
+    expect(
+      vacantUnits(ds, "2026-09-30", { propertyIds: [prop("صباح")] }).map((r) => r.label),
+    ).toEqual(["1", "2"]);
   });
   it("occupancy snapshot", () => {
     const o = occupancySnapshot(idx, "2026-09-30", { propertyIds: [prop("الجابرية")] });
@@ -108,7 +130,10 @@ describe("late & vacant units", () => {
 
 describe("accounting report", () => {
   it("quarter with comparison and KPIs", () => {
-    const r = accountingReport(idx, "2026-07", "2026-09", { propertyIds: [prop("الجابرية")], withComparison: true });
+    const r = accountingReport(idx, "2026-07", "2026-09", {
+      propertyIds: [prop("الجابرية")],
+      withComparison: true,
+    });
     expect(r.expectedFils).toBe(3 * 8_960_000);
     expect(r.closingArrearsFils).toBe(r.months.at(-1)!.arrearsFils);
     expect(r.openingArrearsFils).toBe(0);
@@ -119,7 +144,9 @@ describe("accounting report", () => {
     expect(r.vacancyLossFils).toBeGreaterThan(0);
     expect(r.grossPotentialFils).toBe(r.expectedFils + r.vacancyLossFils);
     expect(r.previous).toBeDefined();
-    expect(r.collectedCurrentFils + r.collectedArrearsFils + r.collectedAdvanceFils).toBe(r.collectedFils);
+    expect(r.collectedCurrentFils + r.collectedArrearsFils + r.collectedAdvanceFils).toBe(
+      r.collectedFils,
+    );
     expect(r.expensesByCategory[0]!.categoryName).toBe("راتب شهري");
   });
   it("free months are concessions (Al-Rai, Q4 2026)", () => {
@@ -128,7 +155,18 @@ describe("accounting report", () => {
     expect(r.concessionsFils).toBe(r.freeMonthsFils + r.discountsFils);
   });
   it("year report and commission", () => {
-    const withCommission = { ...ds, properties: ds.properties.map((p, i) => ({ ...p, commission: i === 0 ? { kind: "percent" as const, value: 5 } : i === 2 ? { kind: "fixed" as const, value: 10_000 } : null })) };
+    const withCommission = {
+      ...ds,
+      properties: ds.properties.map((p, i) => ({
+        ...p,
+        commission:
+          i === 0
+            ? { kind: "percent" as const, value: 5 }
+            : i === 2
+              ? { kind: "fixed" as const, value: 10_000 }
+              : null,
+      })),
+    };
     const r = accountingReport(withCommission, "2026-01", "2026-12");
     expect(r.commissionFils).toBeGreaterThan(0);
     expect(r.moveIns).toBeGreaterThan(0);
@@ -138,7 +176,9 @@ describe("accounting report", () => {
     const r = accountingReport(idx, "2026-01", "2026-12", { asOf: "2026-09-30" });
     const uncapped = accountingReport(idx, "2026-01", "2026-12");
     expect(r.closingArrearsFils).toBeLessThan(uncapped.closingArrearsFils);
-    expect(r.months.at(-1)!.arrearsFils).toBe(r.months.find((m) => m.period === "2026-09")!.arrearsFils);
+    expect(r.months.at(-1)!.arrearsFils).toBe(
+      r.months.find((m) => m.period === "2026-09")!.arrearsFils,
+    );
     expect(r.collectionRate).toBeLessThanOrEqual(1);
   });
   it("delta", () => {
@@ -153,7 +193,16 @@ describe("owner statement, expiring, grace, expenses, heatmap", () => {
     expect(s.rows).toHaveLength(3);
     expect(s.collectedFils).toBe(17_475_000 - 400_000);
     expect(s.balanceFils).toBe(s.netPayableFils - s.depositsFils);
-    const noShares = ownerStatement({ ...ds, propertyOwners: [] }, demo.owners[1]!.id, "2026-08", "2026-08");
+    // Aug 29 deposit split: Jabriya 8,697.375 + Salmiya 7,582.625 + Al-Rai 600 belong to owner A.
+    expect(s.depositsFils).toBe(8_697_375 + 7_582_625 + 600_000);
+    const sOwnerB = ownerStatement(idx, demo.owners[1]!.id, "2026-08", "2026-08");
+    expect(sOwnerB.depositsFils).toBe(400_000);
+    const noShares = ownerStatement(
+      { ...ds, propertyOwners: [] },
+      demo.owners[1]!.id,
+      "2026-08",
+      "2026-08",
+    );
     expect(noShares.collectedFils).toBe(400_000);
   });
   it("expiring in 45 days", () => {
@@ -168,10 +217,14 @@ describe("owner statement, expiring, grace, expenses, heatmap", () => {
     expect(upcomingFirstCollections(ds, "2026-09-30")).toHaveLength(0);
   });
   it("expense report groupings", () => {
-    expect(expenseReport(idx, "2026-08", "2026-08", "category").map((r) => r.amountFils)).toEqual([170_000, 20_250, 4_750]);
+    expect(expenseReport(idx, "2026-08", "2026-08", "category").map((r) => r.amountFils)).toEqual([
+      170_000, 20_250, 4_750,
+    ]);
     expect(expenseReport(idx, "2026-08", "2026-08", "property")[0]!.amountFils).toBe(192_625);
     expect(expenseReport(idx, "2026-08", "2026-08", "beneficiary")).toHaveLength(3);
-    expect(expenseReport(ds, "2026-01", "2026-12", "period", { propertyIds: [prop("السالمية")] })).toEqual([{ key: "2026-08", label: "2026-08", amountFils: 2_375, count: 1 }]);
+    expect(
+      expenseReport(ds, "2026-01", "2026-12", "period", { propertyIds: [prop("السالمية")] }),
+    ).toEqual([{ key: "2026-08", label: "2026-08", amountFils: 2_375, count: 1 }]);
   });
   it("heatmap statuses", () => {
     const rows = paymentHeatmap(idx, ["2026-07", "2026-08", "2026-09"], "2026-09-30");
@@ -181,7 +234,9 @@ describe("owner statement, expiring, grace, expenses, heatmap", () => {
     expect(vacant.cells.every((c) => c.status === "vacant")).toBe(true);
     const shop3 = rows.find((r) => r.propertyName.startsWith("الري") && r.label === "3")!;
     expect(shop3.cells.map((c) => c.status)).toEqual(["legal", "legal", "legal"]);
-    const sabah = paymentHeatmap(ds, ["2026-10", "2026-11"], "2026-09-30").find((r) => r.propertyName.startsWith("صباح") && r.label === "3")!;
+    const sabah = paymentHeatmap(ds, ["2026-10", "2026-11"], "2026-09-30").find(
+      (r) => r.propertyName.startsWith("صباح") && r.label === "3",
+    )!;
     expect(sabah.cells.map((c) => c.status)).toEqual(["advance", "advance"]);
   });
 });

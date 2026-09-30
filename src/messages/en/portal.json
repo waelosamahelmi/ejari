@@ -1,0 +1,20 @@
+{
+  "title": "Owner portal",
+  "welcome": "Hello, {name}",
+  "subtitle": "Your properties and monthly statements in one place.",
+  "properties": "My properties",
+  "statements": "Monthly statements",
+  "accounting": "Accounting report",
+  "deposits": "Deposits received",
+  "documents": "Documents",
+  "noProperties": "No properties are linked to your account yet.",
+  "open": "Open",
+  "invite": "Invite owner to the portal",
+  "invited": "Portal invitation sent to {email}",
+  "linked": "Linked to portal",
+  "needEmail": "Add the owner's email first.",
+  "portalHint": "The owner sees only their properties, statements and deposits (read-only).",
+  "ytdNet": "Net payable, year to date",
+  "ytdDeposits": "Remitted to you, year to date",
+  "ytdBalance": "Balance still due to you"
+}

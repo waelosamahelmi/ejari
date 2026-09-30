@@ -10,7 +10,7 @@ import { formatPeriod, isValidPeriod } from "@/domain/dates";
 export async function GET(req: NextRequest) {
   const ctx = await getSessionContext();
   if (!ctx) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  if (!can(ctx.role, "view_late_units")) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  if (!can(ctx.role, "view_late_units") && ctx.role !== "owner") return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const period = req.nextUrl.searchParams.get("period") ?? "";
   const property = req.nextUrl.searchParams.get("property") ?? "all";
   const lang = req.nextUrl.searchParams.get("lang") === "en" ? "en" : "ar";
