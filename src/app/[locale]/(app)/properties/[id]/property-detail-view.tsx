@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState, useTransition } from "react";
-import { ArrowUpToLine, ChevronRight, Layers3, MapPinned, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { ArrowUpToLine, ChevronRight, Layers3, MapPinned, Pencil, Plus, Printer, Trash2, Upload } from "lucide-react";
+import { StickyActionBar } from "@/components/ui/sticky-action-bar";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -59,6 +60,7 @@ export function PropertyDetailView({
   allOwners,
   canEdit,
   extraTabs,
+  period,
 }: {
   tab: string;
   property: PropertyDetail;
@@ -69,6 +71,7 @@ export function PropertyDetailView({
   allOwners: { id: string; fullName: string }[];
   canEdit: boolean;
   extraTabs?: { key: string; label: string; content: React.ReactNode; after: string }[];
+  period?: string;
 }) {
   const t = useTranslations("properties");
   const tc = useTranslations("common");
@@ -292,6 +295,18 @@ export function PropertyDetailView({
         </div>
       </div>
 
+      {period && (
+        <StickyActionBar
+          className="lg:hidden"
+          figure={t("collectedOf", { collected: money(summary.collectedFils, { showCurrency: false }), expected: money(summary.expectedFils) })}
+          caption={t("overview.thisMonth")}
+          action={
+            <Button asChild size="md">
+              <a href={`/print/statement/${p.id}/${period}?lang=${locale}`} target="_blank" rel="noreferrer"><Printer />{t("printStatement")}</a>
+            </Button>
+          }
+        />
+      )}
       <PropertyFormSheet
         open={editing}
         onOpenChange={setEditing}

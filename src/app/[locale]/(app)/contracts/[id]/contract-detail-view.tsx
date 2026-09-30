@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { BellRing, CalendarClock, Copy, FileCheck2, FileText, Flag, Printer, RefreshCw, TrendingUp, Upload, XOctagon } from "lucide-react";
+import { BadgePercent, BellRing, CalendarClock, Copy, FileCheck2, FileText, Flag, PlusCircle, Printer, RefreshCw, TrendingUp, Upload, XOctagon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -18,6 +18,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { MoneyInput } from "@/components/ui/money-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMoney } from "@/components/shell/prefs-context";
+import { AdjustmentSheet, ManualChargeSheet } from "@/components/domain/payments/adjustment-sheet";
 import { useAction } from "@/hooks/use-action";
 import {
   duplicateContract,
@@ -105,12 +106,15 @@ export function ContractDetailView({
   const t = useTranslations("contracts");
   const tc = useTranslations("common");
   const tEnum = useTranslations("enums");
+  const tp = useTranslations("payments");
   const locale = useLocale() as "ar" | "en";
   const money = useMoney();
   const router = useRouter();
   const { exec, pending } = useAction();
   const [sheet, setSheet] = useState<SheetKind>(null);
   const [confirmEnd, setConfirmEnd] = useState(false);
+  const [adjust, setAdjust] = useState(false);
+  const [manual, setManual] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const actions = canManage ? allowedActions(c.status) : [];
 
@@ -247,6 +251,8 @@ export function ContractDetailView({
               {actions.includes("revise_rent") && <ListRow leading={<IconTile tone="indigo"><TrendingUp /></IconTile>} title={t("actions.revise")} onClick={() => setSheet("revise")} chevron />}
               {actions.includes("renew") && <ListRow leading={<IconTile tone="teal"><RefreshCw /></IconTile>} title={t("actions.renew")} onClick={() => setSheet("renew")} chevron />}
               {actions.includes("end") && c.endDate <= today && <ListRow leading={<IconTile tone="gray"><Flag /></IconTile>} title={t("actions.end")} onClick={() => setConfirmEnd(true)} chevron />}
+              <ListRow leading={<IconTile tone="green"><BadgePercent /></IconTile>} title={tp("adjust.title")} onClick={() => setAdjust(true)} chevron />
+              <ListRow leading={<IconTile tone="orange"><PlusCircle /></IconTile>} title={tEnum("chargeKind.maintenance_recharge")} onClick={() => setManual(true)} chevron />
               <ListRow
                 leading={<IconTile tone="soft"><Copy /></IconTile>}
                 title={t("actions.duplicate")}
@@ -336,6 +342,8 @@ export function ContractDetailView({
         </div>
       </Sheet>
 
+      <AdjustmentSheet open={adjust} onOpenChange={setAdjust} contractId={c.id} />
+      <ManualChargeSheet open={manual} onOpenChange={setManual} contractId={c.id} />
       <AlertDialog
         open={confirmEnd}
         onOpenChange={setConfirmEnd}

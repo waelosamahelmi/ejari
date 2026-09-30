@@ -1,10 +1,100 @@
 {
-  "title": "الإشعارات", "markAllRead": "تحديد الكل كمقروء", "empty": "لا توجد إشعارات", "emptyText": "سنخبرك هنا بالدفعات الجديدة والمتأخرات والعقود القريبة من الانتهاء.",
-  "groups": { "today": "اليوم", "week": "هذا الأسبوع", "earlier": "سابقًا" }, "filters": { "all": "الكل", "payments": "الدفعات", "late": "المتأخرات", "contracts": "العقود", "other": "أخرى" },
-  "dismiss": "إخفاء", "unread": "غير مقروء", "open": "فتح",
+  "title": "الإشعارات",
+  "markAllRead": "تحديد الكل كمقروء",
+  "empty": "لا توجد إشعارات",
+  "emptyText": "سنخبرك هنا بالدفعات الجديدة والمتأخرات والعقود القريبة من الانتهاء.",
+  "groups": {
+    "today": "اليوم",
+    "week": "هذا الأسبوع",
+    "earlier": "سابقًا"
+  },
+  "filters": {
+    "all": "الكل",
+    "payments": "الدفعات",
+    "late": "المتأخرات",
+    "contracts": "العقود",
+    "other": "أخرى"
+  },
+  "dismiss": "إخفاء",
+  "unread": "غير مقروء",
+  "open": "فتح",
   "types": {
-    "payment_recorded": "دفعة جديدة", "offline_synced": "مزامنة الدفعات", "offline_review": "دفعة تحتاج مراجعة", "daily_digest": "ملخص اليوم", "tenant_late": "تأخر مستأجر",
-    "grace_ending": "انتهاء فترة السماح", "contract_expiring": "عقد قارب على الانتهاء", "notice_recorded": "إخطار بالإخلاء", "unit_vacant": "وحدة أصبحت خالية",
-    "hearing_tomorrow": "جلسة قضائية غدًا", "voucher_threshold": "سند صرف كبير", "month_end": "نهاية الشهر", "deposit_recorded": "إيداع جديد", "statement_ready": "الكشف الشهري جاهز", "test": "إشعار تجريبي"
+    "payment_recorded": "دفعة جديدة",
+    "offline_synced": "مزامنة الدفعات",
+    "offline_review": "دفعة تحتاج مراجعة",
+    "daily_digest": "ملخص اليوم",
+    "tenant_late": "تأخر مستأجر",
+    "grace_ending": "انتهاء فترة السماح",
+    "contract_expiring": "عقد قارب على الانتهاء",
+    "notice_recorded": "إخطار بالإخلاء",
+    "unit_vacant": "وحدة أصبحت خالية",
+    "hearing_tomorrow": "جلسة قضائية غدًا",
+    "voucher_threshold": "سند صرف كبير",
+    "month_end": "نهاية الشهر",
+    "deposit_recorded": "إيداع جديد",
+    "statement_ready": "الكشف الشهري جاهز",
+    "test": "إشعار تجريبي"
+  },
+  "templates": {
+    "payment_recorded": {
+      "title": "دفعة جديدة",
+      "body": "تم تحصيل {amount} د.ك — {property}، وحدة {unit}. بواسطة {collector}."
+    },
+    "offline_synced": {
+      "title": "تمت مزامنة الدفعات",
+      "body": "{count, plural, one {تمت مزامنة دفعة واحدة} two {تمت مزامنة دفعتين} few {تمت مزامنة # دفعات} many {تمت مزامنة # دفعة} other {تمت مزامنة # دفعة}} سُجلت دون اتصال."
+    },
+    "offline_review": {
+      "title": "دفعة تحتاج مراجعة",
+      "body": "دفعة {amount} د.ك لـ {tenant} لم تتم مزامنتها: {reason}"
+    },
+    "daily_digest": {
+      "title": "ملخص اليوم",
+      "body": "اليوم: {due} دفعات مستحقة، {late} وحدات متأخرة بإجمالي {amount} د.ك."
+    },
+    "tenant_late": {
+      "title": "تأخر في السداد",
+      "body": "{tenant} متأخر {days} يومًا بمبلغ {amount} د.ك — {property}، وحدة {unit}."
+    },
+    "grace_ending": {
+      "title": "انتهاء فترة السماح",
+      "body": "يبدأ تحصيل إيجار {tenant} في {date} — {property}، وحدة {unit}."
+    },
+    "contract_expiring": {
+      "title": "عقد قارب على الانتهاء",
+      "body": "عقد {tenant} ({contract}) ينتهي خلال {days} يومًا في {date}."
+    },
+    "notice_recorded": {
+      "title": "إخطار بالإخلاء",
+      "body": "{tenant} أخطر بالإخلاء — {property}، وحدة {unit}، الإخلاء المتوقع {date}."
+    },
+    "unit_vacant": {
+      "title": "وحدة أصبحت خالية",
+      "body": "الوحدة {unit} في {property} أصبحت خالية."
+    },
+    "hearing_tomorrow": {
+      "title": "جلسة قضائية غدًا",
+      "body": "جلسة القضية {case} للمستأجر {tenant} غدًا {date}."
+    },
+    "voucher_threshold": {
+      "title": "سند صرف كبير",
+      "body": "سند صرف {voucher} بمبلغ {amount} د.ك."
+    },
+    "month_end": {
+      "title": "نهاية الشهر",
+      "body": "حان إقفال شهر {month}. فرق النقدية: {amount} د.ك."
+    },
+    "deposit_recorded": {
+      "title": "إيداع جديد",
+      "body": "تم إيداع {amount} د.ك بتاريخ {date}."
+    },
+    "statement_ready": {
+      "title": "الكشف الشهري جاهز",
+      "body": "كشف {month} لعقار {property} جاهز للاطلاع."
+    },
+    "test": {
+      "title": "إشعار تجريبي",
+      "body": "الإشعارات تعمل على هذا الجهاز."
+    }
   }
 }

@@ -9,6 +9,8 @@ import { addPeriods, periodOf, periodRange, todayKuwait } from "@/domain/dates";
 import { lateUnits, monthlySummary } from "@/domain/reports";
 import { can } from "@/lib/permissions";
 import { PropertyDetailView } from "./property-detail-view";
+import { StatementEmbed } from "@/components/domain/properties/statement-embed";
+import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata({ params }: LocaleParams<{ id: string }>) {
   const { id } = await params;
@@ -42,6 +44,7 @@ export default async function PropertyPage({ params, searchParams }: LocaleParam
   const signed = await signPaths("media", [property.cover_image_path, ...photos.map((p) => p.path)]);
   const owners = [...data.owners.values()].sort((a, b) => a.fullName.localeCompare(b.fullName, "ar"));
   const commission = property.property_commissions?.[0] ?? null;
+  const tTabs = await getTranslations("properties.tabs");
   return (
     <PropertyDetailView
       tab={tab ?? "overview"}
@@ -74,6 +77,8 @@ export default async function PropertyPage({ params, searchParams }: LocaleParam
       lateCount={late.length}
       allOwners={owners}
       canEdit={can(ctx.role, "manage_master_data")}
+      period={period}
+      extraTabs={[{ key: "statement", label: tTabs("statement"), after: "units", content: <StatementEmbed propertyId={id} initialPeriod={period} canExport={can(ctx.role, "view_late_units")} /> }]}
     />
   );
 }

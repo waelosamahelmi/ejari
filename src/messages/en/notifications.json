@@ -1,10 +1,100 @@
 {
-  "title": "Notifications", "markAllRead": "Mark all read", "empty": "No notifications", "emptyText": "We'll let you know here about new payments, late rent and contracts ending soon.",
-  "groups": { "today": "Today", "week": "This week", "earlier": "Earlier" }, "filters": { "all": "All", "payments": "Payments", "late": "Late", "contracts": "Contracts", "other": "Other" },
-  "dismiss": "Dismiss", "unread": "Unread", "open": "Open",
+  "title": "Notifications",
+  "markAllRead": "Mark all read",
+  "empty": "No notifications",
+  "emptyText": "We'll let you know here about new payments, late rent and contracts ending soon.",
+  "groups": {
+    "today": "Today",
+    "week": "This week",
+    "earlier": "Earlier"
+  },
+  "filters": {
+    "all": "All",
+    "payments": "Payments",
+    "late": "Late",
+    "contracts": "Contracts",
+    "other": "Other"
+  },
+  "dismiss": "Dismiss",
+  "unread": "Unread",
+  "open": "Open",
   "types": {
-    "payment_recorded": "Payment recorded", "offline_synced": "Payments synced", "offline_review": "Payment needs review", "daily_digest": "Daily digest", "tenant_late": "Tenant late",
-    "grace_ending": "Grace period ending", "contract_expiring": "Contract expiring", "notice_recorded": "Notice to vacate", "unit_vacant": "Unit became vacant",
-    "hearing_tomorrow": "Hearing tomorrow", "voucher_threshold": "Large voucher", "month_end": "Month end", "deposit_recorded": "Deposit recorded", "statement_ready": "Statement ready", "test": "Test notification"
+    "payment_recorded": "Payment recorded",
+    "offline_synced": "Payments synced",
+    "offline_review": "Payment needs review",
+    "daily_digest": "Daily digest",
+    "tenant_late": "Tenant late",
+    "grace_ending": "Grace period ending",
+    "contract_expiring": "Contract expiring",
+    "notice_recorded": "Notice to vacate",
+    "unit_vacant": "Unit became vacant",
+    "hearing_tomorrow": "Hearing tomorrow",
+    "voucher_threshold": "Large voucher",
+    "month_end": "Month end",
+    "deposit_recorded": "Deposit recorded",
+    "statement_ready": "Statement ready",
+    "test": "Test notification"
+  },
+  "templates": {
+    "payment_recorded": {
+      "title": "Payment recorded",
+      "body": "{amount} KWD collected — {property}, unit {unit}. By {collector}."
+    },
+    "offline_synced": {
+      "title": "Payments synced",
+      "body": "{count, plural, one {# offline payment} other {# offline payments}} synced."
+    },
+    "offline_review": {
+      "title": "Payment needs review",
+      "body": "{amount} KWD from {tenant} didn't sync: {reason}"
+    },
+    "daily_digest": {
+      "title": "Today",
+      "body": "Today: {due} payments due, {late} units late totalling {amount} KWD."
+    },
+    "tenant_late": {
+      "title": "Late rent",
+      "body": "{tenant} is {days} days late with {amount} KWD — {property}, unit {unit}."
+    },
+    "grace_ending": {
+      "title": "Grace period ending",
+      "body": "Rent for {tenant} starts on {date} — {property}, unit {unit}."
+    },
+    "contract_expiring": {
+      "title": "Contract expiring",
+      "body": "{tenant}'s contract ({contract}) ends in {days} days on {date}."
+    },
+    "notice_recorded": {
+      "title": "Notice to vacate",
+      "body": "{tenant} gave notice — {property}, unit {unit}, expected move-out {date}."
+    },
+    "unit_vacant": {
+      "title": "Unit became vacant",
+      "body": "Unit {unit} at {property} is now vacant."
+    },
+    "hearing_tomorrow": {
+      "title": "Hearing tomorrow",
+      "body": "Case {case} ({tenant}) has a hearing tomorrow, {date}."
+    },
+    "voucher_threshold": {
+      "title": "Large voucher",
+      "body": "Voucher {voucher} for {amount} KWD."
+    },
+    "month_end": {
+      "title": "Month end",
+      "body": "Time to close {month}. Cash difference: {amount} KWD."
+    },
+    "deposit_recorded": {
+      "title": "Deposit recorded",
+      "body": "{amount} KWD deposited on {date}."
+    },
+    "statement_ready": {
+      "title": "Monthly statement ready",
+      "body": "The {month} statement for {property} is ready."
+    },
+    "test": {
+      "title": "Test notification",
+      "body": "Notifications work on this device."
+    }
   }
 }

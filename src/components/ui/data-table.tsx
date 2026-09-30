@@ -76,6 +76,7 @@ export function DataTable<T>({
   groupLabel,
 }: DataTableProps<T>) {
   const t = useTranslations("ui");
+  const tc = useTranslations("common.actions");
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
   const [visibility, setVisibility] = useState<VisibilityState>({});
   const [selection, setSelection] = useState<RowSelectionState>({});
@@ -102,7 +103,7 @@ export function DataTable<T>({
         cell: ({ row }) => (
           <input
             type="checkbox"
-            aria-label={t("selected", { count: 1 })}
+            aria-label={tc("select")}
             className="accent-[var(--brand-ink)] size-[18px]"
             checked={row.getIsSelected()}
             disabled={!row.getCanSelect()}
@@ -113,7 +114,7 @@ export function DataTable<T>({
       },
       ...columns,
     ];
-  }, [columns, selectable, t]);
+  }, [columns, selectable, t, tc]);
 
   const table = useReactTable({
     data,
@@ -173,8 +174,8 @@ export function DataTable<T>({
           <td
             key={cell.id}
             className={cn(
-              "px-3 align-middle text-[15px] first:ps-5 last:pe-5",
-              density === "compact" ? "h-11" : "h-14",
+              "align-middle first:ps-5 last:pe-5",
+              density === "compact" ? "h-11 px-2 text-[14px]" : "h-14 px-3 text-[15px]",
               alignClass(meta?.align, meta?.numeric),
               meta?.numeric && "num",
               meta?.className,
@@ -259,7 +260,8 @@ export function DataTable<T>({
                       aria-sort={sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined}
                       style={{ width: h.column.columnDef.size !== 150 ? h.column.columnDef.size : undefined }}
                       className={cn(
-                        "text-label-2 h-11 px-3 text-[13px] font-medium whitespace-nowrap first:ps-5 last:pe-5",
+                        "text-label-2 h-11 text-[13px] font-medium first:ps-5 last:pe-5",
+                        density === "compact" ? "px-2 leading-4" : "px-3 whitespace-nowrap",
                         alignClass(meta?.align, meta?.numeric),
                         meta?.headerClassName,
                       )}

@@ -8,6 +8,7 @@ import { balanceSummary, buildLedger } from "@/domain/ledger";
 import { maskCivilId, validateCivilId } from "@/domain/validation";
 import { can } from "@/lib/permissions";
 import { TenantDetailView } from "./tenant-detail-view";
+import { RecordPaymentButton, RemindButton } from "@/components/domain/payments/record-payment-button";
 
 export async function generateMetadata({ params }: LocaleParams<{ id: string }>) {
   const { id } = await params;
@@ -44,6 +45,8 @@ export default async function TenantPage({ params }: LocaleParams<{ id: string }
     { arrears: 0, credit: 0 },
   );
   const fullId = can(ctx.role, "manage_contracts");
+  const live = contracts.find((c) => c.status === "active" || c.status === "notice_given");
+  const lateContract = contracts.find((c) => balanceSummary(data.idx.ledger(c.id), today).arrearsFils > 0);
   return (
     <TenantDetailView
       tenant={{
@@ -76,6 +79,12 @@ export default async function TenantPage({ params }: LocaleParams<{ id: string }
       reminders={reminders ?? []}
       legal={legal ?? []}
       canEdit={can(ctx.role, "manage_master_data")}
+      reminderAction={
+        <div className="grid gap-2">
+          {live && can(ctx.role, "record_payment") && <RecordPaymentButton contractId={live.id} size="md" className="w-full" />}
+          {lateContract && can(ctx.role, "send_reminder") && <RemindButton contractId={lateContract.id} />}
+        </div>
+      }
     />
   );
 }

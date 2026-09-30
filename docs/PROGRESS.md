@@ -8,7 +8,7 @@ Resume rule: read this file first and continue from the first unchecked item.
 - [x] Phase 3 — Brand, design system & shell (Ejari brand, tokens, primitives, shell, auth, /dev/ui, /dev/brand)
 - [x] Phase 4 — Master data (owners, properties + Building Stack, bulk units, units, tenants, categories, beneficiaries, documents, photos)
 - [x] Phase 5 — Contracts (wizard, lifecycle, print; e2e wizard→activate→print green)
-- [ ] Phase 6 — Billing & collections
+- [x] Phase 6 — Billing & collections (Jabriya Aug statement verified on screen + print; e2e green)
 - [ ] Phase 7 — Expenses & deposits
 - [ ] Phase 8 — Dashboard
 - [ ] Phase 9 — Reports

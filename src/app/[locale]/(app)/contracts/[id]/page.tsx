@@ -9,6 +9,7 @@ import { balanceSummary, chargeStates, periodStatus } from "@/domain/ledger";
 import { earlyExitPenalty } from "@/domain/contracts";
 import { can } from "@/lib/permissions";
 import { ContractDetailView } from "./contract-detail-view";
+import { RecordPaymentButton } from "@/components/domain/payments/record-payment-button";
 
 export async function generateMetadata({ params }: LocaleParams<{ id: string }>) {
   const { id } = await params;
@@ -98,6 +99,7 @@ export default async function ContractPage({ params }: LocaleParams<{ id: string
       payments={payments}
       canManage={can(ctx.role, "manage_contracts")}
       canPay={can(ctx.role, "record_payment")}
+      paymentAction={can(ctx.role, "record_payment") && (c.status === "active" || c.status === "notice_given" || bal.arrearsFils > 0) ? <RecordPaymentButton contractId={c.id} size="md" /> : undefined}
     />
   );
 }

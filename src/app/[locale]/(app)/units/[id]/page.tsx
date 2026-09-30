@@ -10,6 +10,7 @@ import { balanceSummary } from "@/domain/ledger";
 import { paymentHeatmap, vacantUnits } from "@/domain/reports";
 import { can } from "@/lib/permissions";
 import { UnitDetailView } from "./unit-detail-view";
+import { RecordPaymentButton } from "@/components/domain/payments/record-payment-button";
 
 export async function generateMetadata({ params }: LocaleParams<{ id: string }>) {
   const { id } = await params;
@@ -89,6 +90,7 @@ export default async function UnitPage({ params }: LocaleParams<{ id: string }>)
       canEdit={can(ctx.role, "manage_master_data")}
       canContract={can(ctx.role, "manage_contracts")}
       canPay={can(ctx.role, "record_payment")}
+      paymentAction={current && can(ctx.role, "record_payment") ? <RecordPaymentButton contractId={current.id} variant="rose" /> : undefined}
     />
   );
 }
