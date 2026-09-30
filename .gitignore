@@ -1,0 +1,16 @@
+node_modules
+.next
+out
+coverage
+.env
+.env.local
+*.tsbuildinfo
+next-env.d.ts
+test-results
+playwright-report
+supabase/.temp
+supabase/.branches
+public/sw.js
+public/sw.js.map
+public/swe-worker*
+.DS_Store

@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+:root {
+  font-family: var(--font-latin), var(--font-arabic), system-ui, sans-serif;
+}
+:lang(ar) {
+  font-family: var(--font-arabic), var(--font-latin), system-ui, sans-serif;
+}
