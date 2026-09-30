@@ -520,14 +520,15 @@ export function buildDemoData(): DemoData {
   };
 
   const contracts: DemoContract[] = [];
-  const seq = { residential: 0, investment: 0 } as Record<ContractType, number>;
+  const seq = new Map<string, number>();
   const newContract = (c: Omit<DemoContract, "id" | "contractNo" | "endDate" | "clauseOverrides"> & { clauseOverrides?: DemoContract["clauseOverrides"] }) => {
-    seq[c.type] += 1;
     const year = Number(c.contractDate.slice(0, 4));
+    const seqKey = `${c.type}-${year}`;
+    seq.set(seqKey, (seq.get(seqKey) ?? 0) + 1);
     const contract: DemoContract = {
       ...c,
       id: demoId("contract"),
-      contractNo: `${c.type === "residential" ? "R" : "I"}-${year}-${String(seq[c.type]).padStart(4, "0")}`,
+      contractNo: `${c.type === "residential" ? "R" : "I"}-${year}-${String(seq.get(seqKey)).padStart(4, "0")}`,
       endDate: contractEndDate(c.startDate, c.termMonths),
       clauseOverrides: c.clauseOverrides ?? {},
     };
@@ -688,6 +689,7 @@ export function buildDemoData(): DemoData {
   const payments: DemoPayment[] = [];
   const allocations: Allocation[] = [];
   let systemSeq = 0;
+  const systemSeqByYear = new Map<string, number>();
   const methods: PaymentMethod[] = ["cash", "cash", "knet", "bank_transfer", "cash", "cheque", "link"];
   const pay = (c: DemoContract, amount: Fils, date: ISODate) => {
     if (amount <= 0) return;
@@ -701,6 +703,8 @@ export function buildDemoData(): DemoData {
     const id = demoId("payment");
     const result = allocateFIFO(amount, open);
     systemSeq += 1;
+    const y = date.slice(0, 4);
+    systemSeqByYear.set(y, (systemSeqByYear.get(y) ?? 0) + 1);
     payments.push({
       id,
       contractId: c.id,
@@ -708,7 +712,7 @@ export function buildDemoData(): DemoData {
       amountFils: amount,
       receivedAt: date,
       receiptNo: receiptNo(),
-      systemNo: `RC-${date.slice(0, 4)}-${String(systemSeq).padStart(5, "0")}`,
+      systemNo: `RC-${y}-${String(systemSeqByYear.get(y)).padStart(5, "0")}`,
       method: methods[systemSeq % methods.length]!,
       collectedBy: collectorId,
       voided: false,
