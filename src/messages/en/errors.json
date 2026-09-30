@@ -36,7 +36,8 @@
     "tooLong": "Too long.",
     "minPassword": "At least 8 characters.",
     "invalidIban": "Invalid IBAN (starts with KW).",
-    "shares100": "Owner shares must add up to 100%."
+    "shares100": "Owner shares must add up to 100%.",
+    "firstCollectionBeforeStart": "First collection must be on or after the start date."
   },
   "invalid_credentials": "Email or password is incorrect.",
   "rate_limited": "Too many attempts. Wait a minute and try again.",

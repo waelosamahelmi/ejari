@@ -2,7 +2,7 @@
  * Message catalogs are split per namespace (src/messages/<locale>/<ns>.json)
  * and merged here. Add a namespace to NAMESPACES and create both files.
  */
-export const NAMESPACES = ["common", "nav", "auth", "onboarding", "errors", "enums", "ui", "notifications", "properties", "units", "tenants", "owners", "catalog", "documents"] as const;
+export const NAMESPACES = ["common", "nav", "auth", "onboarding", "errors", "enums", "ui", "notifications", "properties", "units", "tenants", "owners", "catalog", "documents", "contracts"] as const;
 
 export type Locale = "ar" | "en";
 
@@ -27,6 +27,7 @@ import type tenants from "./ar/tenants.json";
 import type owners from "./ar/owners.json";
 import type catalog from "./ar/catalog.json";
 import type documents from "./ar/documents.json";
+import type contracts from "./ar/contracts.json";
 
 export interface Messages {
   common: typeof common;
@@ -43,4 +44,5 @@ export interface Messages {
   owners: typeof owners;
   catalog: typeof catalog;
   documents: typeof documents;
+  contracts: typeof contracts;
 }

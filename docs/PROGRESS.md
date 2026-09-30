@@ -7,7 +7,7 @@ Resume rule: read this file first and continue from the first unchecked item.
 - [x] Phase 2 — Database (migrations, RLS, seed, types; RLS suite: `pnpm test:rls`)
 - [x] Phase 3 — Brand, design system & shell (Ejari brand, tokens, primitives, shell, auth, /dev/ui, /dev/brand)
 - [x] Phase 4 — Master data (owners, properties + Building Stack, bulk units, units, tenants, categories, beneficiaries, documents, photos)
-- [ ] Phase 5 — Contracts
+- [x] Phase 5 — Contracts (wizard, lifecycle, print; e2e wizard→activate→print green)
 - [ ] Phase 6 — Billing & collections
 - [ ] Phase 7 — Expenses & deposits
 - [ ] Phase 8 — Dashboard
