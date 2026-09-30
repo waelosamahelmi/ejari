@@ -26,8 +26,12 @@ export async function buildWorkbook(sheets: SheetSpec[], meta: { creator: string
   const wb = new ExcelJS.Workbook();
   wb.creator = meta.creator;
   wb.created = new Date();
+  const used = new Set<string>();
   for (const s of sheets) {
-    const ws = wb.addWorksheet(s.name.slice(0, 31).replace(/[\\/?*[\]:]/g, " "), { views: [{ rightToLeft: s.rtl ?? true, state: "frozen", ySplit: s.title ? 3 : 1 }] });
+    let name = s.name.replace(/[\\/?*[\]:]/g, " ").slice(0, 28).trim() || "Sheet";
+    for (let n = 2; used.has(name.toLowerCase()); n++) name = `${name.slice(0, 25)} (${n})`;
+    used.add(name.toLowerCase());
+    const ws = wb.addWorksheet(name, { views: [{ rightToLeft: s.rtl ?? true, state: "frozen", ySplit: s.title ? 3 : 1 }] });
     let headerRow = 1;
     if (s.title) {
       ws.mergeCells(1, 1, 1, s.columns.length);

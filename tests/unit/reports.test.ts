@@ -134,6 +134,13 @@ describe("accounting report", () => {
     expect(r.moveIns).toBeGreaterThan(0);
     expect(r.avgDaysLate).toBeGreaterThanOrEqual(0);
   });
+  it("asOf caps arrears for future months", () => {
+    const r = accountingReport(idx, "2026-01", "2026-12", { asOf: "2026-09-30" });
+    const uncapped = accountingReport(idx, "2026-01", "2026-12");
+    expect(r.closingArrearsFils).toBeLessThan(uncapped.closingArrearsFils);
+    expect(r.months.at(-1)!.arrearsFils).toBe(r.months.find((m) => m.period === "2026-09")!.arrearsFils);
+    expect(r.collectionRate).toBeLessThanOrEqual(1);
+  });
   it("delta", () => {
     expect(delta(110, 100)).toEqual({ delta: 10, pct: 0.1 });
     expect(delta(5, 0)).toEqual({ delta: 5, pct: null });

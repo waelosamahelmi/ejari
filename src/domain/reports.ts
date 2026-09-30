@@ -651,14 +651,17 @@ export function accountingReport(
   ds: Dataset | Index,
   from: Period,
   to: Period,
-  opts: { propertyIds?: readonly string[]; withComparison?: boolean } = {},
+  opts: { propertyIds?: readonly string[]; withComparison?: boolean; asOf?: ISODate } = {},
 ): AccountingReport & { previous?: AccountingReport } {
   const idx = ds instanceof Index ? ds : new Index(ds);
   const propIds = new Set(opts.propertyIds ?? idx.ds.properties.map((p) => p.id));
   const fromD = periodStart(from);
   const toD = periodEnd(to);
+  /** Arrears/collection-rate never look past "today" (future months have nothing overdue yet). */
+  const cap = (d: ISODate) => (opts.asOf && d > opts.asOf ? opts.asOf : d);
   const periods = periodRange(from, to);
   const contracts = idx.ds.contracts.filter((c) => propIds.has(c.propertyId) && c.status !== "draft");
+  let expectedDue = 0;
   const units = idx.ds.units.filter((u) => propIds.has(u.propertyId) && u.active);
 
   let gross = 0;
@@ -707,7 +710,11 @@ export function accountingReport(
         }
         collAdvance += Math.max(0, pm.amountFils - allocated);
       }
-      mArrears += arrearsAsOf(l, pE);
+      mArrears += arrearsAsOf(l, cap(pE));
+      expectedDue += sumBy(
+        pCharges.filter((ch) => ch.dueDate <= cap(pE)),
+        (ch) => ch.amountFils,
+      );
     }
     for (const u of units) {
       if (occupiedUnits.has(u.id)) continue;
@@ -740,7 +747,7 @@ export function accountingReport(
     (a) => a.amountFils,
   );
   const opening = sumBy(contracts, (c) => arrearsAsOf(idx.ledger(c.id), addDays(fromD, -1)));
-  const closing = sumBy(contracts, (c) => arrearsAsOf(idx.ledger(c.id), toD));
+  const closing = sumBy(contracts, (c) => arrearsAsOf(idx.ledger(c.id), cap(toD)));
   const expAllocs = idx.ds.expenseAllocations.filter((e) => propIds.has(e.propertyId) && inRange(e.voucherDate, fromD, toD));
   const byCat = new Map<string, { categoryId: string; categoryName: string; amountFils: Fils }>();
   for (const e of expAllocs) {
@@ -816,7 +823,7 @@ export function accountingReport(
     noiFils: collected - expenses - commission,
     depositsFils: deposits,
     occupancyRate: availDays > 0 ? occDays / availDays : 0,
-    collectionRate: expected > 0 ? collected / expected : 0,
+    collectionRate: expectedDue > 0 ? Math.min(1, collected / expectedDue) : 0,
     avgDaysLate: lateness.length ? lateness.reduce((a, b) => a + b, 0) / lateness.length : 0,
     moveIns,
     moveOuts,
@@ -824,7 +831,7 @@ export function accountingReport(
   };
   if (opts.withComparison) {
     const prev = previousRange(from, to);
-    report.previous = accountingReport(idx, prev.from, prev.to, { propertyIds: opts.propertyIds });
+    report.previous = accountingReport(idx, prev.from, prev.to, { propertyIds: opts.propertyIds, asOf: opts.asOf });
   }
   return report;
 }

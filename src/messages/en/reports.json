@@ -1,0 +1,32 @@
+{
+  "title": "Reports", "subtitle": "Every report shows on screen, prints and exports to Excel.",
+  "types": {
+    "statement": { "title": "Monthly property statement", "desc": "Revenue and arrears per unit, like the paper statement." },
+    "summary": { "title": "Monthly summary", "desc": "Collected, deposits and expenses across properties, reconciled." },
+    "late": { "title": "Late units", "desc": "Every overdue contract with aging and legal status." },
+    "vacant": { "title": "Vacant units", "desc": "How long each unit has been vacant and the rent lost." },
+    "accounting": { "title": "Accounting report", "desc": "Gross potential rent, losses, concessions, NOI and KPIs." },
+    "owner": { "title": "Owner statement", "desc": "The owner's share of collections, expenses, commission and deposits." },
+    "ledger": { "title": "Tenant ledger", "desc": "Every charge, payment and adjustment with a running balance." },
+    "expiring": { "title": "Expiring contracts", "desc": "Contracts ending in the next 30, 60 or 90 days." },
+    "expenses": { "title": "Expense report", "desc": "By category, property, beneficiary or month." },
+    "grace": { "title": "First collections", "desc": "Contracts whose rent starts within 60 days." }
+  },
+  "params": { "period": "Period", "from": "From", "to": "To", "asOf": "As of", "property": "Property", "owner": "Owner", "tenant": "Tenant", "chooseTenant": "Choose tenant", "within": "Within", "groupBy": "Group by", "all": "All", "compare": "Compare with previous period", "days": "{n} days" },
+  "presets": { "this_month": "This month", "last_month": "Last month", "this_quarter": "This quarter", "last_quarter": "Last quarter", "h1": "H1", "h2": "H2", "this_year": "This year", "last_year": "Last year", "custom": "Custom" },
+  "groupBy": { "category": "Category", "property": "Property", "beneficiary": "Beneficiary", "period": "Month" },
+  "cols": {
+    "property": "Property", "unit": "Unit", "tenant": "Tenant", "phones": "Phone", "months": "Months overdue", "amount": "Amount", "oldest": "Oldest due", "days": "Days late", "lastPayment": "Last payment", "legal": "Legal", "bucket": "Aging",
+    "type": "Type", "floor": "Floor", "area": "Area", "asking": "Asking rent", "since": "Vacant since", "daysVacant": "Days vacant", "lost": "Rent lost",
+    "period": "Month", "expected": "Expected", "collected": "Collected", "arrears": "Arrears", "expenses": "Expenses", "occupancy": "Occupancy", "share": "Share", "commission": "Commission", "net": "Net",
+    "date": "Date", "description": "Description", "debit": "Debit", "credit": "Credit", "balance": "Balance", "contract": "Contract", "endDate": "End date", "daysLeft": "Days left", "autoRenew": "Auto-renew", "notice": "Notice",
+    "label": "Item", "count": "Count", "start": "Start", "firstCollection": "First collection", "until": "In (days)", "rent": "Rent"
+  },
+  "kpi": {
+    "gross": "Gross potential rent", "vacancyLoss": "Vacancy loss", "concessions": "Concessions (free months & discounts)", "expected": "Rent due", "collected": "Collected", "collectedCurrent": "For the period", "collectedArrears": "Arrears recovered", "collectedAdvance": "Advances",
+    "openingArrears": "Opening arrears", "closingArrears": "Closing arrears", "expenses": "Expenses", "commission": "Management commission", "noi": "Net operating income", "deposits": "Deposits / remittances",
+    "occupancy": "Occupancy", "collectionRate": "Collection rate", "avgDaysLate": "Average days late", "turnover": "Move-ins / outs", "delta": "Change", "netPayable": "Net payable to owner", "ownerBalance": "Balance", "lateCount": "Late units", "total": "Total", "vacantCount": "Vacant units", "lostTotal": "Total lost"
+  },
+  "sections": { "months": "By month", "byCategory": "Expenses by category", "byProperty": "By property", "chart": "Collected vs arrears" },
+  "yes": "Yes", "no": "No", "empty": "No data for these filters.", "generatedAt": "Generated {date}", "vacantFilter": "Asking rent range"
+}

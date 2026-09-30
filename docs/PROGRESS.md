@@ -11,7 +11,7 @@ Resume rule: read this file first and continue from the first unchecked item.
 - [x] Phase 6 — Billing & collections (Jabriya Aug statement verified on screen + print; e2e green)
 - [x] Phase 7 — Expenses & deposits (voucher 195.000 print verified; cover 17,475/17,280/195/0 verified; e2e green)
 - [x] Phase 8 — Dashboard (13 widgets, filters, reorder/hide persisted, skeletons)
-- [ ] Phase 9 — Reports
+- [x] Phase 9 — Reports (10 reports: screen + print + Excel; e2e green)
 - [ ] Phase 10 — Legal, owner portal, settings, audit
 - [ ] Phase 11 — PWA, offline & notifications
 - [ ] Phase 12 — Polish & QA

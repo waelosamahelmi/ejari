@@ -58,7 +58,7 @@ export async function dashboardData(ctx: SessionContext, f: DashboardFilters, to
   const late = lateUnits(idx, asOf, scope);
   const lt = lateTotals(late);
   const trendPeriods = periodRange(addPeriods(f.period, -11), f.period);
-  const acc = accountingReport(idx, trendPeriods[0]!, f.period, scope);
+  const acc = accountingReport(idx, trendPeriods[0]!, f.period, { ...scope, asOf: today });
   const finance = can(ctx.role, "view_expenses");
   const db = await supabaseServer();
 

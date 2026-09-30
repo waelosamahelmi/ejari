@@ -42,3 +42,6 @@
 | 2026-09-30 | Posted vouchers are immutable (void with reason); drafts are editable/deletable. Recurring templates generate draft vouchers ("Generate this month's vouchers") and remember the last generated month. | Audit-safe expenses. |
 | 2026-09-30 | Dashboard customization uses a "Customize" sheet (move up/down + show/hide toggles, persisted in `user_settings.dashboard_layout`) instead of free drag in the bento grid. | Accessible on touch, keyboard and screen readers; bento keeps a dense, gap-free packing. |
 | 2026-09-30 | Charts in RTL keep time flowing right→left (newest month on the left): recharts X axis is reversed for Arabic. | §18.7. |
+| 2026-09-30 | Every report is built once as a `ReportSpec` (KPIs + sections + optional chart) by `src/server/reports/build.ts`; the screen, the print route (`/print/report/[type]`) and the Excel route (`/api/export/report/[type]`) all render that spec. Grouped reports (late, vacant) export one sheet per property. | One source of truth for all three outputs. |
+| 2026-09-30 | Accounting report KPIs are "as of today": arrears and collection rate ignore charges not yet due (future months of the selected range). | Avoids counting future rent as overdue. |
+| 2026-09-30 | Collectors see only the Late-units report (§7.1). | Role limits. |
