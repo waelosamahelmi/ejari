@@ -12,7 +12,9 @@ export default async function MorePage({ params }: LocaleParams) {
   const ctx = await requireContext(locale);
   const t = await getTranslations("nav");
   const items = navFor(ctx.role);
-  const sections = (["work", "finance", "records", "admin"] as const).map((s) => ({ s, items: items.filter((i) => i.section === s) })).filter((x) => x.items.length);
+  const sections = (["work", "finance", "records", "admin"] as const)
+    .map((s) => ({ s, items: items.filter((i) => i.section === s) }))
+    .filter((x) => x.items.length);
   return (
     <>
       <LargeTitleHeader title={t("more")} />
@@ -21,7 +23,20 @@ export default async function MorePage({ params }: LocaleParams) {
           <GroupedSection key={s} header={t(`sections.${s}`)}>
             {items.map((n) => {
               const Icon = n.icon;
-              return <ListRow key={n.key} LinkComponent={Link} href={n.href} leading={<IconTile tone={n.tone}><Icon /></IconTile>} title={t(n.key)} chevron />;
+              return (
+                <ListRow
+                  key={n.key}
+                  LinkComponent={Link}
+                  href={n.href}
+                  leading={
+                    <IconTile tone={n.tone}>
+                      <Icon />
+                    </IconTile>
+                  }
+                  title={t(n.key)}
+                  chevron
+                />
+              );
             })}
           </GroupedSection>
         ))}

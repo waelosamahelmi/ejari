@@ -21,9 +21,24 @@ import { gentle } from "@/lib/motion";
 
 type Row = PropertySummary & { coverUrl: string | null; blur?: string };
 
-const TYPE_ICON = { residential: Home, investment: Store, mixed: Layers, industrial: Factory } as const;
+const TYPE_ICON = {
+  residential: Home,
+  investment: Store,
+  mixed: Layers,
+  industrial: Factory,
+} as const;
 
-export function PropertiesView({ properties, owners, pinned: initialPinned, canEdit }: { properties: Row[]; owners: { id: string; fullName: string }[]; pinned: string[]; canEdit: boolean }) {
+export function PropertiesView({
+  properties,
+  owners,
+  pinned: initialPinned,
+  canEdit,
+}: {
+  properties: Row[];
+  owners: { id: string; fullName: string }[];
+  pinned: string[];
+  canEdit: boolean;
+}) {
   const t = useTranslations("properties");
   const tEnum = useTranslations("enums.propertyType");
   const tA11y = useTranslations("common.a11y");
@@ -43,8 +58,17 @@ export function PropertiesView({ properties, owners, pinned: initialPinned, canE
       .filter((p) => p.active)
       .filter((p) => type === "all" || p.propertyType === type)
       .filter((p) => owner === "all" || p.ownerIds.includes(owner))
-      .filter((p) => !s || [p.name, p.nameEn ?? "", p.area ?? "", ...p.ownerNames].some((x) => x.toLowerCase().includes(s)))
-      .sort((a, b) => Number(pinned.has(b.id)) - Number(pinned.has(a.id)) || a.name.localeCompare(b.name, "ar"));
+      .filter(
+        (p) =>
+          !s ||
+          [p.name, p.nameEn ?? "", p.area ?? "", ...p.ownerNames].some((x) =>
+            x.toLowerCase().includes(s),
+          ),
+      )
+      .sort(
+        (a, b) =>
+          Number(pinned.has(b.id)) - Number(pinned.has(a.id)) || a.name.localeCompare(b.name, "ar"),
+      );
   }, [properties, q, type, owner, pinned]);
 
   const togglePin = (id: string) => {
@@ -76,20 +100,35 @@ export function PropertiesView({ properties, owners, pinned: initialPinned, canE
         }
       >
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
-          <SearchField className="flex-1" value={q} onValueChange={setQ} placeholder={t("search")} />
+          <SearchField
+            className="flex-1"
+            value={q}
+            onValueChange={setQ}
+            placeholder={t("search")}
+          />
           {owners.length > 1 && (
             <div className="md:w-64">
-              <Select aria-label={t("filters.owner")} value={owner} onChange={(e) => setOwner(e.target.value)}>
-                <option value="all">{t("filters.owner")}: {t("filters.all")}</option>
+              <Select
+                aria-label={t("filters.owner")}
+                value={owner}
+                onChange={(e) => setOwner(e.target.value)}
+              >
+                <option value="all">
+                  {t("filters.owner")}: {t("filters.all")}
+                </option>
                 {owners.map((o) => (
-                  <option key={o.id} value={o.id}>{o.fullName}</option>
+                  <option key={o.id} value={o.id}>
+                    {o.fullName}
+                  </option>
                 ))}
               </Select>
             </div>
           )}
         </div>
         <ChipScroller className="mt-3" ariaLabel={t("filters.type")}>
-          <IconChip icon={<Building2 />} active={type === "all"} onClick={() => setType("all")}>{t("filters.all")}</IconChip>
+          <IconChip icon={<Building2 />} active={type === "all"} onClick={() => setType("all")}>
+            {t("filters.all")}
+          </IconChip>
           {(["residential", "investment", "mixed", "industrial"] as const).map((k) => {
             const I = TYPE_ICON[k];
             return (
@@ -106,7 +145,14 @@ export function PropertiesView({ properties, owners, pinned: initialPinned, canE
           illustration={<NoPropertiesIllustration />}
           title={t("empty")}
           description={t("emptyText")}
-          action={canEdit ? <Button size="lg" onClick={() => setCreating(true)}><Plus />{t("new")}</Button> : undefined}
+          action={
+            canEdit ? (
+              <Button size="lg" onClick={() => setCreating(true)}>
+                <Plus />
+                {t("new")}
+              </Button>
+            ) : undefined
+          }
         />
       ) : filtered.length === 0 ? (
         <EmptyState illustration={<NoResultsIllustration />} title={t("noResults")} compact />
@@ -129,8 +175,20 @@ export function PropertiesView({ properties, owners, pinned: initialPinned, canE
                   <>
                     <GlassPill>{t("pills.units", { count: p.unitsCount })}</GlassPill>
                     <GlassPill>{t("pills.occupancy", { pct: pct(p.occupancyRate) })}</GlassPill>
-                    {p.expectedFils > 0 && <GlassPill><bdi className="num">{money(p.collectedFils, { showCurrency: false })}</bdi> / <bdi className="num">{money(p.expectedFils, { compact: p.expectedFils >= 10_000_000 })}</bdi></GlassPill>}
-                    {p.arrearsFils > 0 && <GlassPill tone="danger">{t("pills.arrears", { amount: money(p.arrearsFils) })}</GlassPill>}
+                    {p.expectedFils > 0 && (
+                      <GlassPill>
+                        <bdi className="num">{money(p.collectedFils, { showCurrency: false })}</bdi>{" "}
+                        /{" "}
+                        <bdi className="num">
+                          {money(p.expectedFils, { compact: p.expectedFils >= 10_000_000 })}
+                        </bdi>
+                      </GlassPill>
+                    )}
+                    {p.arrearsFils > 0 && (
+                      <GlassPill tone="danger">
+                        {t("pills.arrears", { amount: money(p.arrearsFils) })}
+                      </GlassPill>
+                    )}
                   </>
                 }
               />
@@ -139,7 +197,12 @@ export function PropertiesView({ properties, owners, pinned: initialPinned, canE
         </motion.ul>
       )}
       {canEdit && (
-        <Button onClick={() => setCreating(true)} size="icon" aria-label={t("new")} className="fixed end-5 bottom-[calc(96px+var(--safe-bottom))] z-30 size-14 shadow-[var(--sh-float)] sm:hidden">
+        <Button
+          onClick={() => setCreating(true)}
+          size="icon"
+          aria-label={t("new")}
+          className="fixed end-5 bottom-[calc(96px+var(--safe-bottom))] z-30 size-14 shadow-[var(--sh-float)] sm:hidden"
+        >
           <Plus className="!size-6" />
         </Button>
       )}

@@ -15,7 +15,9 @@ export function LoginForm({ showDemo }: { showDemo: boolean }) {
   const params = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(params.get("error") === "link" ? tErr("link") : null);
+  const [error, setError] = useState<string | null>(
+    params.get("error") === "link" ? tErr("link") : null,
+  );
   const [info, setInfo] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const [magicPending, startMagic] = useTransition();
@@ -30,7 +32,10 @@ export function LoginForm({ showDemo }: { showDemo: boolean }) {
         return;
       }
       const next = params.get("next");
-      window.location.href = next && next.startsWith(`/${locale}/`) ? next : `/${locale}/${r.data.role === "owner" ? "owner" : "dashboard"}`;
+      window.location.href =
+        next && next.startsWith(`/${locale}/`)
+          ? next
+          : `/${locale}/${r.data.role === "owner" ? "owner" : "dashboard"}`;
     });
   };
   const magic = () => {
@@ -49,7 +54,17 @@ export function LoginForm({ showDemo }: { showDemo: boolean }) {
         <p className="text-label-2 mt-1 text-[15px]">{t("subtitle")}</p>
       </div>
       <Field label={t("email")} htmlFor="email">
-        <Input id="email" type="email" inputMode="email" autoComplete="email" dir="ltr" required autoFocus value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Input
+          id="email"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          dir="ltr"
+          required
+          autoFocus
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </Field>
       <Field
         label={t("password")}
@@ -60,7 +75,15 @@ export function LoginForm({ showDemo }: { showDemo: boolean }) {
           </Link>
         }
       >
-        <Input id="password" type="password" autoComplete="current-password" dir="ltr" required value={password} onChange={(e) => setPassword(e.target.value)} />
+        <Input
+          id="password"
+          type="password"
+          autoComplete="current-password"
+          dir="ltr"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
       </Field>
       {error && (
         <p role="alert" className="bg-red/10 text-red-text rounded-[14px] px-4 py-3 text-[14px]">
@@ -68,7 +91,10 @@ export function LoginForm({ showDemo }: { showDemo: boolean }) {
         </p>
       )}
       {info && (
-        <p role="status" className="bg-green/12 text-green-text rounded-[14px] px-4 py-3 text-[14px]">
+        <p
+          role="status"
+          className="bg-green/12 text-green-text rounded-[14px] px-4 py-3 text-[14px]"
+        >
           {info}
         </p>
       )}
@@ -80,7 +106,14 @@ export function LoginForm({ showDemo }: { showDemo: boolean }) {
         {t("or")}
         <span className="bg-separator h-px flex-1" />
       </div>
-      <Button variant="secondary" size="lg" block onClick={magic} loading={magicPending} disabled={!email}>
+      <Button
+        variant="secondary"
+        size="lg"
+        block
+        onClick={magic}
+        loading={magicPending}
+        disabled={!email}
+      >
         <Mail />
         {t("magicLink")}
       </Button>

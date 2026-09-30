@@ -29,7 +29,10 @@ export function propertySummaries(d: OrgData, period: Period, today: ISODate): P
     const meta = d.properties.get(p.id)!;
     const row = summary.rows.find((r) => r.propertyId === p.id);
     const occ = occupancySnapshot(d.idx, today, { propertyIds: [p.id] });
-    const arrears = (d.idx.contractsByProperty.get(p.id) ?? []).reduce((a, c) => a + arrearsAsOf(d.idx.ledger(c.id), today), 0);
+    const arrears = (d.idx.contractsByProperty.get(p.id) ?? []).reduce(
+      (a, c) => a + arrearsAsOf(d.idx.ledger(c.id), today),
+      0,
+    );
     return {
       id: p.id,
       name: p.name,
@@ -65,7 +68,12 @@ export interface StackUnit {
 }
 
 /** Building Stack data: each active unit with derived status for today and this month's payment status. */
-export function buildingStack(d: OrgData, propertyId: string, period: Period, today: ISODate): StackUnit[] {
+export function buildingStack(
+  d: OrgData,
+  propertyId: string,
+  period: Period,
+  today: ISODate,
+): StackUnit[] {
   const units = (d.idx.unitsByProperty.get(propertyId) ?? []).filter((u) => u.active);
   const contracts = d.idx.contractsByProperty.get(propertyId) ?? [];
   return units.map((u) => {
@@ -74,7 +82,14 @@ export function buildingStack(d: OrgData, propertyId: string, period: Period, to
       today,
       cs.map((c) => ({ ...c, hasOpenLegalCase: d.idx.legalStatus(c.id) !== "none" })),
     );
-    const current = cs.find((c) => (c.status === "active" || c.status === "notice_given") && c.startDate <= today && today <= (c.moveOutDate ?? c.endDate)) ?? cs.find((c) => (c.status === "active" || c.status === "notice_given") && c.startDate > today);
+    const current =
+      cs.find(
+        (c) =>
+          (c.status === "active" || c.status === "notice_given") &&
+          c.startDate <= today &&
+          today <= (c.moveOutDate ?? c.endDate),
+      ) ??
+      cs.find((c) => (c.status === "active" || c.status === "notice_given") && c.startDate > today);
     const meta = d.units.get(u.id);
     const asOf = periodEnd(period) < today ? periodEnd(period) : today;
     return {
@@ -84,10 +99,16 @@ export function buildingStack(d: OrgData, propertyId: string, period: Period, to
       floor: typeof u.floor === "number" ? u.floor : null,
       sortOrder: u.sortOrder,
       status,
-      periodStatus: current ? periodStatus(d.idx.ledger(current.id), period, asOf, { legal: d.idx.legalStatus(current.id) !== "none" }) : "vacant",
+      periodStatus: current
+        ? periodStatus(d.idx.ledger(current.id), period, asOf, {
+            legal: d.idx.legalStatus(current.id) !== "none",
+          })
+        : "vacant",
       tenantName: current?.tenantName ?? null,
       contractId: current?.id ?? null,
-      rentFils: current ? Math.round(current.monthlyRentFils / Math.max(1, current.unitIds.length)) : 0,
+      rentFils: current
+        ? Math.round(current.monthlyRentFils / Math.max(1, current.unitIds.length))
+        : 0,
       askingRentFils: u.askingRentFils,
       underMaintenance: meta?.underMaintenance ?? false,
     };

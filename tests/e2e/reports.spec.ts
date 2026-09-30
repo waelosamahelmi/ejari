@@ -2,7 +2,18 @@ import { test, expect } from "@playwright/test";
 import ExcelJS from "exceljs";
 import { login, supabaseUp } from "./helpers";
 
-const TYPES = ["statement", "summary", "late", "vacant", "accounting", "owner", "ledger", "expiring", "expenses", "grace"];
+const TYPES = [
+  "statement",
+  "summary",
+  "late",
+  "vacant",
+  "accounting",
+  "owner",
+  "ledger",
+  "expiring",
+  "expenses",
+  "grace",
+];
 
 test.describe("reports", () => {
   test.beforeAll(async () => {
@@ -13,7 +24,12 @@ test.describe("reports", () => {
     test.setTimeout(240_000);
     await login(page);
     for (const type of TYPES) {
-      const q = type === "ledger" ? "?tenant=0f000000-0000-4000-8000-000000000010" : type === "accounting" ? "?preset=this_quarter" : "";
+      const q =
+        type === "ledger"
+          ? "?tenant=0f000000-0000-4000-8000-000000000010"
+          : type === "accounting"
+            ? "?preset=this_quarter"
+            : "";
       await page.goto(`/ar/reports/${type}${q}`);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       const print = await page.request.get(`/print/report/${type}${q || "?"}&lang=ar`);
@@ -39,7 +55,9 @@ test.describe("reports", () => {
 
   test("accounting shows free months as concessions", async ({ page }) => {
     await login(page);
-    await page.goto("/ar/reports/accounting?preset=custom&from=2026-10&to=2026-12&property=0d000000-0000-4000-8000-000000000002");
+    await page.goto(
+      "/ar/reports/accounting?preset=custom&from=2026-10&to=2026-12&property=0d000000-0000-4000-8000-000000000002",
+    );
     await expect(page.getByText("التنازلات (أشهر مجانية وخصومات)")).toBeVisible();
     await expect(page.getByText("1,300.000 د.ك").first()).toBeVisible();
   });

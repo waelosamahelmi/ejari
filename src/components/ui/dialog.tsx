@@ -41,18 +41,30 @@ export function AlertDialog({
             "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
           )}
         >
-          <DialogPrimitive.Title className="text-center text-[19px] font-semibold">{title}</DialogPrimitive.Title>
+          <DialogPrimitive.Title className="text-center text-[19px] font-semibold">
+            {title}
+          </DialogPrimitive.Title>
           {description ? (
-            <DialogPrimitive.Description className="text-label-2 mt-2 text-center text-[15px] leading-6">{description}</DialogPrimitive.Description>
+            <DialogPrimitive.Description className="text-label-2 mt-2 text-center text-[15px] leading-6">
+              {description}
+            </DialogPrimitive.Description>
           ) : (
             <DialogPrimitive.Description className="sr-only">{title}</DialogPrimitive.Description>
           )}
           {children && <div className="mt-4">{children}</div>}
           <div className="mt-6 grid grid-cols-2 gap-3">
             <DialogPrimitive.Close asChild>
-              <Button variant="tinted" size="lg">{cancelLabel}</Button>
+              <Button variant="tinted" size="lg">
+                {cancelLabel}
+              </Button>
             </DialogPrimitive.Close>
-            <Button variant={destructive ? "destructive" : "primary"} size="lg" onClick={onConfirm} loading={loading} disabled={confirmDisabled}>
+            <Button
+              variant={destructive ? "destructive" : "primary"}
+              size="lg"
+              onClick={onConfirm}
+              loading={loading}
+              disabled={confirmDisabled}
+            >
               {confirmLabel}
             </Button>
           </div>

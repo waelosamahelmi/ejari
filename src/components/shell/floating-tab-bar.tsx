@@ -17,7 +17,10 @@ export function FloatingTabBar({ role }: { role: Role }) {
   const pathname = usePathname();
   const items = navFor(role).filter((n) => TAB_KEYS.includes(n.key));
   const inTabs = items.some((i) => pathname.startsWith(i.href));
-  const tabs = [...items.map((i) => ({ key: i.key, href: i.href, icon: i.icon, label: t(i.key) })), { key: "more", href: "/more", icon: Ellipsis, label: t("more") }];
+  const tabs = [
+    ...items.map((i) => ({ key: i.key, href: i.href, icon: i.icon, label: t(i.key) })),
+    { key: "more", href: "/more", icon: Ellipsis, label: t("more") },
+  ];
   return (
     <nav
       aria-label={t("more")}
@@ -25,7 +28,8 @@ export function FloatingTabBar({ role }: { role: Role }) {
     >
       <ul className="flex items-center gap-1 rounded-full bg-[var(--tabbar-bg)] p-1.5 shadow-[0_12px_40px_rgba(0,0,0,.28)] backdrop-blur-xl">
         {tabs.map((tab) => {
-          const active = tab.key === "more" ? !inTabs && pathname !== "/" : pathname.startsWith(tab.href);
+          const active =
+            tab.key === "more" ? !inTabs && pathname !== "/" : pathname.startsWith(tab.href);
           const Icon = tab.icon;
           return (
             <li key={tab.key} className="relative">
@@ -33,11 +37,24 @@ export function FloatingTabBar({ role }: { role: Role }) {
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
                 aria-label={tab.label}
-                className={cn("relative flex h-12 items-center justify-center gap-2 rounded-full px-3.5 transition-colors", active ? "text-[#0E0F12]" : "text-white/80 hover:text-white")}
+                className={cn(
+                  "relative flex h-12 items-center justify-center gap-2 rounded-full px-3.5 transition-colors",
+                  active ? "text-[#0E0F12]" : "text-white/80 hover:text-white",
+                )}
               >
-                {active && <motion.span layoutId="tab-active" transition={spring} className="absolute inset-0 rounded-full bg-white" />}
+                {active && (
+                  <motion.span
+                    layoutId="tab-active"
+                    transition={spring}
+                    className="absolute inset-0 rounded-full bg-white"
+                  />
+                )}
                 <Icon className="relative size-[22px]" strokeWidth={active ? 2.2 : 1.8} />
-                {active && <span className="relative max-w-24 truncate text-[14px] font-semibold">{tab.label}</span>}
+                {active && (
+                  <span className="relative max-w-24 truncate text-[14px] font-semibold">
+                    {tab.label}
+                  </span>
+                )}
               </Link>
             </li>
           );

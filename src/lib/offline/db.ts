@@ -17,19 +17,33 @@ export interface OfflineSnapshot {
   data: unknown;
 }
 
+/** A file received through the PWA share target, waiting to be attached. */
+export interface SharedFile {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  blob: Blob;
+  receivedAt: number;
+}
+
 interface Schema extends DBSchema {
   outbox: { key: string; value: OutboxItem; indexes: { status: string } };
   snapshots: { key: string; value: OfflineSnapshot };
+  shared: { key: string; value: SharedFile };
 }
 
 let dbp: Promise<IDBPDatabase<Schema>> | null = null;
 
 export function offlineDb() {
-  dbp ??= openDB<Schema>("ijari-offline", 1, {
-    upgrade(db) {
-      const outbox = db.createObjectStore("outbox", { keyPath: "clientId" });
-      outbox.createIndex("status", "status");
-      db.createObjectStore("snapshots", { keyPath: "key" });
+  dbp ??= openDB<Schema>("ijari-offline", 2, {
+    upgrade(db, oldVersion) {
+      if (oldVersion < 1) {
+        const outbox = db.createObjectStore("outbox", { keyPath: "clientId" });
+        outbox.createIndex("status", "status");
+        db.createObjectStore("snapshots", { keyPath: "key" });
+      }
+      if (oldVersion < 2) db.createObjectStore("shared", { keyPath: "id" });
     },
   });
   return dbp;

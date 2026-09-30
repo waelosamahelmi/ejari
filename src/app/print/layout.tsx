@@ -9,7 +9,10 @@ export const metadata = { robots: { index: false } };
 export default function PrintLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
-      <body className={`${plexArabic.variable} ${inter.variable}`} style={{ fontFamily: "var(--ff-arabic), var(--ff-latin), sans-serif" }}>
+      <body
+        className={`${plexArabic.variable} ${inter.variable}`}
+        style={{ fontFamily: "var(--ff-arabic), var(--ff-latin), sans-serif" }}
+      >
         {children}
       </body>
     </html>

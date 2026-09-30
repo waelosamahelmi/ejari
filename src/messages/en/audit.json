@@ -1,1 +1,34 @@
-{ "title": "Audit log", "search": "Search by entity or id", "actions": { "insert": "Created", "update": "Updated", "delete": "Deleted" }, "entities": { "contracts": "Contract", "charges": "Charge", "payments": "Payment", "payment_allocations": "Allocation", "adjustments": "Adjustment", "expense_vouchers": "Voucher", "expense_lines": "Voucher line", "expense_allocations": "Expense split", "deposits": "Deposit", "legal_cases": "Legal case", "owners": "Owner", "properties": "Property", "units": "Unit", "tenants": "Tenant", "org_members": "User", "monthly_closings": "Month closing" }, "who": "User", "what": "Action", "when": "When", "system": "System", "diff": "Changes", "field": "Field", "before": "Before", "after": "After", "empty": "No entries", "filters": { "all": "All" }, "loadMore": "Load more" }
+{
+  "title": "Audit log",
+  "search": "Search by entity or id",
+  "actions": { "insert": "Created", "update": "Updated", "delete": "Deleted" },
+  "entities": {
+    "contracts": "Contract",
+    "charges": "Charge",
+    "payments": "Payment",
+    "payment_allocations": "Allocation",
+    "adjustments": "Adjustment",
+    "expense_vouchers": "Voucher",
+    "expense_lines": "Voucher line",
+    "expense_allocations": "Expense split",
+    "deposits": "Deposit",
+    "legal_cases": "Legal case",
+    "owners": "Owner",
+    "properties": "Property",
+    "units": "Unit",
+    "tenants": "Tenant",
+    "org_members": "User",
+    "monthly_closings": "Month closing"
+  },
+  "who": "User",
+  "what": "Action",
+  "when": "When",
+  "system": "System",
+  "diff": "Changes",
+  "field": "Field",
+  "before": "Before",
+  "after": "After",
+  "empty": "No entries",
+  "filters": { "all": "All" },
+  "loadMore": "Load more"
+}

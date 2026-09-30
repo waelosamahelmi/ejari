@@ -24,9 +24,27 @@ export function BeneficiariesView({ rows }: { rows: BeneficiaryRow[] }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <LargeTitleHeader title={t("title")} back={{ href: "/settings", label: tc("labels.settings") }} actions={<Button onClick={() => { setEdit(null); setOpen(true); }}><Plus />{t("new")}</Button>} />
+      <LargeTitleHeader
+        title={t("title")}
+        back={{ href: "/settings", label: tc("labels.settings") }}
+        actions={
+          <Button
+            onClick={() => {
+              setEdit(null);
+              setOpen(true);
+            }}
+          >
+            <Plus />
+            {t("new")}
+          </Button>
+        }
+      />
       {rows.length === 0 ? (
-        <EmptyState illustration={<NoExpensesIllustration />} title={t("empty")} description={t("emptyText")} />
+        <EmptyState
+          illustration={<NoExpensesIllustration />}
+          title={t("empty")}
+          description={t("emptyText")}
+        />
       ) : (
         <GroupedSection>
           {rows.map((r) => {
@@ -34,18 +52,34 @@ export function BeneficiariesView({ rows }: { rows: BeneficiaryRow[] }) {
             return (
               <ListRow
                 key={r.id}
-                leading={<IconTile tone={r.active ? "sand" : "gray"}><I /></IconTile>}
+                leading={
+                  <IconTile tone={r.active ? "sand" : "gray"}>
+                    <I />
+                  </IconTile>
+                }
                 title={r.name}
                 subtitle={tKind(r.kind)}
-                trailing={r.monthlySalaryFils ? <span className="num">{money(r.monthlySalaryFils)}</span> : undefined}
-                onClick={() => { setEdit(r); setOpen(true); }}
+                trailing={
+                  r.monthlySalaryFils ? (
+                    <span className="num">{money(r.monthlySalaryFils)}</span>
+                  ) : undefined
+                }
+                onClick={() => {
+                  setEdit(r);
+                  setOpen(true);
+                }}
                 chevron
               />
             );
           })}
         </GroupedSection>
       )}
-      <BeneficiarySheet open={open} onOpenChange={setOpen} row={edit} onSaved={() => router.refresh()} />
+      <BeneficiarySheet
+        open={open}
+        onOpenChange={setOpen}
+        row={edit}
+        onSaved={() => router.refresh()}
+      />
     </>
   );
 }

@@ -46,15 +46,15 @@
     },
     "offline_review": {
       "title": "Payment needs review",
-      "body": "{amount} KWD from {tenant} didn't sync: {reason}"
+      "body": "{amount} KWD from {tenant} didn't sync. Open collections to review it."
     },
     "daily_digest": {
       "title": "Today",
-      "body": "Today: {due} payments due, {late} units late totalling {amount} KWD."
+      "body": "Today: {due, plural, =0 {no payments due} one {# payment due} other {# payments due}}, {late, plural, =0 {no units late} one {# unit late} other {# units late}} totalling {amount} KWD."
     },
     "tenant_late": {
       "title": "Late rent",
-      "body": "{tenant} is {days} days late with {amount} KWD — {property}, unit {unit}."
+      "body": "{tenant} is {days, plural, one {# day} other {# days}} late with {amount} KWD — {property}, unit {unit}."
     },
     "grace_ending": {
       "title": "Grace period ending",
@@ -62,7 +62,7 @@
     },
     "contract_expiring": {
       "title": "Contract expiring",
-      "body": "{tenant}'s contract ({contract}) ends in {days} days on {date}."
+      "body": "{tenant}'s contract ({contract}) ends in {days, plural, one {# day} other {# days}} on {date}."
     },
     "notice_recorded": {
       "title": "Notice to vacate",

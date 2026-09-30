@@ -10,13 +10,24 @@ export default async function OwnerPage({ params }: LocaleParams<{ id: string }>
   const { locale, id } = await pageLocale(params);
   const ctx = await requireContext(locale, { capability: "view_reports" });
   const db = await supabaseServer();
-  const { data: o } = await db.from("owners").select("*, property_owners(share_pct, properties(id, name, area))").eq("id", id).maybeSingle();
+  const { data: o } = await db
+    .from("owners")
+    .select("*, property_owners(share_pct, properties(id, name, area))")
+    .eq("id", id)
+    .maybeSingle();
   if (!o) notFound();
   const full = can(ctx.role, "manage_master_data");
   return (
     <OwnerDetailView
       canEdit={full}
-      portalSlot={<PortalInviteCard ownerId={o.id} email={o.email ?? ""} linked={!!o.portal_user_id} canInvite={can(ctx.role, "manage_users")} />}
+      portalSlot={
+        <PortalInviteCard
+          ownerId={o.id}
+          email={o.email ?? ""}
+          linked={!!o.portal_user_id}
+          canInvite={can(ctx.role, "manage_users")}
+        />
+      }
       owner={{
         id: o.id,
         fullName: o.full_name,

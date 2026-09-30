@@ -51,7 +51,9 @@ export function PhotoHero({
             {location}
           </p>
         )}
-        <h1 className="text-[28px] leading-tight font-semibold drop-shadow-sm lg:text-[34px]">{title}</h1>
+        <h1 className="text-[28px] leading-tight font-semibold drop-shadow-sm lg:text-[34px]">
+          {title}
+        </h1>
         {pills && <div className="mt-3 flex flex-wrap gap-2">{pills}</div>}
         {children}
       </div>

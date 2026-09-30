@@ -4,6 +4,7 @@ const PORT = Number(process.env.PORT ?? 3100);
 
 export default defineConfig({
   testDir: "tests/e2e",
+  globalSetup: "./tests/e2e/global-setup.ts",
   timeout: 60_000,
   expect: { timeout: 10_000, toHaveScreenshot: { maxDiffPixelRatio: 0.02 } },
   fullyParallel: false,

@@ -3,7 +3,13 @@ import type { RenderedContract } from "@/domain/templates";
 import { cn } from "@/lib/utils";
 
 /** Contract documents are Arabic legal text; their fixed labels belong to the document, not the UI locale. */
-export const DOC_LABELS_AR = { party1: "الطرف الأول", party2: "الطرف الثاني", name: "الاسم", signature: "التوقيع", contractNo: "رقم العقد" };
+export const DOC_LABELS_AR = {
+  party1: "الطرف الأول",
+  party2: "الطرف الثاني",
+  name: "الاسم",
+  signature: "التوقيع",
+  contractNo: "رقم العقد",
+};
 
 /**
  * A4 contract layout (§8.3): centered 26pt title, preamble, numbered clauses
@@ -34,10 +40,14 @@ export function ContractDocument({
   const clauses = rendered.clauses;
   const last = clauses.at(-1);
   return (
-    <article dir="rtl" lang="ar" className={cn("contract-doc text-[12.5pt] leading-[1.9] text-black", className)}>
+    <article
+      dir="rtl"
+      lang="ar"
+      className={cn("contract-doc text-[12.5pt] leading-[1.9] text-black", className)}
+    >
       <header className="relative mb-4">
         {letterhead}
-        <div className="absolute top-0 end-0 flex items-start gap-2 text-[8.5pt] leading-tight text-neutral-600">
+        <div className="absolute end-0 top-0 flex items-start gap-2 text-[8.5pt] leading-tight text-neutral-600">
           {qr && <Image src={qr} alt="" width={64} height={64} unoptimized className="size-16" />}
           <div className="num pt-1" dir="ltr">
             {l.contractNo}
@@ -54,16 +64,24 @@ export function ContractDocument({
       </div>
       <ol className="mt-3 space-y-1.5">
         {clauses.map((c) => (
-          <li key={c.key} className={cn("grid grid-cols-[2.2em_1fr] break-inside-avoid", c === last && "break-after-avoid")}>
+          <li
+            key={c.key}
+            className={cn(
+              "grid break-inside-avoid grid-cols-[2.2em_1fr]",
+              c === last && "break-after-avoid",
+            )}
+          >
             <span className="num font-semibold">{c.number}-</span>
             <span>{c.text}</span>
           </li>
         ))}
       </ol>
       {rendered.closing.map((l, i) => (
-        <p key={i} className="mt-2">{l}</p>
+        <p key={i} className="mt-2">
+          {l}
+        </p>
       ))}
-      <section className="signature mt-10 grid grid-cols-2 gap-10 break-inside-avoid">
+      <section className="signature mt-10 grid break-inside-avoid grid-cols-2 gap-10">
         {[
           [l.party1, ownerName],
           [l.party2, tenantName],
@@ -74,7 +92,8 @@ export function ContractDocument({
               {l.name}: <span className="font-semibold">{n}</span>
             </div>
             <div>
-              {l.signature}: <span className="inline-block w-40 border-b border-dotted border-black align-bottom" />
+              {l.signature}:{" "}
+              <span className="inline-block w-40 border-b border-dotted border-black align-bottom" />
             </div>
           </div>
         ))}

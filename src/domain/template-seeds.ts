@@ -15,7 +15,11 @@ export const RESIDENTIAL_TEMPLATE: ContractTemplate = {
 تم الاتفاق وذلك وفق الشروط التالية:`,
   closing: null,
   clauses: [
-    { key: "unit", position: 1, body: "استأجر {{unit_type_label}} رقم {{unit_labels}} لاستعماله {{purpose}}." },
+    {
+      key: "unit",
+      position: 1,
+      body: "استأجر {{unit_type_label}} رقم {{unit_labels}} لاستعماله {{purpose}}.",
+    },
     {
       key: "rent",
       position: 2,
@@ -70,7 +74,11 @@ export const RESIDENTIAL_TEMPLATE: ContractTemplate = {
       position: 11,
       body: "لا يحق للمستأجر أن يتنازل عن كل أو بعض هذا العقد أو إدخال أي طرف آخر فيه إلا بالموافقة الخطية من المالك.",
     },
-    { key: "jurisdiction", position: 12, body: "القضاء الكويتي هو الفصل في أي نزاع بين طرفي هذا العقد." },
+    {
+      key: "jurisdiction",
+      position: 12,
+      body: "القضاء الكويتي هو الفصل في أي نزاع بين طرفي هذا العقد.",
+    },
     { key: "copies", position: 13, body: "حرر هذا العقد من نسختين وبين كل طرف نسخة منه." },
   ],
 };
@@ -151,7 +159,11 @@ export const INVESTMENT_TEMPLATE: ContractTemplate = {
       position: 12,
       body: "لا يحق للطرف الثاني تخزين أية مواد قابلة للاشتعال داخل المحل أو خارجه ويلتزم بشروط الإدارة العامة للإطفاء ويتحمل وحده المسؤولية الكاملة عن مخالفة العقد.",
     },
-    { key: "parking", position: 13, body: "لا يحق للطرف الثاني أن يستخدم مواقف سيارات المحلات الأخرى." },
+    {
+      key: "parking",
+      position: 13,
+      body: "لا يحق للطرف الثاني أن يستخدم مواقف سيارات المحلات الأخرى.",
+    },
     {
       key: "roof",
       position: 14,
@@ -202,7 +214,11 @@ export const INVESTMENT_TEMPLATE: ContractTemplate = {
       position: 23,
       body: "البنود التي لم يرد ذكرها في هذا العقد يتم التفاهم عليها في عقد ملحق لهذا العقد ويوقع من طرفي هذا العقد.",
     },
-    { key: "jurisdiction", position: 24, body: "محاكم الكويت هي الفصل في أي نزاع قد ينشأ لا قدر الله." },
+    {
+      key: "jurisdiction",
+      position: 24,
+      body: "محاكم الكويت هي الفصل في أي نزاع قد ينشأ لا قدر الله.",
+    },
     {
       key: "no_worker_housing",
       position: 25,

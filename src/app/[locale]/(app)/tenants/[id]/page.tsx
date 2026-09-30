@@ -8,7 +8,10 @@ import { balanceSummary, buildLedger } from "@/domain/ledger";
 import { maskCivilId, validateCivilId } from "@/domain/validation";
 import { can } from "@/lib/permissions";
 import { TenantDetailView } from "./tenant-detail-view";
-import { RecordPaymentButton, RemindButton } from "@/components/domain/payments/record-payment-button";
+import {
+  RecordPaymentButton,
+  RemindButton,
+} from "@/components/domain/payments/record-payment-button";
 
 export async function generateMetadata({ params }: LocaleParams<{ id: string }>) {
   const { id } = await params;
@@ -23,20 +26,34 @@ export default async function TenantPage({ params }: LocaleParams<{ id: string }
   const db = await supabaseServer();
   const [{ data: tenant }, { data: reminders }, { data: legal }] = await Promise.all([
     db.from("tenants").select("*").eq("id", id).maybeSingle(),
-    db.from("reminders_log").select("id, channel, message, sent_at").eq("tenant_id", id).order("sent_at", { ascending: false }).limit(50),
-    db.from("legal_cases").select("id, case_no, court, type, status, next_hearing_date, amount_claimed_fils").eq("tenant_id", id).order("created_at", { ascending: false }),
+    db
+      .from("reminders_log")
+      .select("id, channel, message, sent_at")
+      .eq("tenant_id", id)
+      .order("sent_at", { ascending: false })
+      .limit(50),
+    db
+      .from("legal_cases")
+      .select("id, case_no, court, type, status, next_hearing_date, amount_claimed_fils")
+      .eq("tenant_id", id)
+      .order("created_at", { ascending: false }),
   ]);
   if (!tenant) notFound();
   const data = await loadOrgData(ctx);
   const today = todayKuwait();
-  const contracts = data.ds.contracts.filter((c) => c.tenantId === id).sort((a, b) => b.startDate.localeCompare(a.startDate));
+  const contracts = data.ds.contracts
+    .filter((c) => c.tenantId === id)
+    .sort((a, b) => b.startDate.localeCompare(a.startDate));
   const ledgerRows = contracts.flatMap((c) => {
     const l = data.idx.ledger(c.id);
     return buildLedger(l, { until: today }).map((r) => ({ ...r, contractNo: c.contractNo }));
   });
   ledgerRows.sort((a, b) => a.date.localeCompare(b.date));
   let bal = 0;
-  const ledger = ledgerRows.map((r) => ({ ...r, balanceFils: (bal += r.debitFils - r.creditFils) }));
+  const ledger = ledgerRows.map((r) => ({
+    ...r,
+    balanceFils: (bal += r.debitFils - r.creditFils),
+  }));
   const totals = contracts.reduce(
     (acc, c) => {
       const b = balanceSummary(data.idx.ledger(c.id), today);
@@ -46,7 +63,9 @@ export default async function TenantPage({ params }: LocaleParams<{ id: string }
   );
   const fullId = can(ctx.role, "manage_contracts");
   const live = contracts.find((c) => c.status === "active" || c.status === "notice_given");
-  const lateContract = contracts.find((c) => balanceSummary(data.idx.ledger(c.id), today).arrearsFils > 0);
+  const lateContract = contracts.find(
+    (c) => balanceSummary(data.idx.ledger(c.id), today).arrearsFils > 0,
+  );
   return (
     <TenantDetailView
       tenant={{
@@ -81,8 +100,12 @@ export default async function TenantPage({ params }: LocaleParams<{ id: string }
       canEdit={can(ctx.role, "manage_master_data")}
       reminderAction={
         <div className="grid gap-2">
-          {live && can(ctx.role, "record_payment") && <RecordPaymentButton contractId={live.id} size="md" className="w-full" />}
-          {lateContract && can(ctx.role, "send_reminder") && <RemindButton contractId={lateContract.id} />}
+          {live && can(ctx.role, "record_payment") && (
+            <RecordPaymentButton contractId={live.id} size="md" className="w-full" />
+          )}
+          {lateContract && can(ctx.role, "send_reminder") && (
+            <RemindButton contractId={lateContract.id} />
+          )}
         </div>
       }
     />

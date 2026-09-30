@@ -18,7 +18,9 @@ export function Chip({
       aria-pressed={active}
       className={cn(
         "press inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-4 text-[14px] font-medium whitespace-nowrap transition-colors",
-        active ? "bg-ink text-on-ink" : "bg-paper text-label ring-separator ring-1 hover:bg-paper-2",
+        active
+          ? "bg-ink text-on-ink"
+          : "bg-paper text-label ring-separator hover:bg-paper-2 ring-1",
         className,
       )}
       {...props}
@@ -62,28 +64,58 @@ export function IconChip({
 }
 
 /** Horizontal chip scroller that starts from the reading edge (right in RTL). */
-export function ChipScroller({ children, className, ariaLabel }: { children: ReactNode; className?: string; ariaLabel?: string }) {
+export function ChipScroller({
+  children,
+  className,
+  ariaLabel,
+}: {
+  children: ReactNode;
+  className?: string;
+  ariaLabel?: string;
+}) {
   return (
     <div
       role="group"
       aria-label={ariaLabel}
-      className={cn("no-scrollbar -mx-4 flex snap-x gap-2 overflow-x-auto px-4 py-1 [&>*]:snap-start", className)}
+      className={cn(
+        "no-scrollbar -mx-4 flex snap-x gap-2 overflow-x-auto px-4 py-1 [&>*]:snap-start",
+        className,
+      )}
     >
       {children}
     </div>
   );
 }
 
-export function Pill({ className, children, dot }: { className?: string; children: ReactNode; dot?: string }) {
+export function Pill({
+  className,
+  children,
+  dot,
+}: {
+  className?: string;
+  children: ReactNode;
+  dot?: string;
+}) {
   return (
-    <span className={cn("inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-[12px] font-semibold whitespace-nowrap", className)}>
+    <span
+      className={cn(
+        "inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-[12px] font-semibold whitespace-nowrap",
+        className,
+      )}
+    >
       {dot && <span aria-hidden className={cn("size-1.5 rounded-full", dot)} />}
       {children}
     </span>
   );
 }
 
-export function PeriodStatusPill({ status, className }: { status: PeriodStatus; className?: string }) {
+export function PeriodStatusPill({
+  status,
+  className,
+}: {
+  status: PeriodStatus;
+  className?: string;
+}) {
   const t = useTranslations("enums.periodStatus");
   const s = PERIOD_STATUS_STYLE[status];
   return (
@@ -114,7 +146,13 @@ const CONTRACT_STATUS: Record<ContractStatus, string> = {
   renewed: "bg-indigo/14 text-indigo-text",
 };
 
-export function ContractStatusPill({ status, className }: { status: ContractStatus; className?: string }) {
+export function ContractStatusPill({
+  status,
+  className,
+}: {
+  status: ContractStatus;
+  className?: string;
+}) {
   const t = useTranslations("enums.contractStatus");
   return <Pill className={cn(CONTRACT_STATUS[status], className)}>{t(status)}</Pill>;
 }

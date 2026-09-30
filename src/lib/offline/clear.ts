@@ -1,11 +1,19 @@
+import { syncPending } from "./sync-core";
+
 /** On sign-out: clear caches, IndexedDB and this device's push subscription (§19.2). */
 export async function clearClientData() {
+  // Push any payments still in the outbox while the session is valid.
+  if (navigator.onLine) await syncPending().catch(() => {});
   try {
     if ("serviceWorker" in navigator) {
       const reg = await navigator.serviceWorker.getRegistration();
       const sub = await reg?.pushManager?.getSubscription();
       if (sub) {
-        await fetch("/api/push/subscribe", { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ endpoint: sub.endpoint }) }).catch(() => {});
+        await fetch("/api/push/subscribe", {
+          method: "DELETE",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ endpoint: sub.endpoint }),
+        }).catch(() => {});
         await sub.unsubscribe().catch(() => {});
       }
     }
@@ -13,7 +21,8 @@ export async function clearClientData() {
       for (const k of await caches.keys()) await caches.delete(k);
     }
     if ("indexedDB" in window && indexedDB.databases) {
-      for (const db of await indexedDB.databases()) if (db.name?.startsWith("ijari")) indexedDB.deleteDatabase(db.name);
+      for (const db of await indexedDB.databases())
+        if (db.name?.startsWith("ijari")) indexedDB.deleteDatabase(db.name);
     }
     try {
       localStorage.removeItem("ijari-offline-meta");

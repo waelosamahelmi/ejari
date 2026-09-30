@@ -33,8 +33,9 @@ export function Toggle({
     >
       <SwitchPrimitive.Thumb
         className={cn(
-          "block size-[27px] rounded-full bg-white shadow-[0_3px_8px_rgba(0,0,0,.15),0_3px_1px_rgba(0,0,0,.06)] transition-transform duration-200 ease-[var(--ease-spring)] dark:data-[state=checked]:bg-[#0E0F12]",
-          "translate-x-[2px] data-[state=checked]:translate-x-[22px] rtl:-translate-x-[2px] rtl:data-[state=checked]:-translate-x-[22px]",
+          "absolute top-[2px] block size-[27px] rounded-full bg-white shadow-[0_3px_8px_rgba(0,0,0,.15),0_3px_1px_rgba(0,0,0,.06)] transition-[inset-inline-start] duration-200 ease-[var(--ease-spring)] motion-reduce:transition-none dark:data-[state=checked]:bg-[#0E0F12]",
+          // Logical offset: the thumb travels toward the end edge in both LTR and RTL.
+          "start-[2px] data-[state=checked]:start-[22px]",
         )}
       />
     </SwitchPrimitive.Root>

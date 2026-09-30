@@ -14,7 +14,10 @@ export async function generateMetadata({ params }: LocaleParams) {
   return { title: t("title") };
 }
 
-export default async function DepositsPage({ params, searchParams }: LocaleParams & { searchParams: Promise<{ period?: string; owner?: string; tab?: string }> }) {
+export default async function DepositsPage({
+  params,
+  searchParams,
+}: LocaleParams & { searchParams: Promise<{ period?: string; owner?: string; tab?: string }> }) {
   const { locale } = await pageLocale(params);
   const sp = await searchParams;
   const ctx = await requireContext(locale, { capability: "view_expenses" });
@@ -24,10 +27,14 @@ export default async function DepositsPage({ params, searchParams }: LocaleParam
   const summary = monthlySummary(data.idx, period, owner ? { ownerId: owner } : {});
   const db = await supabaseServer();
   const base = db.from("cash_reconciliations").select("note").eq("period", period);
-  const { data: note } = await (owner ? base.eq("owner_id", owner) : base.is("owner_id", null)).maybeSingle();
+  const { data: note } = await (
+    owner ? base.eq("owner_id", owner) : base.is("owner_id", null)
+  ).maybeSingle();
   const { data: deposits } = await db
     .from("deposits")
-    .select("id, deposit_date, amount_fils, destination, owner_id, bank_name, reference, notes, owners(full_name), deposit_properties(property_id, amount_fils, properties(name))")
+    .select(
+      "id, deposit_date, amount_fils, destination, owner_id, bank_name, reference, notes, owners(full_name), deposit_properties(property_id, amount_fils, properties(name))",
+    )
     .order("deposit_date", { ascending: false });
   return (
     <DepositsView
@@ -49,7 +56,11 @@ export default async function DepositsPage({ params, searchParams }: LocaleParam
         bankName: d.bank_name ?? "",
         reference: d.reference ?? "",
         notes: d.notes ?? "",
-        properties: (d.deposit_properties ?? []).map((x) => ({ propertyId: x.property_id, amountFils: x.amount_fils, name: (x.properties as unknown as { name: string }).name })),
+        properties: (d.deposit_properties ?? []).map((x) => ({
+          propertyId: x.property_id,
+          amountFils: x.amount_fils,
+          name: (x.properties as unknown as { name: string }).name,
+        })),
       }))}
     />
   );

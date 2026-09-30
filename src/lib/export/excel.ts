@@ -22,16 +22,25 @@ export interface SheetSpec {
 const INK = "FF0E0F12";
 
 /** Excel with RTL sheets, styled header, #,##0.000 money, frozen header and a totals row (§10.11). */
-export async function buildWorkbook(sheets: SheetSpec[], meta: { creator: string }): Promise<Buffer> {
+export async function buildWorkbook(
+  sheets: SheetSpec[],
+  meta: { creator: string },
+): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
   wb.creator = meta.creator;
   wb.created = new Date();
   const used = new Set<string>();
   for (const s of sheets) {
-    let name = s.name.replace(/[\\/?*[\]:]/g, " ").slice(0, 28).trim() || "Sheet";
+    let name =
+      s.name
+        .replace(/[\\/?*[\]:]/g, " ")
+        .slice(0, 28)
+        .trim() || "Sheet";
     for (let n = 2; used.has(name.toLowerCase()); n++) name = `${name.slice(0, 25)} (${n})`;
     used.add(name.toLowerCase());
-    const ws = wb.addWorksheet(name, { views: [{ rightToLeft: s.rtl ?? true, state: "frozen", ySplit: s.title ? 3 : 1 }] });
+    const ws = wb.addWorksheet(name, {
+      views: [{ rightToLeft: s.rtl ?? true, state: "frozen", ySplit: s.title ? 3 : 1 }],
+    });
     let headerRow = 1;
     if (s.title) {
       ws.mergeCells(1, 1, 1, s.columns.length);
@@ -46,7 +55,10 @@ export async function buildWorkbook(sheets: SheetSpec[], meta: { creator: string
       st.alignment = { horizontal: "center" };
       headerRow = 3;
     }
-    ws.columns = s.columns.map((c) => ({ key: c.key, width: c.width ?? (c.type === "money" ? 16 : c.type === "date" ? 13 : 22) }));
+    ws.columns = s.columns.map((c) => ({
+      key: c.key,
+      width: c.width ?? (c.type === "money" ? 16 : c.type === "date" ? 13 : 22),
+    }));
     const hr = ws.getRow(headerRow);
     s.columns.forEach((c, i) => {
       const cell = hr.getCell(i + 1);
@@ -64,7 +76,8 @@ export async function buildWorkbook(sheets: SheetSpec[], meta: { creator: string
             const v = values[c.key];
             if (v === null || v === undefined || v === "") return [c.key, null];
             if (c.type === "money") return [c.key, Number(v) / 1000];
-            if (c.type === "date") return [c.key, typeof v === "string" ? new Date(`${v}T00:00:00Z`) : v];
+            if (c.type === "date")
+              return [c.key, typeof v === "string" ? new Date(`${v}T00:00:00Z`) : v];
             return [c.key, v];
           }),
         ),
@@ -83,7 +96,10 @@ export async function buildWorkbook(sheets: SheetSpec[], meta: { creator: string
     };
     for (const r of s.rows) put(r);
     if (s.totals) put(s.totals, true);
-    ws.autoFilter = { from: { row: headerRow, column: 1 }, to: { row: headerRow, column: s.columns.length } };
+    ws.autoFilter = {
+      from: { row: headerRow, column: 1 },
+      to: { row: headerRow, column: s.columns.length },
+    };
   }
   return Buffer.from(await wb.xlsx.writeBuffer());
 }

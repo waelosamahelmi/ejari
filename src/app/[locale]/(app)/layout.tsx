@@ -5,7 +5,13 @@ import { getSessionContext } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import { AppShell } from "@/components/shell/app-shell";
 
-export default async function AppLayout({ children, params }: { children: ReactNode; params: Promise<{ locale: string }> }) {
+export default async function AppLayout({
+  children,
+  params,
+}: {
+  children: ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await pageLocale(params);
   const ctx = await getSessionContext();
   if (!ctx) {

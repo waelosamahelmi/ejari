@@ -1,6 +1,31 @@
 {
-  "title": "Legal", "new": "New case", "edit": "Edit case", "board": "Board", "list": "List", "hearings": "Upcoming hearings", "noHearings": "No upcoming hearings.",
-  "empty": "No cases", "emptyText": "Track eviction and rent-claim cases and their hearings.",
-  "fields": { "tenant": "Tenant", "contract": "Contract", "caseNo": "Case no.", "court": "Court", "type": "Case type", "status": "Status", "amount": "Amount claimed", "nextHearing": "Next hearing", "lawyer": "Lawyer", "notes": "Notes" },
-  "timeline": "Case timeline", "addEvent": "Add event", "eventTitle": "Title", "eventDate": "Date", "eventNotes": "Details", "saved": "Saved", "moveTo": "Move to", "noContract": "No contract"
+  "title": "Legal",
+  "new": "New case",
+  "edit": "Edit case",
+  "board": "Board",
+  "list": "List",
+  "hearings": "Upcoming hearings",
+  "noHearings": "No upcoming hearings.",
+  "empty": "No cases",
+  "emptyText": "Track eviction and rent-claim cases and their hearings.",
+  "fields": {
+    "tenant": "Tenant",
+    "contract": "Contract",
+    "caseNo": "Case no.",
+    "court": "Court",
+    "type": "Case type",
+    "status": "Status",
+    "amount": "Amount claimed",
+    "nextHearing": "Next hearing",
+    "lawyer": "Lawyer",
+    "notes": "Notes"
+  },
+  "timeline": "Case timeline",
+  "addEvent": "Add event",
+  "eventTitle": "Title",
+  "eventDate": "Date",
+  "eventNotes": "Details",
+  "saved": "Saved",
+  "moveTo": "Move to",
+  "noContract": "No contract"
 }

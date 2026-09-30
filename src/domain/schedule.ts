@@ -74,17 +74,21 @@ export function rentForPeriod(c: ScheduleContract, period: Period): Fils {
   const pStart = periodStart(period);
   const revisions = [...(c.revisions ?? [])]
     .filter((r) => r.effectiveFrom <= pStart || periodOf(r.effectiveFrom) === period)
-    .sort((a, b) => (a.effectiveFrom < b.effectiveFrom ? -1 : a.effectiveFrom > b.effectiveFrom ? 1 : 0));
+    .sort((a, b) =>
+      a.effectiveFrom < b.effectiveFrom ? -1 : a.effectiveFrom > b.effectiveFrom ? 1 : 0,
+    );
   const latest = revisions.at(-1);
   const anchorDate = latest ? latest.effectiveFrom : c.startDate;
   let rent = latest ? latest.monthlyRentFils : c.monthlyRentFils;
   const inc = c.annualIncrease;
   if (inc && inc.everyMonths > 0 && inc.value > 0) {
     const startP = periodOf(c.startDate);
-    const stepsAt = (p: Period) => Math.max(0, Math.floor(diffPeriods(startP, p) / inc.everyMonths));
+    const stepsAt = (p: Period) =>
+      Math.max(0, Math.floor(diffPeriods(startP, p) / inc.everyMonths));
     const steps = stepsAt(period) - stepsAt(periodOf(anchorDate));
     for (let i = 0; i < steps; i++) {
-      rent = inc.kind === "percent" ? mulRound(rent, 1 + inc.value / 100) : rent + Math.round(inc.value);
+      rent =
+        inc.kind === "percent" ? mulRound(rent, 1 + inc.value / 100) : rent + Math.round(inc.value);
     }
   }
   return rent;
@@ -102,8 +106,12 @@ function prorated(amount: Fils, period: Period, from: ISODate, to: ISODate): Fil
 }
 
 /** Generates all charges for a contract (optionally clipped by from/until). */
-export function generateSchedule(c: ScheduleContract, opts: ScheduleOptions = {}): ScheduledCharge[] {
-  if (c.firstCollectionDate < c.startDate) throw new RangeError("first_collection_date must be >= start_date");
+export function generateSchedule(
+  c: ScheduleContract,
+  opts: ScheduleOptions = {},
+): ScheduledCharge[] {
+  if (c.firstCollectionDate < c.startDate)
+    throw new RangeError("first_collection_date must be >= start_date");
   const end = effectiveEndDate(c);
   if (end < c.startDate) return [];
   const startP = periodOf(c.startDate);
@@ -117,7 +125,13 @@ export function generateSchedule(c: ScheduleContract, opts: ScheduleOptions = {}
   for (const period of periodRange(fromP, toP)) {
     const rent = rentForPeriod(c, period);
     if (period < firstP) {
-      out.push({ period, kind: "free", amountFils: 0, waivedValueFils: rent, dueDate: periodStart(period) });
+      out.push({
+        period,
+        kind: "free",
+        amountFils: 0,
+        waivedValueFils: rent,
+        dueDate: periodStart(period),
+      });
       continue;
     }
     const isFirst = period === firstP;
@@ -128,7 +142,13 @@ export function generateSchedule(c: ScheduleContract, opts: ScheduleOptions = {}
     out.push({ period, kind: "rent", amountFils: amount, waivedValueFils: 0, dueDate: due });
     if (elec > 0) {
       const e = opts.prorate ? prorated(elec, period, billFrom, end) : elec;
-      out.push({ period, kind: "electricity_fixed", amountFils: e, waivedValueFils: 0, dueDate: due });
+      out.push({
+        period,
+        kind: "electricity_fixed",
+        amountFils: e,
+        waivedValueFils: 0,
+        dueDate: due,
+      });
     }
   }
   return out;

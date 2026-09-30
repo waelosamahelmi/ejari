@@ -15,11 +15,18 @@ const lastRun = new Map<string, number>();
  * fixed-electricity charges for every live contract through `until`.
  * Implemented in TS on top of domain/schedule.ts (see DECISIONS.md).
  */
-export async function ensureChargesUntil(orgId: string, until: Period, settings?: Pick<OrgSettings, "proration">, contractIds?: string[]) {
+export async function ensureChargesUntil(
+  orgId: string,
+  until: Period,
+  settings?: Pick<OrgSettings, "proration">,
+  contractIds?: string[],
+) {
   const db = supabaseAdmin();
   let q = db
     .from("contracts")
-    .select("id, org_id, start_date, end_date, first_collection_date, monthly_rent_fils, electricity_fixed_fils, move_out_date, status, annual_increase_kind, annual_increase_value, annual_increase_every_months, contract_rent_revisions(effective_from, monthly_rent_fils), contract_units(unit_id)")
+    .select(
+      "id, org_id, start_date, end_date, first_collection_date, monthly_rent_fils, electricity_fixed_fils, move_out_date, status, annual_increase_kind, annual_increase_value, annual_increase_every_months, contract_rent_revisions(effective_from, monthly_rent_fils), contract_units(unit_id)",
+    )
     .eq("org_id", orgId)
     .in("status", ["active", "notice_given", "ended", "terminated", "renewed"]);
   if (contractIds?.length) q = q.in("id", contractIds);
@@ -28,7 +35,13 @@ export async function ensureChargesUntil(orgId: string, until: Period, settings?
   if (!contracts?.length) return 0;
   const ids = contracts.map((c) => c.id);
   const existing = await fetchAll((from, to) =>
-    db.from("charges").select("contract_id, period, kind").in("contract_id", ids).eq("voided", false).in("kind", ["rent", "free", "electricity_fixed"]).range(from, to),
+    db
+      .from("charges")
+      .select("contract_id, period, kind")
+      .in("contract_id", ids)
+      .eq("voided", false)
+      .in("kind", ["rent", "free", "electricity_fixed"])
+      .range(from, to),
   );
   const have = new Set(existing.map((e) => `${e.contract_id}|${e.period}|${e.kind}`));
   const { data: closings } = await db.from("monthly_closings").select("period").eq("org_id", orgId);
@@ -52,10 +65,17 @@ export async function ensureChargesUntil(orgId: string, until: Period, settings?
         monthlyRentFils: c.monthly_rent_fils,
         electricityFixedFils: c.electricity_fixed_fils,
         moveOutDate: c.move_out_date,
-        revisions: (c.contract_rent_revisions ?? []).map((r) => ({ effectiveFrom: r.effective_from, monthlyRentFils: r.monthly_rent_fils })),
+        revisions: (c.contract_rent_revisions ?? []).map((r) => ({
+          effectiveFrom: r.effective_from,
+          monthlyRentFils: r.monthly_rent_fils,
+        })),
         annualIncrease:
           c.annual_increase_kind && c.annual_increase_value && c.annual_increase_every_months
-            ? { kind: c.annual_increase_kind, value: Number(c.annual_increase_value), everyMonths: c.annual_increase_every_months }
+            ? {
+                kind: c.annual_increase_kind,
+                value: Number(c.annual_increase_value),
+                everyMonths: c.annual_increase_every_months,
+              }
             : null,
       },
       { until, prorate: settings?.proration ?? false },
@@ -92,7 +112,11 @@ export async function ensureChargesFresh(orgId: string, settings?: Pick<OrgSetti
   if ((lastRun.get(orgId) ?? 0) > now - 10 * 60_000) return;
   lastRun.set(orgId, now);
   try {
-    await ensureChargesUntil(orgId, addPeriods(periodOf(todayKuwait()), MATERIALIZE_AHEAD), settings);
+    await ensureChargesUntil(
+      orgId,
+      addPeriods(periodOf(todayKuwait()), MATERIALIZE_AHEAD),
+      settings,
+    );
   } catch (e) {
     lastRun.delete(orgId);
     console.error("[ensureCharges]", e);
@@ -108,17 +132,42 @@ export async function applyCredit(orgId: string, contractIds: string[]) {
   const db = supabaseAdmin();
   for (const id of contractIds) {
     const [{ data: payments }, { data: balances }] = await Promise.all([
-      db.from("payments").select("id, amount_fils, received_at, payment_allocations(amount_fils)").eq("contract_id", id).eq("voided", false).order("received_at"),
-      db.from("v_charge_balances").select("charge_id, period, kind, due_date, outstanding_fils, amount_fils").eq("contract_id", id).gt("outstanding_fils", 0),
+      db
+        .from("payments")
+        .select("id, amount_fils, received_at, payment_allocations(amount_fils)")
+        .eq("contract_id", id)
+        .eq("voided", false)
+        .order("received_at"),
+      db
+        .from("v_charge_balances")
+        .select("charge_id, period, kind, due_date, outstanding_fils, amount_fils")
+        .eq("contract_id", id)
+        .gt("outstanding_fils", 0),
     ]);
     if (!payments?.length || !balances?.length) continue;
-    const open = balances.map((b) => ({ id: b.charge_id!, period: b.period!, kind: b.kind!, dueDate: b.due_date!, outstandingFils: b.outstanding_fils! }));
+    const open = balances.map((b) => ({
+      id: b.charge_id!,
+      period: b.period!,
+      kind: b.kind!,
+      dueDate: b.due_date!,
+      outstandingFils: b.outstanding_fils!,
+    }));
     for (const p of payments) {
-      const credit = p.amount_fils - (p.payment_allocations ?? []).reduce((s, a) => s + a.amount_fils, 0);
+      const credit =
+        p.amount_fils - (p.payment_allocations ?? []).reduce((s, a) => s + a.amount_fils, 0);
       if (credit <= 0) continue;
       const r = allocateFIFO(credit, open);
       if (!r.allocations.length) continue;
-      const { error } = await db.from("payment_allocations").insert(r.allocations.map((a) => ({ org_id: orgId, payment_id: p.id, charge_id: a.chargeId, amount_fils: a.amountFils })));
+      const { error } = await db
+        .from("payment_allocations")
+        .insert(
+          r.allocations.map((a) => ({
+            org_id: orgId,
+            payment_id: p.id,
+            charge_id: a.chargeId,
+            amount_fils: a.amountFils,
+          })),
+        );
       if (error) throw error;
       for (const a of r.allocations) {
         const o = open.find((x) => x.id === a.chargeId)!;

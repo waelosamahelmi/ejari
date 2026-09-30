@@ -62,10 +62,24 @@ export const UNIT_TYPE_LABELS_EN: Record<UnitType, string> = {
 export const CONTRACT_TYPES = ["residential", "investment"] as const;
 export type ContractType = (typeof CONTRACT_TYPES)[number];
 
-export const CONTRACT_STATUSES = ["draft", "active", "notice_given", "ended", "terminated", "renewed"] as const;
+export const CONTRACT_STATUSES = [
+  "draft",
+  "active",
+  "notice_given",
+  "ended",
+  "terminated",
+  "renewed",
+] as const;
 export type ContractStatus = (typeof CONTRACT_STATUSES)[number];
 
-export const CHARGE_KINDS = ["rent", "free", "electricity_fixed", "penalty", "maintenance_recharge", "other"] as const;
+export const CHARGE_KINDS = [
+  "rent",
+  "free",
+  "electricity_fixed",
+  "penalty",
+  "maintenance_recharge",
+  "other",
+] as const;
 export type ChargeKind = (typeof CHARGE_KINDS)[number];
 
 export const PAYMENT_METHODS = ["cash", "knet", "bank_transfer", "cheque", "link"] as const;
@@ -74,7 +88,14 @@ export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 export const ADJUSTMENT_KINDS = ["discount", "write_off", "correction"] as const;
 export type AdjustmentKind = (typeof ADJUSTMENT_KINDS)[number];
 
-export const LEGAL_STATUSES = ["none", "filed", "in_progress", "judgment", "enforcement", "closed"] as const;
+export const LEGAL_STATUSES = [
+  "none",
+  "filed",
+  "in_progress",
+  "judgment",
+  "enforcement",
+  "closed",
+] as const;
 export type LegalStatus = (typeof LEGAL_STATUSES)[number];
 
 export const LEGAL_STATUS_LABELS_AR: Record<LegalStatus, string> = {
@@ -86,10 +107,26 @@ export const LEGAL_STATUS_LABELS_AR: Record<LegalStatus, string> = {
   closed: "مغلقة",
 };
 
-export const PERIOD_STATUSES = ["paid", "partial", "unpaid", "due", "advance", "free", "vacant", "legal"] as const;
+export const PERIOD_STATUSES = [
+  "paid",
+  "partial",
+  "unpaid",
+  "due",
+  "advance",
+  "free",
+  "vacant",
+  "legal",
+] as const;
 export type PeriodStatus = (typeof PERIOD_STATUSES)[number];
 
-export const UNIT_STATUSES = ["occupied", "vacant", "reserved", "in_grace", "notice", "legal"] as const;
+export const UNIT_STATUSES = [
+  "occupied",
+  "vacant",
+  "reserved",
+  "in_grace",
+  "notice",
+  "legal",
+] as const;
 export type UnitStatus = (typeof UNIT_STATUSES)[number];
 
 export const ROLES = ["admin", "accountant", "collector", "viewer", "owner"] as const;

@@ -11,7 +11,10 @@ export default function DashboardLoading() {
       </div>
       <div className="mt-6 flex gap-3 overflow-hidden">
         {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} className="aspect-[4/5] w-[78vw] max-w-[340px] shrink-0 rounded-[28px] lg:w-1/4" />
+          <Skeleton
+            key={i}
+            className="aspect-[4/5] w-[78vw] max-w-[340px] shrink-0 rounded-[28px] lg:w-1/4"
+          />
         ))}
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 lg:grid-cols-4">

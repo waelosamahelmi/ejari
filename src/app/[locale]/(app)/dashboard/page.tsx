@@ -18,7 +18,12 @@ function parseLayout(raw: unknown): Layout {
   return { order: (r.order ?? [...WIDGETS]).filter(valid), hidden: (r.hidden ?? []).filter(valid) };
 }
 
-export default async function DashboardPage({ params, searchParams }: LocaleParams & { searchParams: Promise<{ period?: string; property?: string; owner?: string }> }) {
+export default async function DashboardPage({
+  params,
+  searchParams,
+}: LocaleParams & {
+  searchParams: Promise<{ period?: string; property?: string; owner?: string }>;
+}) {
   const { locale } = await pageLocale(params);
   const sp = await searchParams;
   const ctx = await requireContext(locale);

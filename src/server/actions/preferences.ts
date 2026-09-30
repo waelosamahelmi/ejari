@@ -14,9 +14,18 @@ const prefSchema = z.object({
   digits: z.enum(["latn", "arab"]).optional(),
   density: z.enum(["comfortable", "compact"]).optional(),
   dashboard_layout: z.any().optional(),
-  quiet_start: z.string().regex(/^\d{2}:\d{2}$/).optional(),
-  quiet_end: z.string().regex(/^\d{2}:\d{2}$/).optional(),
-  digest_time: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  quiet_start: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/)
+    .optional(),
+  quiet_end: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/)
+    .optional(),
+  digest_time: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/)
+    .optional(),
   muted_property_ids: z.array(z.string().uuid()).optional(),
   install_prompt_dismissed_at: z.string().optional(),
   onboarding_done: z.boolean().optional(),
@@ -27,15 +36,22 @@ export async function savePreferences(input: z.input<typeof prefSchema>) {
   return run(async () => {
     const data = prefSchema.parse(input);
     const store = await cookies();
-    if (data.locale) store.set("NEXT_LOCALE", data.locale, { path: "/", maxAge: ONE_YEAR, sameSite: "lax" });
-    if (data.theme) store.set("ijari-theme", data.theme, { path: "/", maxAge: ONE_YEAR, sameSite: "lax" });
-    if (data.accent) store.set("ijari-accent", data.accent, { path: "/", maxAge: ONE_YEAR, sameSite: "lax" });
-    if (data.digits) store.set("ijari-digits", data.digits, { path: "/", maxAge: ONE_YEAR, sameSite: "lax" });
-    if (data.density) store.set("ijari-density", data.density, { path: "/", maxAge: ONE_YEAR, sameSite: "lax" });
+    if (data.locale)
+      store.set("NEXT_LOCALE", data.locale, { path: "/", maxAge: ONE_YEAR, sameSite: "lax" });
+    if (data.theme)
+      store.set("ijari-theme", data.theme, { path: "/", maxAge: ONE_YEAR, sameSite: "lax" });
+    if (data.accent)
+      store.set("ijari-accent", data.accent, { path: "/", maxAge: ONE_YEAR, sameSite: "lax" });
+    if (data.digits)
+      store.set("ijari-digits", data.digits, { path: "/", maxAge: ONE_YEAR, sameSite: "lax" });
+    if (data.density)
+      store.set("ijari-density", data.density, { path: "/", maxAge: ONE_YEAR, sameSite: "lax" });
     const ctx = await requireActionContext().catch(() => null);
     if (!ctx) return;
     const supabase = await supabaseServer();
-    const { error } = await supabase.from("user_settings").upsert({ user_id: ctx.userId, org_id: ctx.orgId, ...data });
+    const { error } = await supabase
+      .from("user_settings")
+      .upsert({ user_id: ctx.userId, org_id: ctx.orgId, ...data });
     if (error) throw error;
   });
 }
@@ -47,4 +63,58 @@ export async function markOnboarded() {
 export async function signOut() {
   const supabase = await supabaseServer();
   await supabase.auth.signOut();
+}
+
+const notifPrefsSchema = z.object({
+  events: z
+    .array(
+      z.object({
+        type: z
+          .string()
+          .regex(/^[a-z_]+$/)
+          .max(40),
+        push: z.boolean(),
+        inApp: z.boolean(),
+      }),
+    )
+    .max(40),
+  quietStart: z.string().regex(/^\d{2}:\d{2}$/),
+  quietEnd: z.string().regex(/^\d{2}:\d{2}$/),
+  digestTime: z.string().regex(/^\d{2}:\d{2}$/),
+  mutedPropertyIds: z.array(z.string().uuid()).max(500),
+});
+
+/** Settings → Notifications: per event × channel, quiet hours, digest time, muted properties. */
+export async function saveNotificationPreferences(input: z.input<typeof notifPrefsSchema>) {
+  return run(async () => {
+    const d = notifPrefsSchema.parse(input);
+    const ctx = await requireActionContext();
+    const db = await supabaseServer();
+    const [prefs, settings] = await Promise.all([
+      d.events.length
+        ? db.from("notification_preferences").upsert(
+            d.events.map((e) => ({
+              org_id: ctx.orgId,
+              user_id: ctx.userId,
+              type: e.type,
+              push: e.push,
+              in_app: e.inApp,
+            })),
+            { onConflict: "user_id,type" },
+          )
+        : Promise.resolve({ error: null }),
+      db
+        .from("user_settings")
+        .upsert({
+          user_id: ctx.userId,
+          org_id: ctx.orgId,
+          quiet_start: d.quietStart,
+          quiet_end: d.quietEnd,
+          digest_time: d.digestTime,
+          muted_property_ids: d.mutedPropertyIds,
+        }),
+    ]);
+    if (prefs.error) throw prefs.error;
+    if (settings.error) throw settings.error;
+  });
 }

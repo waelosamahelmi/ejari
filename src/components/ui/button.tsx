@@ -10,8 +10,10 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary: "bg-ink text-on-ink hover:opacity-90",
-        secondary: "bg-paper text-label shadow-[0_1px_2px_rgba(16,24,40,.06)] ring-1 ring-separator hover:bg-paper-2",
-        tinted: "bg-inset text-label hover:bg-[color-mix(in_srgb,var(--bg-inset)_80%,var(--label)_6%)]",
+        secondary:
+          "bg-paper text-label shadow-[0_1px_2px_rgba(16,24,40,.06)] ring-1 ring-separator hover:bg-paper-2",
+        tinted:
+          "bg-inset text-label hover:bg-[color-mix(in_srgb,var(--bg-inset)_80%,var(--label)_6%)]",
         glass: "glass text-white hover:bg-white/30",
         white: "bg-white text-[#0E0F12] hover:bg-white/90",
         rose: "bg-rose text-white hover:opacity-90",
@@ -32,7 +34,8 @@ export const buttonVariants = cva(
   },
 );
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+export interface ButtonProps
+  extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
 }

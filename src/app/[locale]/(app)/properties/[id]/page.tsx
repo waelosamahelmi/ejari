@@ -19,14 +19,19 @@ export async function generateMetadata({ params }: LocaleParams<{ id: string }>)
   return { title: data?.name ?? "" };
 }
 
-export default async function PropertyPage({ params, searchParams }: LocaleParams<{ id: string }> & { searchParams: Promise<{ tab?: string }> }) {
+export default async function PropertyPage({
+  params,
+  searchParams,
+}: LocaleParams<{ id: string }> & { searchParams: Promise<{ tab?: string }> }) {
   const { locale, id } = await pageLocale(params);
   const { tab } = await searchParams;
   const ctx = await requireContext(locale);
   const db = await supabaseServer();
   const { data: property } = await db
     .from("properties")
-    .select("*, property_owners(owner_id, share_pct, owners(id, full_name, phones)), property_commissions(kind, value)")
+    .select(
+      "*, property_owners(owner_id, share_pct, owners(id, full_name, phones)), property_commissions(kind, value)",
+    )
     .eq("id", id)
     .maybeSingle();
   if (!property) notFound();
@@ -41,8 +46,13 @@ export default async function PropertyPage({ params, searchParams }: LocaleParam
   });
   const late = lateUnits(data.idx, today, { propertyIds: [id] });
   const photos = (property.photos as { path: string; blur?: string }[] | null) ?? [];
-  const signed = await signPaths("media", [property.cover_image_path, ...photos.map((p) => p.path)]);
-  const owners = [...data.owners.values()].sort((a, b) => a.fullName.localeCompare(b.fullName, "ar"));
+  const signed = await signPaths("media", [
+    property.cover_image_path,
+    ...photos.map((p) => p.path),
+  ]);
+  const owners = [...data.owners.values()].sort((a, b) =>
+    a.fullName.localeCompare(b.fullName, "ar"),
+  );
   const commission = property.property_commissions?.[0] ?? null;
   const tTabs = await getTranslations("properties.tabs");
   return (
@@ -64,10 +74,19 @@ export default async function PropertyPage({ params, searchParams }: LocaleParam
         active: property.active,
         cover: property.cover_image_path ? (signed.get(property.cover_image_path) ?? null) : null,
         coverBlur: photos[0]?.blur,
-        photos: photos.map((p) => ({ path: p.path, url: signed.get(p.path) ?? p.path, blur: p.blur })),
+        photos: photos.map((p) => ({
+          path: p.path,
+          url: signed.get(p.path) ?? p.path,
+          blur: p.blur,
+        })),
         owners: (property.property_owners ?? []).map((po) => {
           const o = po.owners as unknown as { id: string; full_name: string; phones: string[] };
-          return { ownerId: o.id, name: o.full_name, phones: o.phones, sharePct: Number(po.share_pct) };
+          return {
+            ownerId: o.id,
+            name: o.full_name,
+            phones: o.phones,
+            sharePct: Number(po.share_pct),
+          };
         }),
         commission: commission ? { kind: commission.kind, value: Number(commission.value) } : null,
       }}
@@ -78,7 +97,20 @@ export default async function PropertyPage({ params, searchParams }: LocaleParam
       allOwners={owners}
       canEdit={can(ctx.role, "manage_master_data")}
       period={period}
-      extraTabs={[{ key: "statement", label: tTabs("statement"), after: "units", content: <StatementEmbed propertyId={id} initialPeriod={period} canExport={can(ctx.role, "view_late_units")} /> }]}
+      extraTabs={[
+        {
+          key: "statement",
+          label: tTabs("statement"),
+          after: "units",
+          content: (
+            <StatementEmbed
+              propertyId={id}
+              initialPeriod={period}
+              canExport={can(ctx.role, "view_late_units")}
+            />
+          ),
+        },
+      ]}
     />
   );
 }

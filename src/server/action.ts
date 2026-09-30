@@ -5,8 +5,7 @@ import { AllocationError } from "@/domain/allocation";
 import { ExpenseAllocationError } from "@/domain/expenses";
 
 export type ActionResult<T = void> =
-  | { ok: true; data: T }
-  | { ok: false; error: string; fieldErrors?: Record<string, string> };
+  { ok: true; data: T } | { ok: false; error: string; fieldErrors?: Record<string, string> };
 
 interface DbErrorLike {
   message?: string;
@@ -24,7 +23,8 @@ export function errorCode(e: unknown): string {
   const db = e as DbErrorLike;
   const msg = db?.message ?? "";
   if (db?.hint === "period_closed" || /period .* is closed/.test(msg)) return "period_closed";
-  if (/contract_units_no_overlap|exclusion constraint/.test(msg) || db?.code === "23P01") return "overlap";
+  if (/contract_units_no_overlap|exclusion constraint/.test(msg) || db?.code === "23P01")
+    return "overlap";
   if (db?.code === "23505") return "duplicate";
   if (db?.code === "23503") return "has_dependents";
   if (db?.code === "42501" || /row-level security/.test(msg)) return "forbidden";

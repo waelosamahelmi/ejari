@@ -1,8 +1,28 @@
 {
-  "title": "Owners", "new": "New owner", "edit": "Edit owner", "saved": "Owner saved", "search": "Search owners",
-  "empty": "No owners yet", "emptyText": "Add the owner first, then link their properties.",
-  "fields": { "fullName": "Full name", "civilId": "Civil ID", "phones": "Phone numbers", "email": "Email", "iban": "IBAN", "bankName": "Bank", "address": "Address", "notes": "Notes" },
-  "sections": { "properties": "Properties", "bank": "Bank account", "portal": "Owner portal", "contact": "Contact" },
+  "title": "Owners",
+  "new": "New owner",
+  "edit": "Edit owner",
+  "saved": "Owner saved",
+  "search": "Search owners",
+  "empty": "No owners yet",
+  "emptyText": "Add the owner first, then link their properties.",
+  "fields": {
+    "fullName": "Full name",
+    "civilId": "Civil ID",
+    "phones": "Phone numbers",
+    "email": "Email",
+    "iban": "IBAN",
+    "bankName": "Bank",
+    "address": "Address",
+    "notes": "Notes"
+  },
+  "sections": {
+    "properties": "Properties",
+    "bank": "Bank account",
+    "portal": "Owner portal",
+    "contact": "Contact"
+  },
   "propertiesCount": "{count, plural, =0 {No properties} one {# property} other {# properties}}",
-  "share": "{pct}%", "deleteBlocked": "An owner linked to properties can't be deleted."
+  "share": "{pct}%",
+  "deleteBlocked": "An owner linked to properties can't be deleted."
 }

@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { amountWords, durationEN, numberWordsEN, tafqeetDuration, tafqeetKWD, tafqeetNumber, wordsEN } from "@/domain/tafqeet";
+import {
+  amountWords,
+  durationEN,
+  numberWordsEN,
+  tafqeetDuration,
+  tafqeetKWD,
+  tafqeetNumber,
+  wordsEN,
+} from "@/domain/tafqeet";
 
 describe("tafqeetKWD — spec examples", () => {
   it.each([
@@ -93,7 +101,8 @@ describe("tafqeetNumber", () => {
 
 describe("amountWords", () => {
   it("whole dinars → number only", () => expect(amountWords(650000)).toBe("ستمائة وخمسون"));
-  it("with fils → full phrase", () => expect(amountWords(3750)).toBe("ثلاثة دنانير وسبعمائة وخمسون فلس"));
+  it("with fils → full phrase", () =>
+    expect(amountWords(3750)).toBe("ثلاثة دنانير وسبعمائة وخمسون فلس"));
 });
 
 describe("tafqeetDuration", () => {

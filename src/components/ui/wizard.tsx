@@ -38,15 +38,23 @@ export function Wizard({
     <div className={cn("flex flex-col", className)}>
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <div className="text-label-2 text-[13px]">{t("step", { n: current + 1, total: steps.length })}</div>
+          <div className="text-label-2 text-[13px]">
+            {t("step", { n: current + 1, total: steps.length })}
+          </div>
           <div className="text-[22px] font-semibold">{steps[current]}</div>
         </div>
-        <ol className="flex items-center gap-1.5" aria-label={t("step", { n: current + 1, total: steps.length })}>
+        <ol
+          className="flex items-center gap-1.5"
+          aria-label={t("step", { n: current + 1, total: steps.length })}
+        >
           {steps.map((s, i) => (
             <li key={s} aria-current={i === current ? "step" : undefined} title={s}>
               <motion.span
                 layout
-                className={cn("block h-2 rounded-full", i === current ? "bg-ink w-6" : i < current ? "bg-ink/60 w-2" : "bg-label-3 w-2")}
+                className={cn(
+                  "block h-2 rounded-full",
+                  i === current ? "bg-ink w-6" : i < current ? "bg-ink/60 w-2" : "bg-label-3 w-2",
+                )}
               />
             </li>
           ))}

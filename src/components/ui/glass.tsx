@@ -5,22 +5,23 @@ export const glassButtonClass =
   "glass press inline-flex size-11 items-center justify-center rounded-full text-white shadow-[0_2px_12px_rgba(0,0,0,.12)] [&_svg]:size-5";
 
 /** Round 44px frosted-glass icon button for use over photos (§21.1.2). */
-export const GlassButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { size?: "md" | "lg" }>(
-  function GlassButton({ className, size = "md", type = "button", ...props }, ref) {
-    return (
-      <button
-        ref={ref}
-        type={type}
-        className={cn(
-          "glass press inline-flex items-center justify-center rounded-full text-white shadow-[0_2px_12px_rgba(0,0,0,.12)] [&_svg]:size-5",
-          size === "md" ? "size-11" : "size-12",
-          className,
-        )}
-        {...props}
-      />
-    );
-  },
-);
+export const GlassButton = forwardRef<
+  HTMLButtonElement,
+  ButtonHTMLAttributes<HTMLButtonElement> & { size?: "md" | "lg" }
+>(function GlassButton({ className, size = "md", type = "button", ...props }, ref) {
+  return (
+    <button
+      ref={ref}
+      type={type}
+      className={cn(
+        "glass press inline-flex items-center justify-center rounded-full text-white shadow-[0_2px_12px_rgba(0,0,0,.12)] [&_svg]:size-5",
+        size === "md" ? "size-11" : "size-12",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
 
 /** Glass metadata pill ("٩ وحدات", "٩٦٪ محصل"). `tone="danger"` gives a red-tinted glass. */
 export function GlassPill({

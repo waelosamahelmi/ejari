@@ -1,4 +1,5 @@
-import { expect, type Page } from "@playwright/test";
+import { existsSync, readFileSync } from "node:fs";
+import { expect, type BrowserContext, type Page } from "@playwright/test";
 
 export const IDS = {
   jabriya: "0d000000-0000-4000-8000-000000000001",
@@ -11,7 +12,9 @@ export const IDS = {
 export async function supabaseUp(): Promise<boolean> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:55321";
   try {
-    const r = await fetch(`${url}/auth/v1/health`, { headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "" } });
+    const r = await fetch(`${url}/auth/v1/health`, {
+      headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "" },
+    });
     return r.ok;
   } catch {
     return false;
@@ -19,6 +22,14 @@ export async function supabaseUp(): Promise<boolean> {
 }
 
 export async function login(page: Page, who: "admin" | "accountant" | "collector" | "owner" = "admin", locale = "ar") {
+  // Reuse the session saved by global-setup (one real sign-in per role per run).
+  const file = `tests/e2e/.auth/${who}.json`;
+  if (existsSync(file)) {
+    const state = JSON.parse(readFileSync(file, "utf8")) as { cookies: Parameters<BrowserContext["addCookies"]>[0] };
+    await page.context().addCookies(state.cookies);
+    await page.goto(`/${locale}/${who === "owner" ? "owner" : "dashboard"}`);
+    if (!page.url().endsWith("/login")) return;
+  }
   await page.goto(`/${locale}/login`);
   await page.fill("#email", `${who}@demo.test`);
   await page.fill("#password", "Demo12345!");

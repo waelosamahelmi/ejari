@@ -10,16 +10,29 @@ export default async function CasePage({ params }: LocaleParams<{ id: string }>)
   const ctx = await requireContext(locale, { capability: "view_legal" });
   const db = await supabaseServer();
   const [{ data: c }, { data: tenants }, { data: contracts }] = await Promise.all([
-    db.from("legal_cases").select("*, tenants(full_name), contracts(contract_no), legal_case_events(id, event_date, title, notes)").eq("id", id).maybeSingle(),
+    db
+      .from("legal_cases")
+      .select(
+        "*, tenants(full_name), contracts(contract_no), legal_case_events(id, event_date, title, notes)",
+      )
+      .eq("id", id)
+      .maybeSingle(),
     db.from("tenants").select("id, full_name").order("full_name"),
-    db.from("contracts").select("id, tenant_id, contract_no, properties(name)").neq("status", "draft"),
+    db
+      .from("contracts")
+      .select("id, tenant_id, contract_no, properties(name)")
+      .neq("status", "draft"),
   ]);
   if (!c) notFound();
   return (
     <CaseView
       canManage={can(ctx.role, "manage_legal")}
       tenants={(tenants ?? []).map((x) => ({ id: x.id, name: x.full_name }))}
-      contracts={(contracts ?? []).map((x) => ({ id: x.id, tenantId: x.tenant_id, label: `${x.contract_no} · ${(x.properties as unknown as { name: string }).name}` }))}
+      contracts={(contracts ?? []).map((x) => ({
+        id: x.id,
+        tenantId: x.tenant_id,
+        label: `${x.contract_no} · ${(x.properties as unknown as { name: string }).name}`,
+      }))}
       value={{
         id: c.id,
         tenantId: c.tenant_id,

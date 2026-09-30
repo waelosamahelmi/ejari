@@ -5,7 +5,17 @@ import { routing } from "./i18n/routing";
 
 const intl = createIntlMiddleware(routing);
 
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/reset-password", "/welcome", "/auth", "/offline", "/forbidden", "/opengraph-image", "/dev/brand"];
+const PUBLIC_PATHS = [
+  "/login",
+  "/forgot-password",
+  "/reset-password",
+  "/welcome",
+  "/auth",
+  "/offline",
+  "/forbidden",
+  "/opengraph-image",
+  "/dev/brand",
+];
 
 export async function middleware(request: NextRequest) {
   const response = intl(request);
@@ -30,11 +40,15 @@ export async function middleware(request: NextRequest) {
 
   const [, locale = routing.defaultLocale, ...rest] = request.nextUrl.pathname.split("/");
   const sub = `/${rest.join("/")}`;
-  const isPublic = sub === "/" ? false : PUBLIC_PATHS.some((p) => sub === p || sub.startsWith(`${p}/`));
+  const isPublic =
+    sub === "/" ? false : PUBLIC_PATHS.some((p) => sub === p || sub.startsWith(`${p}/`));
   if (!user && !isPublic && !sub.startsWith("/dev/brand")) {
     const target = request.nextUrl.clone();
     target.pathname = `/${locale}/${request.cookies.get("ijari-onboarded") ? "login" : "welcome"}`;
-    target.search = sub !== "/" ? `?next=${encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search)}` : "";
+    target.search =
+      sub !== "/"
+        ? `?next=${encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search)}`
+        : "";
     const redirect = NextResponse.redirect(target);
     for (const c of response.cookies.getAll()) redirect.cookies.set(c);
     return redirect;
@@ -43,5 +57,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|print|share|_next|_vercel|sw.js|swe-worker|manifest.webmanifest|icons|splash|brand|.*\\..*).*)"],
+  matcher: [
+    "/((?!api|print|share|_next|_vercel|sw.js|swe-worker|manifest.webmanifest|icons|splash|brand|.*\\..*).*)",
+  ],
 };

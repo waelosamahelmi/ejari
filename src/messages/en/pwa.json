@@ -1,0 +1,110 @@
+{
+  "offline": {
+    "title": "You're offline",
+    "text": "There's no internet connection right now. You can keep collecting — payments sync as soon as you're back online.",
+    "worksTitle": "What works offline",
+    "works": {
+      "collections": "This month's collection sheet",
+      "payment": "Recording payments (saved and synced later)",
+      "late": "Late units",
+      "quick": "Unit and tenant pages you opened recently",
+      "reminders": "WhatsApp reminders"
+    },
+    "retry": "Try again",
+    "openCollections": "Open collections"
+  },
+  "pill": {
+    "offline": "{count, plural, =0 {You're offline} one {Offline — # payment will sync} other {Offline — # payments will sync}}",
+    "syncing": "{count, plural, one {Syncing # payment…} other {Syncing # payments…}}",
+    "review": "{count, plural, one {# payment needs review} other {# payments need review}}",
+    "synced": "{count, plural, one {# payment synced} other {# payments synced}}",
+    "backOnline": "Back online",
+    "offlineAction": "You're offline. This needs a connection — you can still record payments, they'll sync later."
+  },
+  "outbox": {
+    "title": "Payments waiting to sync",
+    "pending": "Waiting to sync",
+    "syncing": "Syncing",
+    "review": "Needs review",
+    "empty": "No pending payments.",
+    "syncNow": "Sync now",
+    "retry": "Retry",
+    "discard": "Discard",
+    "discardConfirm": "This payment will be removed from this device and won't be recorded. Are you sure?",
+    "receiptNo": "Receipt no.",
+    "savedOffline": "Payment saved on this device. It will sync when you're back online.",
+    "pendingBadge": "Pending sync"
+  },
+  "update": {
+    "text": "Update available",
+    "reload": "Reload",
+    "later": "Later"
+  },
+  "install": {
+    "title": "Install Ejari on this device",
+    "text": "Open it from your home screen like an app, work offline and get notifications.",
+    "action": "Install app",
+    "dismiss": "Not now",
+    "installed": "Ejari is installed on this device.",
+    "unsupported": "This browser can't install apps directly. Use Chrome, Edge, or Safari on iPhone.",
+    "iosTitle": "Add Ejari to your Home Screen",
+    "iosText": "On iPhone and iPad, notifications need the installed app (iOS 16.4 or later).",
+    "iosSteps": {
+      "share": "Tap the Share button in Safari's toolbar",
+      "add": "Choose “Add to Home Screen”",
+      "confirm": "Tap “Add” at the top"
+    },
+    "iosShowMe": "Show me how",
+    "done": "Done"
+  },
+  "push": {
+    "askTitle": "Get notified for every payment?",
+    "askText": "We'll tell you about new payments, late rent and contracts ending soon. You can change this anytime.",
+    "allow": "Turn on notifications",
+    "notNow": "Not now",
+    "iosInstallFirst": "On iPhone, add the app to your Home Screen first, then turn on notifications from there.",
+    "denied": "Notifications are blocked for this site in your browser settings. Allow them there, then come back.",
+    "unsupported": "This browser doesn't support web notifications.",
+    "notConfigured": "Push isn't configured on the server yet (VAPID keys).",
+    "enabled": "Notifications are on for this device",
+    "enable": "Turn on for this device",
+    "disable": "Turn off for this device",
+    "testSent": "Test notification sent.",
+    "test": "Send test notification"
+  },
+  "prefs": {
+    "device": "This device",
+    "events": "Events",
+    "eventsFooter": "Choose where each type reaches you: a device notification or inside the app.",
+    "channelPush": "Push",
+    "channelInApp": "In-app",
+    "quiet": "Quiet hours",
+    "quietFooter": "No device notifications during these hours (Kuwait time). They still arrive in the app.",
+    "quietFrom": "From",
+    "quietTo": "To",
+    "digest": "Daily digest",
+    "digestTime": "Digest time",
+    "digestFooter": "A morning summary of payments due today and late units.",
+    "mute": "Muted properties",
+    "muteFooter": "You won't be notified about muted properties.",
+    "saved": "Notification preferences saved."
+  },
+  "share": {
+    "title": "Attach file",
+    "subtitle": "Choose where to attach the files you shared.",
+    "empty": "No shared files.",
+    "emptyText": "Share a photo or PDF from any app and pick Ejari.",
+    "attachTo": "Attach to",
+    "targets": {
+      "payment": "Payment",
+      "voucher": "Voucher",
+      "contract": "Contract",
+      "unit": "Unit"
+    },
+    "search": "Search…",
+    "attach": "Attach",
+    "attached": "File attached.",
+    "remove": "Remove",
+    "unsupported": "Open Ejari once on this device, then share again."
+  }
+}

@@ -1,11 +1,60 @@
 {
-  "title": "Tenants", "new": "New tenant", "edit": "Edit tenant", "saved": "Tenant saved", "search": "Search by name, civil ID or phone",
-  "empty": "No tenants yet", "emptyText": "Tenants are added when you create a contract, or right here.", "noResults": "No matching tenant",
-  "fields": { "fullName": "Full name", "civilId": "Civil ID", "nationality": "Nationality", "phones": "Phone numbers", "addPhone": "Add number", "email": "Email", "employer": "Employer", "emergency": "Emergency contact", "notes": "Notes" },
-  "filters": { "all": "All", "late": "Late", "active": "With active contract", "blacklisted": "Blacklisted" },
-  "columns": { "name": "Tenant", "civilId": "Civil ID", "phone": "Phone", "units": "Units", "balance": "Balance", "status": "Status" },
-  "status": { "late": "Late", "clear": "Up to date", "noContract": "No contract", "credit": "In credit" },
-  "sections": { "contact": "Contact", "contracts": "Contracts", "ledger": "Ledger", "reminders": "Reminders", "legal": "Legal cases", "documents": "Documents" },
-  "blacklist": { "label": "Blacklist", "reason": "Reason", "on": "Added to blacklist", "off": "Removed from blacklist", "badge": "Blacklisted" },
-  "duplicateCivilId": "A tenant with this civil ID already exists: {name}", "open": "Open", "noContracts": "No contracts for this tenant", "noReminders": "No reminders sent yet"
+  "title": "Tenants",
+  "new": "New tenant",
+  "edit": "Edit tenant",
+  "saved": "Tenant saved",
+  "search": "Search by name, civil ID or phone",
+  "empty": "No tenants yet",
+  "emptyText": "Tenants are added when you create a contract, or right here.",
+  "noResults": "No matching tenant",
+  "fields": {
+    "fullName": "Full name",
+    "civilId": "Civil ID",
+    "nationality": "Nationality",
+    "phones": "Phone numbers",
+    "addPhone": "Add number",
+    "email": "Email",
+    "employer": "Employer",
+    "emergency": "Emergency contact",
+    "notes": "Notes"
+  },
+  "filters": {
+    "all": "All",
+    "late": "Late",
+    "active": "With active contract",
+    "blacklisted": "Blacklisted"
+  },
+  "columns": {
+    "name": "Tenant",
+    "civilId": "Civil ID",
+    "phone": "Phone",
+    "units": "Units",
+    "balance": "Balance",
+    "status": "Status"
+  },
+  "status": {
+    "late": "Late",
+    "clear": "Up to date",
+    "noContract": "No contract",
+    "credit": "In credit"
+  },
+  "sections": {
+    "contact": "Contact",
+    "contracts": "Contracts",
+    "ledger": "Ledger",
+    "reminders": "Reminders",
+    "legal": "Legal cases",
+    "documents": "Documents"
+  },
+  "blacklist": {
+    "label": "Blacklist",
+    "reason": "Reason",
+    "on": "Added to blacklist",
+    "off": "Removed from blacklist",
+    "badge": "Blacklisted"
+  },
+  "duplicateCivilId": "A tenant with this civil ID already exists: {name}",
+  "open": "Open",
+  "noContracts": "No contracts for this tenant",
+  "noReminders": "No reminders sent yet"
 }

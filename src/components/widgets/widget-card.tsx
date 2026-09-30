@@ -11,7 +11,21 @@ const SIZE: Record<WidgetSize, string> = {
 };
 
 /** Bento widget card: sm 1×1, md 2×1, lg 2×2, xl 4×2. */
-export function WidgetCard({ size, title, action, children, className, icon }: { size: WidgetSize; title?: ReactNode; action?: ReactNode; children: ReactNode; className?: string; icon?: ReactNode }) {
+export function WidgetCard({
+  size,
+  title,
+  action,
+  children,
+  className,
+  icon,
+}: {
+  size: WidgetSize;
+  title?: ReactNode;
+  action?: ReactNode;
+  children: ReactNode;
+  className?: string;
+  icon?: ReactNode;
+}) {
   return (
     <section className={cn("card flex min-h-[168px] flex-col p-5", SIZE[size], className)}>
       {(title || action) && (

@@ -9,7 +9,16 @@ export default async function ClosingsPage({ params }: LocaleParams) {
   const { locale } = await pageLocale(params);
   const ctx = await requireContext(locale, { capability: "close_month" });
   const db = await supabaseServer();
-  const { data } = await db.from("monthly_closings").select("period, closed_at, notes").order("period", { ascending: false });
+  const { data } = await db
+    .from("monthly_closings")
+    .select("period, closed_at, notes")
+    .order("period", { ascending: false });
   const t = await getTranslations("settings.items");
-  return <ClosingsView title={t("closings")} canReopen={can(ctx.role, "reopen_month")} rows={(data ?? []).map((r) => ({ period: r.period, closedAt: r.closed_at, notes: r.notes }))} />;
+  return (
+    <ClosingsView
+      title={t("closings")}
+      canReopen={can(ctx.role, "reopen_month")}
+      rows={(data ?? []).map((r) => ({ period: r.period, closedAt: r.closed_at, notes: r.notes }))}
+    />
+  );
 }

@@ -32,12 +32,29 @@ export default function ResetPasswordPage() {
         }}
       >
         <Field label={t("password")} htmlFor="pw">
-          <Input id="pw" type="password" dir="ltr" autoComplete="new-password" autoFocus value={pw} onChange={(e) => setPw(e.target.value)} />
+          <Input
+            id="pw"
+            type="password"
+            dir="ltr"
+            autoComplete="new-password"
+            autoFocus
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
+          />
         </Field>
         <Field label={t("confirm")} htmlFor="pw2" error={error}>
-          <Input id="pw2" type="password" dir="ltr" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+          <Input
+            id="pw2"
+            type="password"
+            dir="ltr"
+            autoComplete="new-password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+          />
         </Field>
-        <Button type="submit" size="lg" block loading={pending}>{t("submit")}</Button>
+        <Button type="submit" size="lg" block loading={pending}>
+          {t("submit")}
+        </Button>
       </form>
     </AuthCard>
   );

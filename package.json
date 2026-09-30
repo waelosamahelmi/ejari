@@ -19,7 +19,9 @@
     "seed": "tsx scripts/seed.ts",
     "test:rls": "SUPABASE_TEST=1 vitest run tests/rls",
     "brand:build": "tsx scripts/brand/build-brand.ts",
-    "brand:assets": "tsx scripts/brand/build-brand.ts && tsx scripts/generate-brand-assets.ts"
+    "brand:assets": "tsx scripts/brand/build-brand.ts && tsx scripts/generate-brand-assets.ts",
+    "vapid": "tsx scripts/generate-vapid.ts",
+    "screenshots": "tsx scripts/capture-screenshots.ts"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",

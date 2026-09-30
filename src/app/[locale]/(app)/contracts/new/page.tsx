@@ -16,7 +16,12 @@ export async function generateMetadata({ params }: LocaleParams) {
   return { title: t("title") };
 }
 
-export default async function NewContractPage({ params, searchParams }: LocaleParams & { searchParams: Promise<{ unit?: string; draft?: string; property?: string; tenant?: string }> }) {
+export default async function NewContractPage({
+  params,
+  searchParams,
+}: LocaleParams & {
+  searchParams: Promise<{ unit?: string; draft?: string; property?: string; tenant?: string }>;
+}) {
   const { locale } = await pageLocale(params);
   const sp = await searchParams;
   const ctx = await requireContext(locale, { capability: "manage_contracts" });
@@ -29,16 +34,26 @@ export default async function NewContractPage({ params, searchParams }: LocalePa
     loadTemplate(db, "investment"),
     db.from("property_owners").select("property_id, owner_id, share_pct"),
   ]);
-  const properties = [...data.properties.values()].filter((p) => p.active).map((p) => ({
-    id: p.id,
-    name: locale === "en" && p.nameEn ? p.nameEn : p.name,
-    propertyType: p.propertyType,
-    ownerIds: (propOwners ?? []).filter((po) => po.property_id === p.id).sort((a, b) => Number(b.share_pct) - Number(a.share_pct)).map((po) => po.owner_id),
-    stack: buildingStack(data, p.id, period, today),
-  }));
+  const properties = [...data.properties.values()]
+    .filter((p) => p.active)
+    .map((p) => ({
+      id: p.id,
+      name: locale === "en" && p.nameEn ? p.nameEn : p.name,
+      propertyType: p.propertyType,
+      ownerIds: (propOwners ?? [])
+        .filter((po) => po.property_id === p.id)
+        .sort((a, b) => Number(b.share_pct) - Number(a.share_pct))
+        .map((po) => po.owner_id),
+      stack: buildingStack(data, p.id, period, today),
+    }));
   let initial: (ContractDraftInput & { id?: string }) | null = null;
   if (sp.draft) {
-    const { data: c } = await db.from("contracts").select("*, contract_units(unit_id, rent_share_fils)").eq("id", sp.draft).eq("status", "draft").maybeSingle();
+    const { data: c } = await db
+      .from("contracts")
+      .select("*, contract_units(unit_id, rent_share_fils)")
+      .eq("id", sp.draft)
+      .eq("status", "draft")
+      .maybeSingle();
     if (c)
       initial = {
         id: c.id,
@@ -61,7 +76,13 @@ export default async function NewContractPage({ params, searchParams }: LocalePa
         freeMonthsPenaltyWindowMonths: c.free_months_penalty_window_months,
         noticePeriodMonths: c.notice_period_months,
         securityDepositFils: c.security_deposit_fils,
-        annualIncrease: c.annual_increase_kind ? { kind: c.annual_increase_kind, value: Number(c.annual_increase_value), everyMonths: c.annual_increase_every_months ?? 12 } : null,
+        annualIncrease: c.annual_increase_kind
+          ? {
+              kind: c.annual_increase_kind,
+              value: Number(c.annual_increase_value),
+              everyMonths: c.annual_increase_every_months ?? 12,
+            }
+          : null,
         clauseOverrides: (c.clause_overrides ?? {}) as ContractDraftInput["clauseOverrides"],
         customClauses: (c.custom_clauses ?? []) as { key: string; text: string }[],
         notes: c.notes,
@@ -72,13 +93,32 @@ export default async function NewContractPage({ params, searchParams }: LocalePa
     <ContractWizard
       today={today}
       initial={initial}
-      preset={{ propertyId: unit?.propertyId ?? sp.property ?? null, unitId: unit?.id ?? null, tenantId: sp.tenant ?? null }}
+      preset={{
+        propertyId: unit?.propertyId ?? sp.property ?? null,
+        unitId: unit?.id ?? null,
+        tenantId: sp.tenant ?? null,
+      }}
       properties={properties}
       owners={[...data.owners.values()].map((o) => ({ id: o.id, name: o.fullName }))}
-      tenants={[...data.tenants.values()].map((t) => ({ id: t.id, name: t.fullName, civilIdMasked: maskCivilId(t.civilId), civilId: t.civilId ?? "", phones: t.phones, blacklisted: t.blacklisted }))}
+      tenants={[...data.tenants.values()].map((t) => ({
+        id: t.id,
+        name: t.fullName,
+        civilIdMasked: maskCivilId(t.civilId),
+        civilId: t.civilId ?? "",
+        phones: t.phones,
+        blacklisted: t.blacklisted,
+      }))}
       templates={{
-        residential: resTpl.clauses.map((c) => ({ key: c.key, optional: !!c.optional, body: c.body })),
-        investment: invTpl.clauses.map((c) => ({ key: c.key, optional: !!c.optional, body: c.body })),
+        residential: resTpl.clauses.map((c) => ({
+          key: c.key,
+          optional: !!c.optional,
+          body: c.body,
+        })),
+        investment: invTpl.clauses.map((c) => ({
+          key: c.key,
+          optional: !!c.optional,
+          body: c.body,
+        })),
       }}
     />
   );

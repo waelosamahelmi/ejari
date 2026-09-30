@@ -16,9 +16,17 @@ export default async function LegalPage({ params }: LocaleParams) {
   const ctx = await requireContext(locale, { capability: "view_legal" });
   const db = await supabaseServer();
   const [{ data: cases }, { data: tenants }, { data: contracts }] = await Promise.all([
-    db.from("legal_cases").select("id, case_no, court, type, status, amount_claimed_fils, next_hearing_date, lawyer, tenant_id, contract_id, tenants(full_name), contracts(contract_no, properties(name))").order("next_hearing_date", { ascending: true, nullsFirst: false }),
+    db
+      .from("legal_cases")
+      .select(
+        "id, case_no, court, type, status, amount_claimed_fils, next_hearing_date, lawyer, tenant_id, contract_id, tenants(full_name), contracts(contract_no, properties(name))",
+      )
+      .order("next_hearing_date", { ascending: true, nullsFirst: false }),
     db.from("tenants").select("id, full_name").order("full_name"),
-    db.from("contracts").select("id, tenant_id, contract_no, properties(name)").neq("status", "draft"),
+    db
+      .from("contracts")
+      .select("id, tenant_id, contract_no, properties(name)")
+      .neq("status", "draft"),
   ]);
   return (
     <LegalView
@@ -32,10 +40,16 @@ export default async function LegalPage({ params }: LocaleParams) {
         amountFils: c.amount_claimed_fils,
         nextHearing: c.next_hearing_date,
         tenant: (c.tenants as unknown as { full_name: string }).full_name,
-        contract: c.contracts ? `${(c.contracts as unknown as { contract_no: string }).contract_no} · ${(c.contracts as unknown as { properties: { name: string } }).properties.name}` : null,
+        contract: c.contracts
+          ? `${(c.contracts as unknown as { contract_no: string }).contract_no} · ${(c.contracts as unknown as { properties: { name: string } }).properties.name}`
+          : null,
       }))}
       tenants={(tenants ?? []).map((x) => ({ id: x.id, name: x.full_name }))}
-      contracts={(contracts ?? []).map((x) => ({ id: x.id, tenantId: x.tenant_id, label: `${x.contract_no} · ${(x.properties as unknown as { name: string }).name}` }))}
+      contracts={(contracts ?? []).map((x) => ({
+        id: x.id,
+        tenantId: x.tenant_id,
+        label: `${x.contract_no} · ${(x.properties as unknown as { name: string }).name}`,
+      }))}
     />
   );
 }

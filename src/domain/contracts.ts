@@ -36,7 +36,8 @@ export function formatSequenceNo(prefix: string, year: number, seq: number, widt
 
 // ---------------------------------------------------------------- lifecycle
 
-export type ContractAction = "activate" | "record_notice" | "revise_rent" | "renew" | "terminate" | "end" | "edit";
+export type ContractAction =
+  "activate" | "record_notice" | "revise_rent" | "renew" | "terminate" | "end" | "edit";
 
 const TRANSITIONS: Record<ContractStatus, readonly ContractAction[]> = {
   draft: ["activate", "edit"],
@@ -133,7 +134,8 @@ export function renewalTerms(c: RenewalInput): {
   monthlyRentFils: Fils;
 } {
   const startDate = addDays(c.endDate, 1);
-  const termMonths = c.renewalTermMonths && c.renewalTermMonths > 0 ? c.renewalTermMonths : c.termMonths;
+  const termMonths =
+    c.renewalTermMonths && c.renewalTermMonths > 0 ? c.renewalTermMonths : c.termMonths;
   return {
     startDate,
     firstCollectionDate: startDate,
@@ -190,11 +192,19 @@ export function terminationSettlement(s: SettlementInput): Settlement {
   else if (applied === 0) depositStatus = "refunded";
   else if (refund === 0) depositStatus = "forfeited";
   else depositStatus = "forfeited_partially";
-  return { depositAppliedFils: applied, refundFils: refund, remainingDueFils: remaining, depositStatus };
+  return {
+    depositAppliedFils: applied,
+    refundFils: refund,
+    remainingDueFils: remaining,
+    depositStatus,
+  };
 }
 
 /** Periods after the move-out month whose charges must be voided. */
-export function periodsToVoidAfter(moveOutDate: ISODate, chargePeriods: readonly Period[]): Period[] {
+export function periodsToVoidAfter(
+  moveOutDate: ISODate,
+  chargePeriods: readonly Period[],
+): Period[] {
   const last = periodOf(moveOutDate);
   return chargePeriods.filter((p) => p > last);
 }
@@ -214,7 +224,10 @@ export interface UnitContractView {
  * Unit status is derived, never stored:
  * legal > notice > in_grace > occupied > reserved > vacant.
  */
-export function deriveUnitStatus(today: ISODate, contracts: readonly UnitContractView[]): UnitStatus {
+export function deriveUnitStatus(
+  today: ISODate,
+  contracts: readonly UnitContractView[],
+): UnitStatus {
   const current = contracts.find((c) => {
     if (!isLive(c.status)) return false;
     const end = c.moveOutDate && c.moveOutDate < c.endDate ? c.moveOutDate : c.endDate;

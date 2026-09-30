@@ -33,7 +33,15 @@ export function CardHeader({
 }
 
 /** Section header: 20px semibold title + trailing "View all" (§21.1.13). */
-export function SectionHeader({ title, action, className }: { title: ReactNode; action?: ReactNode; className?: string }) {
+export function SectionHeader({
+  title,
+  action,
+  className,
+}: {
+  title: ReactNode;
+  action?: ReactNode;
+  className?: string;
+}) {
   return (
     <div className={cn("flex items-center justify-between gap-3 px-1 pb-3", className)}>
       <h2 className="text-[20px] leading-7 font-semibold">{title}</h2>

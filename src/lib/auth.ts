@@ -18,7 +18,12 @@ export interface OrgSettings {
   accent: string;
   voucherThresholdFils: number;
   lateReminderDays: number[];
-  numbering: { contractResidential: string; contractInvestment: string; receipt: string; voucher: string };
+  numbering: {
+    contractResidential: string;
+    contractInvestment: string;
+    receipt: string;
+    voucher: string;
+  };
   reminderTemplateAr: string;
   reminderTemplateEn: string;
 }
@@ -42,8 +47,14 @@ export const DEFAULT_SETTINGS: OrgSettings = {
 };
 
 export function parseSettings(json: Json | null | undefined): OrgSettings {
-  const raw = (json && typeof json === "object" && !Array.isArray(json) ? json : {}) as Partial<OrgSettings>;
-  return { ...DEFAULT_SETTINGS, ...raw, numbering: { ...DEFAULT_SETTINGS.numbering, ...(raw.numbering ?? {}) } };
+  const raw = (
+    json && typeof json === "object" && !Array.isArray(json) ? json : {}
+  ) as Partial<OrgSettings>;
+  return {
+    ...DEFAULT_SETTINGS,
+    ...raw,
+    numbering: { ...DEFAULT_SETTINGS.numbering, ...(raw.numbering ?? {}) },
+  };
 }
 
 export interface UserPrefs {
@@ -91,11 +102,23 @@ export const getSessionContext = cache(async (): Promise<SessionContext | null> 
   if (!members || members.length === 0) return null;
   const preferred = (await cookies()).get("ijari-org")?.value;
   const m = members.find((x) => x.org_id === preferred) ?? members[0]!;
-  const org = m.orgs as unknown as { name: string; name_en: string | null; logo_path: string | null; settings: Json } | null;
-  const { data: s } = await supabase.from("user_settings").select("*").eq("user_id", user.id).maybeSingle();
+  const org = m.orgs as unknown as {
+    name: string;
+    name_en: string | null;
+    logo_path: string | null;
+    settings: Json;
+  } | null;
+  const { data: s } = await supabase
+    .from("user_settings")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
   let ownerIds: string[] = [];
   if (m.role === "owner") {
-    const { data: owners } = await supabase.from("owners").select("id").eq("portal_user_id", user.id);
+    const { data: owners } = await supabase
+      .from("owners")
+      .select("id")
+      .eq("portal_user_id", user.id);
     ownerIds = (owners ?? []).map((o) => o.id);
   }
   return {

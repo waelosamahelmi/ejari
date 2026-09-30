@@ -1,6 +1,8 @@
 import "server-only";
 import { cache } from "react";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabaseServer } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/types";
 import { fetchAll } from "@/server/db";
 import { ensureChargesFresh } from "@/server/billing/ensure-charges";
 import type { SessionContext } from "@/lib/auth";
@@ -28,10 +30,41 @@ export interface ContractMeta {
 export interface OrgData {
   ds: Dataset;
   idx: Index;
-  tenants: Map<string, { id: string; fullName: string; phones: string[]; civilId: string | null; blacklisted: boolean }>;
+  tenants: Map<
+    string,
+    { id: string; fullName: string; phones: string[]; civilId: string | null; blacklisted: boolean }
+  >;
   owners: Map<string, { id: string; fullName: string }>;
-  properties: Map<string, { id: string; name: string; nameEn: string | null; area: string | null; propertyType: string; coverImagePath: string | null; photos: { path: string; blur?: string }[]; floors: number | null; active: boolean }>;
-  units: Map<string, { id: string; propertyId: string; label: string; type: UnitType; floor: number | null; underMaintenance: boolean; askingRentFils: number; areaM2: number | null; bedrooms: number | null; bathrooms: number | null; photos: { path: string; blur?: string }[] }>;
+  properties: Map<
+    string,
+    {
+      id: string;
+      name: string;
+      nameEn: string | null;
+      area: string | null;
+      propertyType: string;
+      coverImagePath: string | null;
+      photos: { path: string; blur?: string }[];
+      floors: number | null;
+      active: boolean;
+    }
+  >;
+  units: Map<
+    string,
+    {
+      id: string;
+      propertyId: string;
+      label: string;
+      type: UnitType;
+      floor: number | null;
+      underMaintenance: boolean;
+      askingRentFils: number;
+      areaM2: number | null;
+      bedrooms: number | null;
+      bathrooms: number | null;
+      photos: { path: string; blur?: string }[];
+    }
+  >;
 }
 
 /**
@@ -42,42 +75,171 @@ export interface OrgData {
 export const loadOrgData = cache(async (ctx: SessionContext): Promise<OrgData> => {
   await ensureChargesFresh(ctx.orgId, ctx.settings);
   const db = await supabaseServer();
-  const finance = can(ctx.role, "view_expenses") || ctx.role === "owner";
-  const [properties, units, contracts, charges, payments, allocations, adjustments, legal, tenants, owners, propertyOwners, commissions] = await Promise.all([
-    fetchAll((f, t) => db.from("properties").select("id, name, name_en, area, property_type, cover_image_path, photos, floors, active").order("name").range(f, t)),
-    fetchAll((f, t) => db.from("units").select("id, property_id, label, sort_order, type, floor, area_m2, bedrooms, bathrooms, asking_rent_fils, active, under_maintenance, photos, available_since").range(f, t)),
+  return fetchOrgData(db, ctx.orgId, {
+    finance: can(ctx.role, "view_expenses") || ctx.role === "owner",
+    legal: ctx.role !== "owner",
+  });
+});
+
+/**
+ * Builds the dataset with any client. Every query is filtered by org_id explicitly so
+ * the service-role client (cron) stays scoped to one org; RLS still applies to users.
+ */
+export async function fetchOrgData(
+  db: SupabaseClient<Database>,
+  orgId: string,
+  opts: { finance: boolean; legal: boolean },
+): Promise<OrgData> {
+  const finance = opts.finance;
+  const [
+    properties,
+    units,
+    contracts,
+    charges,
+    payments,
+    allocations,
+    adjustments,
+    legal,
+    tenants,
+    owners,
+    propertyOwners,
+    commissions,
+  ] = await Promise.all([
+    fetchAll((f, t) =>
+      db
+        .from("properties")
+        .select("id, name, name_en, area, property_type, cover_image_path, photos, floors, active")
+        .eq("org_id", orgId)
+        .order("name")
+        .range(f, t),
+    ),
+    fetchAll((f, t) =>
+      db
+        .from("units")
+        .select(
+          "id, property_id, label, sort_order, type, floor, area_m2, bedrooms, bathrooms, asking_rent_fils, active, under_maintenance, photos, available_since",
+        )
+        .eq("org_id", orgId)
+        .range(f, t),
+    ),
     fetchAll((f, t) =>
       db
         .from("contracts")
-        .select("id, contract_no, type, status, tenant_id, property_id, start_date, end_date, first_collection_date, move_out_date, monthly_rent_fils, auto_renew, notice_date, expected_move_out, free_months, contract_units(unit_id, rent_share_fils)")
+        .select(
+          "id, contract_no, type, status, tenant_id, property_id, start_date, end_date, first_collection_date, move_out_date, monthly_rent_fils, auto_renew, notice_date, expected_move_out, free_months, contract_units(unit_id, rent_share_fils)",
+        )
+        .eq("org_id", orgId)
         .neq("status", "draft")
         .range(f, t),
     ),
-    fetchAll((f, t) => db.from("charges").select("id, contract_id, period, kind, amount_fils, waived_value_fils, due_date, voided, description").eq("voided", false).range(f, t)),
-    fetchAll((f, t) => db.from("payments").select("id, contract_id, tenant_id, amount_fils, received_at, receipt_no, voided").eq("voided", false).range(f, t)),
-    fetchAll((f, t) => db.from("payment_allocations").select("payment_id, charge_id, amount_fils").range(f, t)),
-    fetchAll((f, t) => db.from("adjustments").select("id, contract_id, charge_id, kind, amount_fils, adjustment_date, reason").range(f, t)),
-    ctx.role === "owner" ? Promise.resolve([]) : fetchAll((f, t) => db.from("legal_cases").select("id, contract_id, tenant_id, status, next_hearing_date, case_no").range(f, t)),
-    fetchAll((f, t) => db.from("tenants").select("id, full_name, phones, civil_id, blacklisted").range(f, t)),
-    fetchAll((f, t) => db.from("owners").select("id, full_name").range(f, t)),
-    fetchAll((f, t) => db.from("property_owners").select("property_id, owner_id, share_pct").range(f, t)),
-    fetchAll((f, t) => db.from("property_commissions").select("property_id, kind, value, effective_from").order("effective_from").range(f, t)),
+    fetchAll((f, t) =>
+      db
+        .from("charges")
+        .select(
+          "id, contract_id, period, kind, amount_fils, waived_value_fils, due_date, voided, description",
+        )
+        .eq("org_id", orgId)
+        .eq("voided", false)
+        .range(f, t),
+    ),
+    fetchAll((f, t) =>
+      db
+        .from("payments")
+        .select("id, contract_id, tenant_id, amount_fils, received_at, receipt_no, voided")
+        .eq("org_id", orgId)
+        .eq("voided", false)
+        .range(f, t),
+    ),
+    fetchAll((f, t) =>
+      db
+        .from("payment_allocations")
+        .select("payment_id, charge_id, amount_fils")
+        .eq("org_id", orgId)
+        .range(f, t),
+    ),
+    fetchAll((f, t) =>
+      db
+        .from("adjustments")
+        .select("id, contract_id, charge_id, kind, amount_fils, adjustment_date, reason")
+        .eq("org_id", orgId)
+        .range(f, t),
+    ),
+    !opts.legal
+      ? Promise.resolve([])
+      : fetchAll((f, t) =>
+          db
+            .from("legal_cases")
+            .select("id, contract_id, tenant_id, status, next_hearing_date, case_no")
+            .eq("org_id", orgId)
+            .range(f, t),
+        ),
+    fetchAll((f, t) =>
+      db
+        .from("tenants")
+        .select("id, full_name, phones, civil_id, blacklisted")
+        .eq("org_id", orgId)
+        .range(f, t),
+    ),
+    fetchAll((f, t) => db.from("owners").select("id, full_name").eq("org_id", orgId).range(f, t)),
+    fetchAll((f, t) =>
+      db
+        .from("property_owners")
+        .select("property_id, owner_id, share_pct")
+        .eq("org_id", orgId)
+        .range(f, t),
+    ),
+    fetchAll((f, t) =>
+      db
+        .from("property_commissions")
+        .select("property_id, kind, value, effective_from")
+        .eq("org_id", orgId)
+        .order("effective_from")
+        .range(f, t),
+    ),
   ]);
   const [expenseAllocs, vouchers, deposits] = finance
     ? await Promise.all([
         fetchAll((f, t) =>
           db
             .from("expense_allocations")
-            .select("property_id, unit_id, amount_fils, expense_lines!inner(id, description, category_id, beneficiary_id, expense_categories(name_ar, name_en, type), beneficiaries(name), expense_vouchers!inner(id, voucher_no, voucher_date, status))")
+            .select(
+              "property_id, unit_id, amount_fils, expense_lines!inner(id, description, category_id, beneficiary_id, expense_categories(name_ar, name_en, type), beneficiaries(name), expense_vouchers!inner(id, voucher_no, voucher_date, status))",
+            )
+            .eq("org_id", orgId)
             .eq("expense_lines.expense_vouchers.status", "posted")
             .range(f, t),
         ),
-        fetchAll((f, t) => db.from("expense_vouchers").select("id, voucher_no, voucher_date, status, expense_lines(amount_fils)").range(f, t)),
-        fetchAll((f, t) => db.from("deposits").select("id, deposit_date, amount_fils, owner_id, destination, deposit_properties(property_id, amount_fils)").range(f, t)),
+        fetchAll((f, t) =>
+          db
+            .from("expense_vouchers")
+            .select("id, voucher_no, voucher_date, status, expense_lines(amount_fils)")
+            .eq("org_id", orgId)
+            .range(f, t),
+        ),
+        fetchAll((f, t) =>
+          db
+            .from("deposits")
+            .select(
+              "id, deposit_date, amount_fils, owner_id, destination, deposit_properties(property_id, amount_fils)",
+            )
+            .eq("org_id", orgId)
+            .range(f, t),
+        ),
       ])
     : [[], [], []];
 
-  const tenantMap = new Map(tenants.map((t) => [t.id, { id: t.id, fullName: t.full_name, phones: t.phones ?? [], civilId: t.civil_id, blacklisted: t.blacklisted }]));
+  const tenantMap = new Map(
+    tenants.map((t) => [
+      t.id,
+      {
+        id: t.id,
+        fullName: t.full_name,
+        phones: t.phones ?? [],
+        civilId: t.civil_id,
+        blacklisted: t.blacklisted,
+      },
+    ]),
+  );
   const ownerMap = new Map(owners.map((o) => [o.id, { id: o.id, fullName: o.full_name }]));
   const poByProp = new Map<string, { ownerId: string; share: number }[]>();
   for (const po of propertyOwners) {
@@ -86,7 +248,8 @@ export const loadOrgData = cache(async (ctx: SessionContext): Promise<OrgData> =
     poByProp.set(po.property_id, arr);
   }
   const commissionByProp = new Map<string, { kind: "percent" | "fixed"; value: number }>();
-  for (const c of commissions) commissionByProp.set(c.property_id, { kind: c.kind, value: Number(c.value) });
+  for (const c of commissions)
+    commissionByProp.set(c.property_id, { kind: c.kind, value: Number(c.value) });
 
   const ds: Dataset = {
     properties: properties.map((p) => {
@@ -125,7 +288,10 @@ export const loadOrgData = cache(async (ctx: SessionContext): Promise<OrgData> =
         tenantPhones: t?.phones ?? [],
         propertyId: c.property_id,
         unitIds: cu.map((x) => x.unit_id),
-        unitShares: cu.every((x) => x.rent_share_fils !== null) && cu.length > 0 ? cu.map((x) => x.rent_share_fils!) : null,
+        unitShares:
+          cu.every((x) => x.rent_share_fils !== null) && cu.length > 0
+            ? cu.map((x) => x.rent_share_fils!)
+            : null,
         startDate: c.start_date,
         endDate: c.end_date,
         firstCollectionDate: c.first_collection_date,
@@ -148,10 +314,37 @@ export const loadOrgData = cache(async (ctx: SessionContext): Promise<OrgData> =
       voided: c.voided,
       description: c.description,
     })),
-    payments: payments.map((p) => ({ id: p.id, contractId: p.contract_id, tenantId: p.tenant_id, amountFils: p.amount_fils, receivedAt: p.received_at, receiptNo: p.receipt_no, voided: p.voided })),
-    allocations: allocations.map((a) => ({ paymentId: a.payment_id, chargeId: a.charge_id, amountFils: a.amount_fils })),
-    adjustments: adjustments.map((a) => ({ id: a.id, contractId: a.contract_id, chargeId: a.charge_id, kind: a.kind, amountFils: a.amount_fils, date: a.adjustment_date, reason: a.reason })),
-    legalCases: legal.map((l) => ({ id: l.id, contractId: l.contract_id, tenantId: l.tenant_id, status: l.status as LegalStatus, nextHearingDate: l.next_hearing_date, caseNo: l.case_no })),
+    payments: payments.map((p) => ({
+      id: p.id,
+      contractId: p.contract_id,
+      tenantId: p.tenant_id,
+      amountFils: p.amount_fils,
+      receivedAt: p.received_at,
+      receiptNo: p.receipt_no,
+      voided: p.voided,
+    })),
+    allocations: allocations.map((a) => ({
+      paymentId: a.payment_id,
+      chargeId: a.charge_id,
+      amountFils: a.amount_fils,
+    })),
+    adjustments: adjustments.map((a) => ({
+      id: a.id,
+      contractId: a.contract_id,
+      chargeId: a.charge_id,
+      kind: a.kind,
+      amountFils: a.amount_fils,
+      date: a.adjustment_date,
+      reason: a.reason,
+    })),
+    legalCases: legal.map((l) => ({
+      id: l.id,
+      contractId: l.contract_id,
+      tenantId: l.tenant_id,
+      status: l.status as LegalStatus,
+      nextHearingDate: l.next_hearing_date,
+      caseNo: l.case_no,
+    })),
     expenseAllocations: expenseAllocs.map((e) => {
       const line = e.expense_lines as unknown as {
         id: string;
@@ -191,9 +384,16 @@ export const loadOrgData = cache(async (ctx: SessionContext): Promise<OrgData> =
       amountFils: d.amount_fils,
       ownerId: d.owner_id,
       destination: d.destination,
-      properties: (d.deposit_properties ?? []).map((x) => ({ propertyId: x.property_id, amountFils: x.amount_fils })),
+      properties: (d.deposit_properties ?? []).map((x) => ({
+        propertyId: x.property_id,
+        amountFils: x.amount_fils,
+      })),
     })),
-    propertyOwners: propertyOwners.map((po) => ({ propertyId: po.property_id, ownerId: po.owner_id, sharePct: Number(po.share_pct) })),
+    propertyOwners: propertyOwners.map((po) => ({
+      propertyId: po.property_id,
+      ownerId: po.owner_id,
+      sharePct: Number(po.share_pct),
+    })),
   };
   return {
     ds,
@@ -235,4 +435,4 @@ export const loadOrgData = cache(async (ctx: SessionContext): Promise<OrgData> =
       ]),
     ),
   };
-});
+}

@@ -15,22 +15,41 @@ import { RecordPaymentButton } from "@/components/domain/payments/record-payment
 export async function generateMetadata({ params }: LocaleParams<{ id: string }>) {
   const { id } = await params;
   const db = await supabaseServer();
-  const { data } = await db.from("units").select("label, properties(name)").eq("id", id).maybeSingle();
-  return { title: data ? `${data.label} · ${(data.properties as unknown as { name: string }).name}` : "" };
+  const { data } = await db
+    .from("units")
+    .select("label, properties(name)")
+    .eq("id", id)
+    .maybeSingle();
+  return {
+    title: data ? `${data.label} · ${(data.properties as unknown as { name: string }).name}` : "",
+  };
 }
 
 export default async function UnitPage({ params }: LocaleParams<{ id: string }>) {
   const { locale, id } = await pageLocale(params);
   const ctx = await requireContext(locale);
   const db = await supabaseServer();
-  const { data: unit } = await db.from("units").select("*, properties(id, name, name_en, area, cover_image_path, photos)").eq("id", id).maybeSingle();
+  const { data: unit } = await db
+    .from("units")
+    .select("*, properties(id, name, name_en, area, cover_image_path, photos)")
+    .eq("id", id)
+    .maybeSingle();
   if (!unit) notFound();
-  const property = unit.properties as unknown as { id: string; name: string; name_en: string | null; area: string | null; cover_image_path: string | null; photos: { path: string; blur?: string }[] };
+  const property = unit.properties as unknown as {
+    id: string;
+    name: string;
+    name_en: string | null;
+    area: string | null;
+    cover_image_path: string | null;
+    photos: { path: string; blur?: string }[];
+  };
   const data = await loadOrgData(ctx);
   const today = todayKuwait();
   const period = periodOf(today);
   const tile = buildingStack(data, property.id, period, today).find((u) => u.id === id);
-  const contracts = data.ds.contracts.filter((c) => c.unitIds.includes(id)).sort((a, b) => b.startDate.localeCompare(a.startDate));
+  const contracts = data.ds.contracts
+    .filter((c) => c.unitIds.includes(id))
+    .sort((a, b) => b.startDate.localeCompare(a.startDate));
   const current = tile?.contractId ? contracts.find((c) => c.id === tile.contractId) : undefined;
   const balance = current ? balanceSummary(data.idx.ledger(current.id), today) : null;
   const periods = periodRange(addPeriods(period, -11), period);
@@ -38,8 +57,15 @@ export default async function UnitPage({ params }: LocaleParams<{ id: string }>)
   const vacant = vacantUnits(data.idx, today).find((v) => v.unitId === id);
   const unitPhotos = (unit.photos as { path: string; blur?: string }[] | null) ?? [];
   const propPhotos = property.photos ?? [];
-  const signed = await signPaths("media", [...unitPhotos.map((p) => p.path), property.cover_image_path]);
-  const heroSrc = unitPhotos[0] ? signed.get(unitPhotos[0].path) : property.cover_image_path ? signed.get(property.cover_image_path) : null;
+  const signed = await signPaths("media", [
+    ...unitPhotos.map((p) => p.path),
+    property.cover_image_path,
+  ]);
+  const heroSrc = unitPhotos[0]
+    ? signed.get(unitPhotos[0].path)
+    : property.cover_image_path
+      ? signed.get(property.cover_image_path)
+      : null;
   const tenant = current ? data.tenants.get(current.tenantId) : undefined;
   return (
     <UnitDetailView
@@ -84,13 +110,32 @@ export default async function UnitPage({ params }: LocaleParams<{ id: string }>)
             }
           : null
       }
-      history={contracts.map((c) => ({ id: c.id, contractNo: c.contractNo, status: c.status, tenantName: c.tenantName, startDate: c.startDate, endDate: c.moveOutDate ?? c.endDate, rentFils: c.monthlyRentFils }))}
-      cells={heat?.cells.map((c) => ({ period: c.period, status: c.status, amountFils: c.amountFils, paidFils: c.paidFils })) ?? []}
+      history={contracts.map((c) => ({
+        id: c.id,
+        contractNo: c.contractNo,
+        status: c.status,
+        tenantName: c.tenantName,
+        startDate: c.startDate,
+        endDate: c.moveOutDate ?? c.endDate,
+        rentFils: c.monthlyRentFils,
+      }))}
+      cells={
+        heat?.cells.map((c) => ({
+          period: c.period,
+          status: c.status,
+          amountFils: c.amountFils,
+          paidFils: c.paidFils,
+        })) ?? []
+      }
       vacantSince={vacant?.vacantSince ?? null}
       canEdit={can(ctx.role, "manage_master_data")}
       canContract={can(ctx.role, "manage_contracts")}
       canPay={can(ctx.role, "record_payment")}
-      paymentAction={current && can(ctx.role, "record_payment") ? <RecordPaymentButton contractId={current.id} variant="rose" /> : undefined}
+      paymentAction={
+        current && can(ctx.role, "record_payment") ? (
+          <RecordPaymentButton contractId={current.id} variant="rose" />
+        ) : undefined
+      }
     />
   );
 }

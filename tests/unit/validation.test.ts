@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
-  civilIdCheckDigit, completeCivilId, formatPhone, isValidEmail, isValidIban, isValidKuwaitPhone, isValidPaci, maskCivilId,
-  normalizePhone, validateCivilId, whatsappLink,
+  civilIdCheckDigit,
+  completeCivilId,
+  formatPhone,
+  isValidEmail,
+  isValidIban,
+  isValidKuwaitPhone,
+  isValidPaci,
+  maskCivilId,
+  normalizePhone,
+  validateCivilId,
+  whatsappLink,
 } from "@/domain/validation";
 
 describe("civil ID", () => {
@@ -61,7 +70,9 @@ describe("PACI & phone", () => {
     expect(normalizePhone("٥٥١٢٣٤٥٦")).toBe("55123456");
     expect(formatPhone("55123456")).toBe("5512 3456");
     expect(formatPhone("123")).toBe("123");
-    expect(whatsappLink("55123456", "مرحبا")).toBe("https://wa.me/96555123456?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7");
+    expect(whatsappLink("55123456", "مرحبا")).toBe(
+      "https://wa.me/96555123456?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7",
+    );
   });
   it("email & IBAN", () => {
     expect(isValidEmail("a@b.co")).toBe(true);

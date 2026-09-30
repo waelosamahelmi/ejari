@@ -1,9 +1,23 @@
 import { z } from "zod";
-import { isValidEmail, isValidIban, isValidKuwaitPhone, isValidPaci, normalizePhone, digitsOnly } from "@/domain/validation";
+import {
+  isValidEmail,
+  isValidIban,
+  isValidKuwaitPhone,
+  isValidPaci,
+  normalizePhone,
+  digitsOnly,
+} from "@/domain/validation";
 
 /** Error messages are i18n keys under `errors.field.*`. */
 export const req = (s: z.ZodString = z.string()) => s.trim().min(1, "required");
-export const optText = (max = 500) => z.string().trim().max(max, "tooLong").optional().nullable().transform((v) => (v ? v : null));
+export const optText = (max = 500) =>
+  z
+    .string()
+    .trim()
+    .max(max, "tooLong")
+    .optional()
+    .nullable()
+    .transform((v) => (v ? v : null));
 export const fils = z.number().int().nonnegative("invalidAmount");
 export const positiveFils = z.number().int().positive("positive");
 export const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "invalidDate");

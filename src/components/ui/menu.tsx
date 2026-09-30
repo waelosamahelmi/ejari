@@ -6,7 +6,11 @@ import { cn } from "@/lib/utils";
 export const DropdownMenu = Menu.Root;
 export const DropdownMenuTrigger = Menu.Trigger;
 
-export function DropdownMenuContent({ className, align = "end", ...props }: ComponentProps<typeof Menu.Content>) {
+export function DropdownMenuContent({
+  className,
+  align = "end",
+  ...props
+}: ComponentProps<typeof Menu.Content>) {
   return (
     <Menu.Portal>
       <Menu.Content
@@ -24,7 +28,13 @@ export function DropdownMenuContent({ className, align = "end", ...props }: Comp
   );
 }
 
-export function DropdownMenuItem({ className, destructive, icon, children, ...props }: ComponentProps<typeof Menu.Item> & { destructive?: boolean; icon?: ReactNode }) {
+export function DropdownMenuItem({
+  className,
+  destructive,
+  icon,
+  children,
+  ...props
+}: ComponentProps<typeof Menu.Item> & { destructive?: boolean; icon?: ReactNode }) {
   return (
     <Menu.Item
       className={cn(
@@ -45,5 +55,7 @@ export function DropdownMenuSeparator() {
 }
 
 export function DropdownMenuLabel({ children }: { children: ReactNode }) {
-  return <Menu.Label className="text-label-2 px-3 py-1.5 text-[12px] font-medium">{children}</Menu.Label>;
+  return (
+    <Menu.Label className="text-label-2 px-3 py-1.5 text-[12px] font-medium">{children}</Menu.Label>
+  );
 }

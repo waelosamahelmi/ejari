@@ -16,7 +16,13 @@ import { saveCategory } from "@/server/actions/master";
 import { useAction } from "@/hooks/use-action";
 import { EXPENSE_CATEGORY_TYPES, type ExpenseCategoryType } from "@/domain/expenses";
 
-interface Row { id: string; nameAr: string; nameEn: string; type: ExpenseCategoryType; active: boolean }
+interface Row {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  type: ExpenseCategoryType;
+  active: boolean;
+}
 
 export function CategoriesView({ rows }: { rows: Row[] }) {
   const t = useTranslations("catalog.categories");
@@ -42,12 +48,25 @@ export function CategoriesView({ rows }: { rows: Row[] }) {
     });
   return (
     <>
-      <LargeTitleHeader title={t("title")} back={{ href: "/settings", label: tc("labels.settings") }} actions={<Button onClick={() => openRow(null)}><Plus />{t("new")}</Button>} />
+      <LargeTitleHeader
+        title={t("title")}
+        back={{ href: "/settings", label: tc("labels.settings") }}
+        actions={
+          <Button onClick={() => openRow(null)}>
+            <Plus />
+            {t("new")}
+          </Button>
+        }
+      />
       <GroupedSection>
         {rows.map((r) => (
           <ListRow
             key={r.id}
-            leading={<IconTile tone={r.active ? "orange" : "gray"}><Tags /></IconTile>}
+            leading={
+              <IconTile tone={r.active ? "orange" : "gray"}>
+                <Tags />
+              </IconTile>
+            }
             title={locale === "ar" ? r.nameAr : r.nameEn}
             subtitle={locale === "ar" ? r.nameEn : r.nameAr}
             trailing={<Pill className="bg-inset text-label-2">{tType(r.type)}</Pill>}
@@ -56,17 +75,54 @@ export function CategoriesView({ rows }: { rows: Row[] }) {
           />
         ))}
       </GroupedSection>
-      <Sheet open={open} onOpenChange={setOpen} title={edit?.id ? edit.nameAr : t("new")} footer={<Button block size="lg" onClick={save} loading={pending} disabled={!edit?.nameAr || !edit?.nameEn}>{tc("actions.save")}</Button>}>
+      <Sheet
+        open={open}
+        onOpenChange={setOpen}
+        title={edit?.id ? edit.nameAr : t("new")}
+        footer={
+          <Button
+            block
+            size="lg"
+            onClick={save}
+            loading={pending}
+            disabled={!edit?.nameAr || !edit?.nameEn}
+          >
+            {tc("actions.save")}
+          </Button>
+        }
+      >
         {edit && (
           <div className="space-y-4">
-            <Field label={t("nameAr")} htmlFor="c-ar"><Input id="c-ar" value={edit.nameAr} onChange={(e) => setEdit({ ...edit, nameAr: e.target.value })} /></Field>
-            <Field label={t("nameEn")} htmlFor="c-en"><Input id="c-en" dir="ltr" value={edit.nameEn} onChange={(e) => setEdit({ ...edit, nameEn: e.target.value })} /></Field>
+            <Field label={t("nameAr")} htmlFor="c-ar">
+              <Input
+                id="c-ar"
+                value={edit.nameAr}
+                onChange={(e) => setEdit({ ...edit, nameAr: e.target.value })}
+              />
+            </Field>
+            <Field label={t("nameEn")} htmlFor="c-en">
+              <Input
+                id="c-en"
+                dir="ltr"
+                value={edit.nameEn}
+                onChange={(e) => setEdit({ ...edit, nameEn: e.target.value })}
+              />
+            </Field>
             <Field label={t("type")}>
-              <SegmentedControl size="sm" options={EXPENSE_CATEGORY_TYPES.map((v) => ({ value: v, label: tType(v) }))} value={edit.type} onChange={(v) => setEdit({ ...edit, type: v })} />
+              <SegmentedControl
+                size="sm"
+                options={EXPENSE_CATEGORY_TYPES.map((v) => ({ value: v, label: tType(v) }))}
+                value={edit.type}
+                onChange={(v) => setEdit({ ...edit, type: v })}
+              />
             </Field>
             <label className="bg-paper flex items-center justify-between rounded-[14px] px-4 py-3">
               <span>{t("active")}</span>
-              <Toggle checked={edit.active} onCheckedChange={(v) => setEdit({ ...edit, active: v })} ariaLabel={t("active")} />
+              <Toggle
+                checked={edit.active}
+                onCheckedChange={(v) => setEdit({ ...edit, active: v })}
+                ariaLabel={t("active")}
+              />
             </label>
           </div>
         )}

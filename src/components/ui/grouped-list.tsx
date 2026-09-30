@@ -21,8 +21,17 @@ export function GroupedSection({
 }) {
   return (
     <section className={className}>
-      {header && <h3 className="text-label-2 px-5 pb-2 text-[13px] font-medium uppercase tracking-wide">{header}</h3>}
-      <div className={cn("bg-paper overflow-hidden", inset ? "rounded-[20px] shadow-[var(--sh-card)]" : "")}>
+      {header && (
+        <h3 className="text-label-2 px-5 pb-2 text-[13px] font-medium tracking-wide uppercase">
+          {header}
+        </h3>
+      )}
+      <div
+        className={cn(
+          "bg-paper overflow-hidden",
+          inset ? "rounded-[20px] shadow-[var(--sh-card)]" : "",
+        )}
+      >
         <div className="divide-separator divide-y-[0.5px]">{children}</div>
       </div>
       {footer && <p className="text-label-2 px-5 pt-2 text-[13px] leading-5">{footer}</p>}
@@ -46,17 +55,40 @@ export interface ListRowProps {
 }
 
 /** iOS list row: leading icon tile, title/subtitle, trailing value, mirrored chevron. */
-export function ListRow({ leading, title, subtitle, trailing, chevron, onClick, href, className, destructive, LinkComponent, children }: ListRowProps) {
+export function ListRow({
+  leading,
+  title,
+  subtitle,
+  trailing,
+  chevron,
+  onClick,
+  href,
+  className,
+  destructive,
+  LinkComponent,
+  children,
+}: ListRowProps) {
   const content = (
     <>
       {leading}
       <div className="min-w-0 flex-1">
-        <div className={cn("truncate text-[16px] leading-6", destructive ? "text-red-text" : "text-label")}>{title}</div>
+        <div
+          className={cn(
+            "truncate text-[16px] leading-6",
+            destructive ? "text-red-text" : "text-label",
+          )}
+        >
+          {title}
+        </div>
         {subtitle && <div className="text-label-2 truncate text-[13px] leading-5">{subtitle}</div>}
         {children}
       </div>
-      {trailing && <div className="text-label-2 flex shrink-0 items-center gap-2 text-[15px]">{trailing}</div>}
-      {chevron && <ChevronRight className="text-label-3 flip-rtl size-[18px] shrink-0" aria-hidden />}
+      {trailing && (
+        <div className="text-label-2 flex shrink-0 items-center gap-2 text-[15px]">{trailing}</div>
+      )}
+      {chevron && (
+        <ChevronRight className="text-label-3 flip-rtl size-[18px] shrink-0" aria-hidden />
+      )}
     </>
   );
   const base = cn(

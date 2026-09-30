@@ -16,7 +16,9 @@ export default async function VoucherPage({ params }: LocaleParams<{ id: string 
   const db = await supabaseServer();
   const { data: v } = await db
     .from("expense_vouchers")
-    .select("*, expense_lines(id, position, amount_fils, category_id, beneficiary_id, description, allocation_mode, expense_categories(name_ar, name_en), beneficiaries(name), expense_allocations(property_id, unit_id, amount_fils, properties(name), units(label)))")
+    .select(
+      "*, expense_lines(id, position, amount_fils, category_id, beneficiary_id, description, allocation_mode, expense_categories(name_ar, name_en), beneficiaries(name), expense_allocations(property_id, unit_id, amount_fils, properties(name), units(label)))",
+    )
     .eq("id", id)
     .maybeSingle();
   if (!v) notFound();
@@ -26,7 +28,11 @@ export default async function VoucherPage({ params }: LocaleParams<{ id: string 
     const opts = await voucherFormOptions(ctx, v.voucher_date);
     return (
       <>
-        <LargeTitleHeader title={t("edit")} subtitle={v.voucher_no} back={{ href: "/expenses", label: t("title") }} />
+        <LargeTitleHeader
+          title={t("edit")}
+          subtitle={v.voucher_no}
+          back={{ href: "/expenses", label: t("title") }}
+        />
         <VoucherForm
           id={v.id}
           {...opts}
@@ -43,7 +49,14 @@ export default async function VoucherPage({ params }: LocaleParams<{ id: string 
               beneficiaryId: l.beneficiary_id,
               description: l.description,
               mode: l.allocation_mode as AllocationMode,
-              targets: (l.expense_allocations ?? []).map((a) => ({ propertyId: a.property_id, unitId: a.unit_id, amountFils: a.amount_fils, percent: l.amount_fils ? Math.round((a.amount_fils / l.amount_fils) * 10000) / 100 : 0 })),
+              targets: (l.expense_allocations ?? []).map((a) => ({
+                propertyId: a.property_id,
+                unitId: a.unit_id,
+                amountFils: a.amount_fils,
+                percent: l.amount_fils
+                  ? Math.round((a.amount_fils / l.amount_fils) * 10000) / 100
+                  : 0,
+              })),
             })),
           }}
         />
@@ -65,11 +78,17 @@ export default async function VoucherPage({ params }: LocaleParams<{ id: string 
         voidReason: v.void_reason,
         lines: lines.map((l) => ({
           amountFils: l.amount_fils,
-          category: (l.expense_categories as unknown as { name_ar: string; name_en: string })[locale === "ar" ? "name_ar" : "name_en"],
+          category: (l.expense_categories as unknown as { name_ar: string; name_en: string })[
+            locale === "ar" ? "name_ar" : "name_en"
+          ],
           beneficiary: (l.beneficiaries as unknown as { name: string } | null)?.name ?? "",
           description: l.description,
           mode: l.allocation_mode as AllocationMode,
-          allocations: (l.expense_allocations ?? []).map((a) => ({ property: (a.properties as unknown as { name: string }).name, unit: (a.units as unknown as { label: string } | null)?.label ?? null, amountFils: a.amount_fils })),
+          allocations: (l.expense_allocations ?? []).map((a) => ({
+            property: (a.properties as unknown as { name: string }).name,
+            unit: (a.units as unknown as { label: string } | null)?.label ?? null,
+            amountFils: a.amount_fils,
+          })),
         })),
       }}
     />

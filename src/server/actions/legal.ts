@@ -41,7 +41,9 @@ export async function saveLegalCase(id: string | null, input: LegalCaseInput) {
       lawyer: d.lawyer || null,
       notes: d.notes || null,
     };
-    const res = id ? await db.from("legal_cases").update(row).eq("id", id).select("id").single() : await db.from("legal_cases").insert(row).select("id").single();
+    const res = id
+      ? await db.from("legal_cases").update(row).eq("id", id).select("id").single()
+      : await db.from("legal_cases").insert(row).select("id").single();
     if (res.error) throw res.error;
     reval();
     return res.data.id;
@@ -54,17 +56,41 @@ export async function setLegalStatus(id: string, status: (typeof LEGAL_STATUSES)
     const db = await supabaseServer();
     const { error } = await db.from("legal_cases").update({ status }).eq("id", id);
     if (error) throw error;
-    await db.from("legal_case_events").insert({ org_id: ctx.orgId, case_id: id, event_date: new Date().toISOString().slice(0, 10), title: status });
+    await db
+      .from("legal_case_events")
+      .insert({
+        org_id: ctx.orgId,
+        case_id: id,
+        event_date: new Date().toISOString().slice(0, 10),
+        title: status,
+      });
     reval();
   });
 }
 
-export async function addLegalEvent(caseId: string, input: { date: string; title: string; notes?: string | null }) {
+export async function addLegalEvent(
+  caseId: string,
+  input: { date: string; title: string; notes?: string | null },
+) {
   return run(async () => {
     const ctx = await requireActionContext("manage_legal");
-    const d = z.object({ date: isoDate, title: z.string().trim().min(1).max(200), notes: z.string().trim().max(2000).optional().nullable() }).parse(input);
+    const d = z
+      .object({
+        date: isoDate,
+        title: z.string().trim().min(1).max(200),
+        notes: z.string().trim().max(2000).optional().nullable(),
+      })
+      .parse(input);
     const db = await supabaseServer();
-    const { error } = await db.from("legal_case_events").insert({ org_id: ctx.orgId, case_id: caseId, event_date: d.date, title: d.title, notes: d.notes || null });
+    const { error } = await db
+      .from("legal_case_events")
+      .insert({
+        org_id: ctx.orgId,
+        case_id: caseId,
+        event_date: d.date,
+        title: d.title,
+        notes: d.notes || null,
+      });
     if (error) throw error;
     reval();
   });

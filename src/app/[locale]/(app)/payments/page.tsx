@@ -20,7 +20,9 @@ export default async function PaymentsPage({ params }: LocaleParams) {
     fetchAll((f, t) =>
       db
         .from("payments")
-        .select("id, received_at, receipt_no, system_no, amount_fils, method, voided, collected_by, tenants(full_name), contracts(contract_units(units(label)), properties(name))")
+        .select(
+          "id, received_at, receipt_no, system_no, amount_fils, method, voided, collected_by, tenants(full_name), contracts(contract_units(units(label)), properties(name))",
+        )
         .order("received_at", { ascending: false })
         .order("created_at", { ascending: false })
         .range(f, t),
@@ -34,7 +36,10 @@ export default async function PaymentsPage({ params }: LocaleParams) {
       userId={ctx.userId}
       canExport={can(ctx.role, "view_reports")}
       rows={rows.map((p) => {
-        const c = p.contracts as unknown as { contract_units: { units: { label: string } }[]; properties: { name: string } };
+        const c = p.contracts as unknown as {
+          contract_units: { units: { label: string } }[];
+          properties: { name: string };
+        };
         return {
           id: p.id,
           date: p.received_at,

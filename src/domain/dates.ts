@@ -12,8 +12,24 @@ export const KUWAIT_TZ = "Asia/Kuwait";
 const DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 const PERIOD_RE = /^(\d{4})-(\d{2})$/;
 
-export const DAY_NAMES_AR = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"] as const;
-export const DAY_NAMES_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] as const;
+export const DAY_NAMES_AR = [
+  "الأحد",
+  "الاثنين",
+  "الثلاثاء",
+  "الأربعاء",
+  "الخميس",
+  "الجمعة",
+  "السبت",
+] as const;
+export const DAY_NAMES_EN = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+] as const;
 export const MONTH_NAMES_AR = [
   "يناير",
   "فبراير",
@@ -49,7 +65,8 @@ export function parseDate(d: ISODate): { y: number; m: number; day: number } {
   const y = Number(match[1]);
   const m = Number(match[2]);
   const day = Number(match[3]);
-  if (m < 1 || m > 12 || day < 1 || day > daysInMonth(y, m)) throw new RangeError(`Invalid date: ${d}`);
+  if (m < 1 || m > 12 || day < 1 || day > daysInMonth(y, m))
+    throw new RangeError(`Invalid date: ${d}`);
   return { y, m, day };
 }
 
@@ -253,7 +270,11 @@ export function todayKuwait(now: Date = new Date()): ISODate {
 
 /** Current hour (0–23) in Kuwait. */
 export function hourKuwait(now: Date = new Date()): number {
-  const h = new Intl.DateTimeFormat("en-GB", { timeZone: KUWAIT_TZ, hour: "2-digit", hour12: false }).format(now);
+  const h = new Intl.DateTimeFormat("en-GB", {
+    timeZone: KUWAIT_TZ,
+    hour: "2-digit",
+    hour12: false,
+  }).format(now);
   return Number(h) % 24;
 }
 

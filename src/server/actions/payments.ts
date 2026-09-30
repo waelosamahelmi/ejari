@@ -4,7 +4,12 @@ import { z } from "zod";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireActionContext, ActionError } from "@/lib/auth";
 import { run } from "@/server/action";
-import { allocateFIFO, allocateManual, allocateToPeriods, type OpenCharge } from "@/domain/allocation";
+import {
+  allocateFIFO,
+  allocateManual,
+  allocateToPeriods,
+  type OpenCharge,
+} from "@/domain/allocation";
 import { formatSequenceNo } from "@/domain/contracts";
 import { fromFils } from "@/domain/money";
 import { formatPeriod, periodOf, todayKuwait } from "@/domain/dates";
@@ -38,16 +43,46 @@ export async function getPaymentContext(contractId: string) {
     const ctx = await requireActionContext("record_payment");
     const db = await supabaseServer();
     const [{ data: c }, { data: balances }, { data: pays }, { data: members }] = await Promise.all([
-      db.from("contracts").select("id, contract_no, tenant_id, monthly_rent_fils, status, tenants(full_name, phones), properties(name), contract_units(units(label, sort_order))").eq("id", contractId).single(),
-      db.from("v_charge_balances").select("charge_id, period, kind, due_date, outstanding_fils").eq("contract_id", contractId).gt("outstanding_fils", 0),
-      db.from("payments").select("amount_fils, payment_allocations(amount_fils)").eq("contract_id", contractId).eq("voided", false),
-      db.from("org_members").select("user_id, display_name, role").eq("active", true).in("role", ["admin", "accountant", "collector"]),
+      db
+        .from("contracts")
+        .select(
+          "id, contract_no, tenant_id, monthly_rent_fils, status, tenants(full_name, phones), properties(name), contract_units(units(label, sort_order))",
+        )
+        .eq("id", contractId)
+        .single(),
+      db
+        .from("v_charge_balances")
+        .select("charge_id, period, kind, due_date, outstanding_fils")
+        .eq("contract_id", contractId)
+        .gt("outstanding_fils", 0),
+      db
+        .from("payments")
+        .select("amount_fils, payment_allocations(amount_fils)")
+        .eq("contract_id", contractId)
+        .eq("voided", false),
+      db
+        .from("org_members")
+        .select("user_id, display_name, role")
+        .eq("active", true)
+        .in("role", ["admin", "accountant", "collector"]),
     ]);
     if (!c) throw new ActionError("notFound");
     const today = todayKuwait();
-    const open = (balances ?? []).map((b) => ({ id: b.charge_id!, period: b.period!, kind: b.kind!, dueDate: b.due_date!, outstandingFils: b.outstanding_fils! }));
-    const credit = (pays ?? []).reduce((s, p) => s + p.amount_fils - (p.payment_allocations ?? []).reduce((a, x) => a + x.amount_fils, 0), 0);
-    const units = (c.contract_units ?? []).map((u) => u.units as unknown as { label: string; sort_order: number }).sort((a, b) => a.sort_order - b.sort_order);
+    const open = (balances ?? []).map((b) => ({
+      id: b.charge_id!,
+      period: b.period!,
+      kind: b.kind!,
+      dueDate: b.due_date!,
+      outstandingFils: b.outstanding_fils!,
+    }));
+    const credit = (pays ?? []).reduce(
+      (s, p) =>
+        s + p.amount_fils - (p.payment_allocations ?? []).reduce((a, x) => a + x.amount_fils, 0),
+      0,
+    );
+    const units = (c.contract_units ?? [])
+      .map((u) => u.units as unknown as { label: string; sort_order: number })
+      .sort((a, b) => a.sort_order - b.sort_order);
     const t = c.tenants as unknown as { full_name: string; phones: string[] };
     return {
       contractId: c.id,
@@ -60,7 +95,9 @@ export async function getPaymentContext(contractId: string) {
       monthlyRentFils: c.monthly_rent_fils,
       open,
       dueNowFils: open.filter((o) => o.dueDate <= today).reduce((a, o) => a + o.outstandingFils, 0),
-      thisMonthFils: open.filter((o) => o.period === periodOf(today)).reduce((a, o) => a + o.outstandingFils, 0),
+      thisMonthFils: open
+        .filter((o) => o.period === periodOf(today))
+        .reduce((a, o) => a + o.outstandingFils, 0),
       creditFils: Math.max(0, credit),
       collectors: (members ?? []).map((m) => ({ id: m.user_id, name: m.display_name ?? "" })),
     };
@@ -72,10 +109,21 @@ export async function getPaymentContext(contractId: string) {
 export async function checkReceiptNo(receiptNo: string, excludeId?: string) {
   await requireActionContext();
   const db = await supabaseServer();
-  let q = db.from("payments").select("id, received_at, amount_fils, tenants(full_name)").eq("receipt_no", receiptNo.trim()).eq("voided", false);
+  let q = db
+    .from("payments")
+    .select("id, received_at, amount_fils, tenants(full_name)")
+    .eq("receipt_no", receiptNo.trim())
+    .eq("voided", false);
   if (excludeId) q = q.neq("id", excludeId);
   const { data } = await q.limit(1).maybeSingle();
-  return data ? { id: data.id, date: data.received_at, amountFils: data.amount_fils, tenant: (data.tenants as unknown as { full_name: string } | null)?.full_name ?? "" } : null;
+  return data
+    ? {
+        id: data.id,
+        date: data.received_at,
+        amountFils: data.amount_fils,
+        tenant: (data.tenants as unknown as { full_name: string } | null)?.full_name ?? "",
+      }
+    : null;
 }
 
 const paymentSchema = z.object({
@@ -91,7 +139,12 @@ const paymentSchema = z.object({
   allocation: z.discriminatedUnion("mode", [
     z.object({ mode: z.literal("fifo") }),
     z.object({ mode: z.literal("periods"), periods: z.array(z.string()).min(1) }),
-    z.object({ mode: z.literal("manual"), lines: z.array(z.object({ chargeId: z.string().uuid(), amountFils: z.number().int().nonnegative() })) }),
+    z.object({
+      mode: z.literal("manual"),
+      lines: z.array(
+        z.object({ chargeId: z.string().uuid(), amountFils: z.number().int().nonnegative() }),
+      ),
+    }),
   ]),
 });
 export type RecordPaymentInput = z.input<typeof paymentSchema>;
@@ -106,23 +159,62 @@ export async function recordPayment(input: RecordPaymentInput) {
     const d = paymentSchema.parse(input);
     const db = await supabaseServer();
     if (d.clientId) {
-      const { data: existing } = await db.from("payments").select("id, system_no").eq("client_id", d.clientId).maybeSingle();
-      if (existing) return { id: existing.id, systemNo: existing.system_no ?? "", duplicate: true, creditFils: 0 };
+      const { data: existing } = await db
+        .from("payments")
+        .select("id, system_no")
+        .eq("client_id", d.clientId)
+        .maybeSingle();
+      if (existing)
+        return {
+          id: existing.id,
+          systemNo: existing.system_no ?? "",
+          duplicate: true,
+          creditFils: 0,
+        };
     }
-    const { data: c } = await db.from("contracts").select("id, org_id, tenant_id, status, contract_no, properties(name), contract_units(units(label))").eq("id", d.contractId).single();
+    const { data: c } = await db
+      .from("contracts")
+      .select(
+        "id, org_id, tenant_id, status, contract_no, properties(name), contract_units(units(label))",
+      )
+      .eq("id", d.contractId)
+      .single();
     if (!c) throw new ActionError("notFound");
     if (c.status === "draft") throw new ActionError("contract_not_live");
-    if (d.receiptNo && ctx.settings.receiptDuplicatePolicy === "block" && (await checkReceiptNo(d.receiptNo))) throw new ActionError("duplicate_receipt");
-    const { data: balances } = await db.from("v_charge_balances").select("charge_id, period, kind, due_date, outstanding_fils").eq("contract_id", d.contractId).gt("outstanding_fils", 0);
-    const open = (balances ?? []).map((b) => ({ id: b.charge_id!, period: b.period!, kind: b.kind!, dueDate: b.due_date!, outstandingFils: b.outstanding_fils! }));
+    if (
+      d.receiptNo &&
+      ctx.settings.receiptDuplicatePolicy === "block" &&
+      (await checkReceiptNo(d.receiptNo))
+    )
+      throw new ActionError("duplicate_receipt");
+    const { data: balances } = await db
+      .from("v_charge_balances")
+      .select("charge_id, period, kind, due_date, outstanding_fils")
+      .eq("contract_id", d.contractId)
+      .gt("outstanding_fils", 0);
+    const open = (balances ?? []).map((b) => ({
+      id: b.charge_id!,
+      period: b.period!,
+      kind: b.kind!,
+      dueDate: b.due_date!,
+      outstandingFils: b.outstanding_fils!,
+    }));
     const result =
       d.allocation.mode === "fifo"
         ? allocateFIFO(d.amountFils, open)
         : d.allocation.mode === "periods"
           ? allocateToPeriods(d.amountFils, open, d.allocation.periods)
-          : allocateManual(d.amountFils, open, d.allocation.lines.filter((l) => l.amountFils > 0));
+          : allocateManual(
+              d.amountFils,
+              open,
+              d.allocation.lines.filter((l) => l.amountFils > 0),
+            );
     const year = Number(d.receivedAt.slice(0, 4));
-    const { data: seq, error: seqErr } = await db.rpc("next_number", { p_org: ctx.orgId, p_key: "receipt", p_year: year });
+    const { data: seq, error: seqErr } = await db.rpc("next_number", {
+      p_org: ctx.orgId,
+      p_key: "receipt",
+      p_year: year,
+    });
     if (seqErr) throw seqErr;
     const systemNo = formatSequenceNo(ctx.settings.numbering.receipt, year, seq as number);
     const { data: pay, error } = await db
@@ -145,19 +237,39 @@ export async function recordPayment(input: RecordPaymentInput) {
       .single();
     if (error) {
       if (error.code === "23505" && d.clientId) {
-        const { data: existing } = await db.from("payments").select("id, system_no").eq("client_id", d.clientId).single();
-        return { id: existing!.id, systemNo: existing!.system_no ?? "", duplicate: true, creditFils: 0 };
+        const { data: existing } = await db
+          .from("payments")
+          .select("id, system_no")
+          .eq("client_id", d.clientId)
+          .single();
+        return {
+          id: existing!.id,
+          systemNo: existing!.system_no ?? "",
+          duplicate: true,
+          creditFils: 0,
+        };
       }
       throw error;
     }
     if (result.allocations.length) {
-      const al = await db.from("payment_allocations").insert(result.allocations.map((a) => ({ org_id: ctx.orgId, payment_id: pay.id, charge_id: a.chargeId, amount_fils: a.amountFils })));
+      const al = await db
+        .from("payment_allocations")
+        .insert(
+          result.allocations.map((a) => ({
+            org_id: ctx.orgId,
+            payment_id: pay.id,
+            charge_id: a.chargeId,
+            amount_fils: a.amountFils,
+          })),
+        );
       if (al.error) {
         await db.from("payments").delete().eq("id", pay.id);
         throw al.error;
       }
     }
-    const units = (c.contract_units ?? []).map((u) => (u.units as unknown as { label: string }).label).join(", ");
+    const units = (c.contract_units ?? [])
+      .map((u) => (u.units as unknown as { label: string }).label)
+      .join(", ");
     await notifyEvent(ctx, "payment_recorded", {
       amountFils: d.amountFils,
       propertyName: (c.properties as unknown as { name: string }).name,
@@ -174,19 +286,37 @@ export async function recordPayment(input: RecordPaymentInput) {
 }
 
 /** Bulk "mark as fully paid": one payment per contract for its due amount, same date and method. */
-export async function bulkMarkPaid(input: { rows: { contractId: string; receiptNo?: string | null }[]; receivedAt: string; method: (typeof PAYMENT_METHODS)[number]; period: string }) {
+export async function bulkMarkPaid(input: {
+  rows: { contractId: string; receiptNo?: string | null }[];
+  receivedAt: string;
+  method: (typeof PAYMENT_METHODS)[number];
+  period: string;
+}) {
   return run(async () => {
     const ctx = await requireActionContext("record_payment");
     const db = await supabaseServer();
     const results: { contractId: string; ok: boolean; error?: string }[] = [];
     for (const row of input.rows) {
-      const { data: balances } = await db.from("v_charge_balances").select("outstanding_fils, due_date, period").eq("contract_id", row.contractId).gt("outstanding_fils", 0).lte("period", input.period);
+      const { data: balances } = await db
+        .from("v_charge_balances")
+        .select("outstanding_fils, due_date, period")
+        .eq("contract_id", row.contractId)
+        .gt("outstanding_fils", 0)
+        .lte("period", input.period);
       const amount = (balances ?? []).reduce((a, b) => a + (b.outstanding_fils ?? 0), 0);
       if (amount <= 0) {
         results.push({ contractId: row.contractId, ok: true });
         continue;
       }
-      const r = await recordPayment({ contractId: row.contractId, amountFils: amount, method: input.method, receivedAt: input.receivedAt, receiptNo: row.receiptNo ?? null, allocation: { mode: "fifo" }, collectedBy: ctx.userId });
+      const r = await recordPayment({
+        contractId: row.contractId,
+        amountFils: amount,
+        method: input.method,
+        receivedAt: input.receivedAt,
+        receiptNo: row.receiptNo ?? null,
+        allocation: { mode: "fifo" },
+        collectedBy: ctx.userId,
+      });
       results.push({ contractId: row.contractId, ok: r.ok, error: r.ok ? undefined : r.error });
     }
     reval();
@@ -221,24 +351,62 @@ export async function addAdjustment(input: z.input<typeof adjustmentSchema>) {
     const d = adjustmentSchema.parse(input);
     const db = await supabaseServer();
     if (d.chargeId) {
-      const { data: b } = await db.from("v_charge_balances").select("outstanding_fils").eq("charge_id", d.chargeId).single();
-      if (!b || d.amountFils > (b.outstanding_fils ?? 0)) throw new ActionError("exceeds_outstanding");
+      const { data: b } = await db
+        .from("v_charge_balances")
+        .select("outstanding_fils")
+        .eq("charge_id", d.chargeId)
+        .single();
+      if (!b || d.amountFils > (b.outstanding_fils ?? 0))
+        throw new ActionError("exceeds_outstanding");
     }
-    const { error } = await db.from("adjustments").insert({ org_id: ctx.orgId, contract_id: d.contractId, charge_id: d.chargeId, kind: d.kind, amount_fils: d.amountFils, adjustment_date: d.date, reason: d.reason, approved_by: ctx.userId });
+    const { error } = await db
+      .from("adjustments")
+      .insert({
+        org_id: ctx.orgId,
+        contract_id: d.contractId,
+        charge_id: d.chargeId,
+        kind: d.kind,
+        amount_fils: d.amountFils,
+        adjustment_date: d.date,
+        reason: d.reason,
+        approved_by: ctx.userId,
+      });
     if (error) throw error;
     reval();
   });
 }
 
 /** Adds a manual charge (penalty, maintenance recharge, other). */
-export async function addManualCharge(input: { contractId: string; kind: "penalty" | "maintenance_recharge" | "other"; amountFils: number; dueDate: string; description: string }) {
+export async function addManualCharge(input: {
+  contractId: string;
+  kind: "penalty" | "maintenance_recharge" | "other";
+  amountFils: number;
+  dueDate: string;
+  description: string;
+}) {
   return run(async () => {
     const ctx = await requireActionContext("manage_contracts");
     const d = z
-      .object({ contractId: z.string().uuid(), kind: z.enum(["penalty", "maintenance_recharge", "other"]), amountFils: z.number().int().positive(), dueDate: isoDate, description: z.string().trim().min(1).max(300) })
+      .object({
+        contractId: z.string().uuid(),
+        kind: z.enum(["penalty", "maintenance_recharge", "other"]),
+        amountFils: z.number().int().positive(),
+        dueDate: isoDate,
+        description: z.string().trim().min(1).max(300),
+      })
       .parse(input);
     const db = await supabaseServer();
-    const { error } = await db.from("charges").insert({ org_id: ctx.orgId, contract_id: d.contractId, period: periodOf(d.dueDate), kind: d.kind, amount_fils: d.amountFils, due_date: d.dueDate, description: d.description });
+    const { error } = await db
+      .from("charges")
+      .insert({
+        org_id: ctx.orgId,
+        contract_id: d.contractId,
+        period: periodOf(d.dueDate),
+        kind: d.kind,
+        amount_fils: d.amountFils,
+        due_date: d.dueDate,
+        description: d.description,
+      });
     if (error) throw error;
     const { applyCredit } = await import("@/server/billing/ensure-charges");
     await applyCredit(ctx.orgId, [d.contractId]);
@@ -246,12 +414,37 @@ export async function addManualCharge(input: { contractId: string; kind: "penalt
   });
 }
 
-export async function closeMonth(period: string, notes: string | null, cashDifferenceNote?: string | null) {
+export async function closeMonth(
+  period: string,
+  notes: string | null,
+  cashDifferenceNote?: string | null,
+) {
   return run(async () => {
     const ctx = await requireActionContext("close_month");
     const db = await supabaseServer();
-    const { error } = await db.from("monthly_closings").insert({ org_id: ctx.orgId, period, notes, cash_difference_note: cashDifferenceNote ?? null, closed_by: ctx.userId });
+    const { error } = await db
+      .from("monthly_closings")
+      .insert({
+        org_id: ctx.orgId,
+        period,
+        notes,
+        cash_difference_note: cashDifferenceNote ?? null,
+        closed_by: ctx.userId,
+      });
     if (error) throw error;
+    // Owners: the month's statements are final.
+    const { data: props } = await db.from("properties").select("id, name").eq("active", true);
+    for (const p of props ?? []) {
+      await notifyEvent(ctx, "statement_ready", {
+        url: `/owner/properties/${p.id}?period=${period}`,
+        entityType: "property",
+        entityId: p.id,
+        propertyId: p.id,
+        property: p.name,
+        month: `${period.slice(5, 7)}/${period.slice(0, 4)}`,
+        dedupeKey: `statement:${p.id}:${period}`,
+      }).catch(() => {});
+    }
     reval();
   });
 }
@@ -260,7 +453,11 @@ export async function reopenMonth(period: string) {
   return run(async () => {
     const ctx = await requireActionContext("reopen_month");
     const db = await supabaseServer();
-    const { error } = await db.from("monthly_closings").delete().eq("org_id", ctx.orgId).eq("period", period);
+    const { error } = await db
+      .from("monthly_closings")
+      .delete()
+      .eq("org_id", ctx.orgId)
+      .eq("period", period);
     if (error) throw error;
     reval();
   });
@@ -273,19 +470,36 @@ export async function buildReminder(contractId: string, locale: "ar" | "en") {
     const db = await supabaseServer();
     const today = todayKuwait();
     const [{ data: c }, { data: bal }] = await Promise.all([
-      db.from("contracts").select("id, tenant_id, tenants(full_name, phones), properties(name), contract_units(units(label))").eq("id", contractId).single(),
-      db.from("v_charge_balances").select("period, outstanding_fils, due_date").eq("contract_id", contractId).gt("outstanding_fils", 0).lte("due_date", today).order("period"),
+      db
+        .from("contracts")
+        .select(
+          "id, tenant_id, tenants(full_name, phones), properties(name), contract_units(units(label))",
+        )
+        .eq("id", contractId)
+        .single(),
+      db
+        .from("v_charge_balances")
+        .select("period, outstanding_fils, due_date")
+        .eq("contract_id", contractId)
+        .gt("outstanding_fils", 0)
+        .lte("due_date", today)
+        .order("period"),
     ]);
     if (!c) throw new ActionError("notFound");
     const amount = (bal ?? []).reduce((a, b) => a + (b.outstanding_fils ?? 0), 0);
-    const months = [...new Set((bal ?? []).map((b) => b.period!))].map((p) => formatPeriod(p, locale)).join(locale === "ar" ? "، " : ", ");
+    const months = [...new Set((bal ?? []).map((b) => b.period!))]
+      .map((p) => formatPeriod(p, locale))
+      .join(locale === "ar" ? "، " : ", ");
     const tn = c.tenants as unknown as { full_name: string; phones: string[] };
-    const template = locale === "ar" ? ctx.settings.reminderTemplateAr : ctx.settings.reminderTemplateEn;
+    const template =
+      locale === "ar" ? ctx.settings.reminderTemplateAr : ctx.settings.reminderTemplateEn;
     const vars: Record<string, string> = {
       tenant_name: tn.full_name,
       amount: fromFils(amount),
       months,
-      unit: (c.contract_units ?? []).map((u) => (u.units as unknown as { label: string }).label).join(", "),
+      unit: (c.contract_units ?? [])
+        .map((u) => (u.units as unknown as { label: string }).label)
+        .join(", "),
       property: (c.properties as unknown as { name: string }).name,
       org_name: locale === "en" && ctx.orgNameEn ? ctx.orgNameEn : ctx.orgName,
     };
@@ -294,11 +508,25 @@ export async function buildReminder(contractId: string, locale: "ar" | "en") {
   });
 }
 
-export async function logReminder(input: { tenantId: string; contractId: string | null; message: string; channel: "whatsapp" | "copy" | "sms" | "call" }) {
+export async function logReminder(input: {
+  tenantId: string;
+  contractId: string | null;
+  message: string;
+  channel: "whatsapp" | "copy" | "sms" | "call";
+}) {
   return run(async () => {
     const ctx = await requireActionContext("send_reminder");
     const db = await supabaseServer();
-    const { error } = await db.from("reminders_log").insert({ org_id: ctx.orgId, tenant_id: input.tenantId, contract_id: input.contractId, channel: input.channel, message: input.message, sent_by: ctx.userId });
+    const { error } = await db
+      .from("reminders_log")
+      .insert({
+        org_id: ctx.orgId,
+        tenant_id: input.tenantId,
+        contract_id: input.contractId,
+        channel: input.channel,
+        message: input.message,
+        sent_by: ctx.userId,
+      });
     if (error) throw error;
     reval();
   });

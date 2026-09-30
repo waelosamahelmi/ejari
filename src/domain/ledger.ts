@@ -31,7 +31,13 @@ export function chargeStates(input: LedgerInput, asOf?: ISODate): Map<string, Ch
   const paymentsById = new Map(input.payments.filter((p) => !p.voided).map((p) => [p.id, p]));
   const states = new Map<string, ChargeState>();
   for (const c of activeCharges(input.charges)) {
-    states.set(c.id, { charge: c, allocatedFils: 0, adjustedFils: 0, outstandingFils: c.amountFils, paymentDates: [] });
+    states.set(c.id, {
+      charge: c,
+      allocatedFils: 0,
+      adjustedFils: 0,
+      outstandingFils: c.amountFils,
+      paymentDates: [],
+    });
   }
   for (const a of input.allocations) {
     const p = paymentsById.get(a.paymentId);
@@ -136,7 +142,10 @@ export function periodStatus(
   const amount = billable.reduce((a, s) => a + s.charge.amountFils, 0);
   const outstanding = billable.reduce((a, s) => a + s.outstandingFils, 0);
   const covered = amount - outstanding;
-  const due = billable.reduce((d, s) => (s.charge.dueDate < d ? s.charge.dueDate : d), billable[0]!.charge.dueDate);
+  const due = billable.reduce(
+    (d, s) => (s.charge.dueDate < d ? s.charge.dueDate : d),
+    billable[0]!.charge.dueDate,
+  );
   if (outstanding === 0) {
     const dates = billable.flatMap((s) => s.paymentDates);
     const allBefore = dates.length > 0 && dates.every((d) => d < periodStart(period));
@@ -190,7 +199,14 @@ export function buildLedger(input: LedgerInput, opts: { until?: ISODate } = {}):
   }
   for (const a of input.adjustments ?? []) {
     if (opts.until && a.date > opts.until) continue;
-    rows.push({ date: a.date, kind: "adjustment", refId: a.id, description: a.reason, debitFils: 0, creditFils: a.amountFils });
+    rows.push({
+      date: a.date,
+      kind: "adjustment",
+      refId: a.id,
+      description: a.reason,
+      debitFils: 0,
+      creditFils: a.amountFils,
+    });
   }
   const order = { free: 0, charge: 1, adjustment: 2, payment: 3 } as const;
   rows.sort((a, b) => a.date.localeCompare(b.date) || order[a.kind] - order[b.kind]);
@@ -204,12 +220,22 @@ export function buildLedger(input: LedgerInput, opts: { until?: ISODate } = {}):
 /** Contract balance summary as of a date. */
 export function balanceSummary(input: LedgerInput, asOf: ISODate) {
   const states = [...chargeStates(input, asOf).values()];
-  const charged = states.filter((s) => s.charge.dueDate <= asOf).reduce((a, s) => a + s.charge.amountFils, 0);
-  const paid = input.payments.filter((p) => !p.voided && p.receivedAt <= asOf).reduce((a, p) => a + p.amountFils, 0);
+  const charged = states
+    .filter((s) => s.charge.dueDate <= asOf)
+    .reduce((a, s) => a + s.charge.amountFils, 0);
+  const paid = input.payments
+    .filter((p) => !p.voided && p.receivedAt <= asOf)
+    .reduce((a, p) => a + p.amountFils, 0);
   const allocatedAll = states.reduce((a, s) => a + s.allocatedFils, 0);
   const arrears = arrearsAsOf(input, asOf);
   const credit = Math.max(0, paid - allocatedAll);
-  return { chargedFils: charged, paidFils: paid, arrearsFils: arrears, creditFils: credit, net: arrears - credit };
+  return {
+    chargedFils: charged,
+    paidFils: paid,
+    arrearsFils: arrears,
+    creditFils: credit,
+    net: arrears - credit,
+  };
 }
 
 /** Last payment date ≤ asOf. */

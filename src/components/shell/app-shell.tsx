@@ -7,6 +7,7 @@ import { FloatingTabBar } from "./floating-tab-bar";
 import { CommandPalette } from "./command-palette";
 import { KeyboardShortcutsSheet, useGlobalShortcuts } from "./keyboard";
 import { SessionProvider, type ClientSession } from "./prefs-context";
+import { PwaProvider } from "@/components/pwa/pwa-provider";
 import { AccountMenu } from "./account-menu";
 import { NotificationBell } from "./notification-center";
 import { LaunchAnimation } from "./launch-animation";
@@ -18,31 +19,47 @@ export function useShell() {
 }
 
 /** Authenticated shell: translucent sidebar (desktop), floating tab bar (mobile), palette, shortcuts. */
-export function AppShell({ session, children, banner }: { session: ClientSession; children: ReactNode; banner?: ReactNode }) {
+export function AppShell({
+  session,
+  children,
+  banner,
+}: {
+  session: ClientSession;
+  children: ReactNode;
+  banner?: ReactNode;
+}) {
   const t = useTranslations("common.a11y");
   const [palette, setPalette] = useState(false);
   const openPalette = useCallback(() => setPalette(true), []);
   const { help, setHelp } = useGlobalShortcuts(openPalette);
   return (
     <SessionProvider value={session}>
-      <ShellCtx.Provider value={{ openPalette }}>
-        <a href="#main" className="bg-ink text-on-ink sr-only z-[100] rounded-full px-4 py-2 focus:not-sr-only focus:fixed focus:start-4 focus:top-4">
-          {t("skipToContent")}
-        </a>
-        <div className="flex min-h-dvh">
-          <Sidebar role={session.role} orgName={session.orgName} />
-          <div className="min-w-0 flex-1">
-            {banner}
-            <main id="main" className="mx-auto w-full max-w-[1440px] overflow-x-clip px-4 pb-[calc(120px+var(--safe-bottom))] lg:px-8 lg:pb-12">
-              {children}
-            </main>
+      <PwaProvider>
+        <ShellCtx.Provider value={{ openPalette }}>
+          <a
+            href="#main"
+            className="bg-ink text-on-ink sr-only z-[100] rounded-full px-4 py-2 focus:not-sr-only focus:fixed focus:start-4 focus:top-4"
+          >
+            {t("skipToContent")}
+          </a>
+          <div className="flex min-h-dvh">
+            <Sidebar role={session.role} orgName={session.orgName} />
+            <div className="min-w-0 flex-1">
+              {banner}
+              <main
+                id="main"
+                className="mx-auto w-full max-w-[1440px] overflow-x-clip px-4 pb-[calc(120px+var(--safe-bottom))] lg:px-8 lg:pb-12"
+              >
+                {children}
+              </main>
+            </div>
           </div>
-        </div>
-        <FloatingTabBar role={session.role} />
-        <LaunchAnimation />
-        <CommandPalette open={palette} onOpenChange={setPalette} />
-        <KeyboardShortcutsSheet open={help} onOpenChange={setHelp} />
-      </ShellCtx.Provider>
+          <FloatingTabBar role={session.role} />
+          <LaunchAnimation />
+          <CommandPalette open={palette} onOpenChange={setPalette} />
+          <KeyboardShortcutsSheet open={help} onOpenChange={setHelp} />
+        </ShellCtx.Provider>
+      </PwaProvider>
     </SessionProvider>
   );
 }
@@ -62,9 +79,16 @@ export function HeaderUtilities() {
       >
         <Search className="size-[18px]" />
         <span className="max-w-40 truncate">{t("search")}</span>
-        <kbd className="bg-inset num rounded-[6px] px-1.5 text-[11px]" dir="ltr">⌘K</kbd>
+        <kbd className="bg-inset num rounded-[6px] px-1.5 text-[11px]" dir="ltr">
+          ⌘K
+        </kbd>
       </button>
-      <button type="button" onClick={shell.openPalette} aria-label={t("search")} className="bg-paper text-label press flex size-10 items-center justify-center rounded-full shadow-[0_1px_3px_rgba(16,24,40,.08)] md:hidden">
+      <button
+        type="button"
+        onClick={shell.openPalette}
+        aria-label={t("search")}
+        className="bg-paper text-label press flex size-10 items-center justify-center rounded-full shadow-[0_1px_3px_rgba(16,24,40,.08)] md:hidden"
+      >
         <Search className="size-5" />
       </button>
       <NotificationBell />

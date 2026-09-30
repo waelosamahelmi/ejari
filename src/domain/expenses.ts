@@ -35,7 +35,8 @@ export interface ExpenseAllocation {
 
 export class ExpenseAllocationError extends Error {
   constructor(
-    public readonly code: "no_targets" | "single_needs_one" | "percent_sum" | "amount_sum" | "negative",
+    public readonly code:
+      "no_targets" | "single_needs_one" | "percent_sum" | "amount_sum" | "negative",
     message: string,
   ) {
     super(message);
@@ -50,7 +51,8 @@ export function allocateExpenseLine(
   targets: readonly AllocationTarget[],
 ): ExpenseAllocation[] {
   if (amount < 0) throw new ExpenseAllocationError("negative", "Amount must be >= 0");
-  if (targets.length === 0) throw new ExpenseAllocationError("no_targets", "At least one property is required");
+  if (targets.length === 0)
+    throw new ExpenseAllocationError("no_targets", "At least one property is required");
   const mk = (t: AllocationTarget, a: Fils): ExpenseAllocation => ({
     propertyId: t.propertyId,
     unitId: t.unitId ?? null,
@@ -58,7 +60,11 @@ export function allocateExpenseLine(
   });
   switch (mode) {
     case "single": {
-      if (targets.length !== 1) throw new ExpenseAllocationError("single_needs_one", "Single mode needs exactly one property");
+      if (targets.length !== 1)
+        throw new ExpenseAllocationError(
+          "single_needs_one",
+          "Single mode needs exactly one property",
+        );
       return [mk(targets[0]!, amount)];
     }
     case "split_even": {
@@ -81,7 +87,8 @@ export function allocateExpenseLine(
     }
     case "manual_percent": {
       const pcts = targets.map((t) => t.percent ?? 0);
-      if (pcts.some((p) => p < 0)) throw new ExpenseAllocationError("negative", "Percent must be >= 0");
+      if (pcts.some((p) => p < 0))
+        throw new ExpenseAllocationError("negative", "Percent must be >= 0");
       const basis = pcts.map((p) => Math.round(p * 100));
       if (basis.reduce((a, b) => a + b, 0) !== 10_000) {
         throw new ExpenseAllocationError("percent_sum", "Percentages must sum to 100");
@@ -91,8 +98,10 @@ export function allocateExpenseLine(
     }
     case "manual_amount": {
       const amounts = targets.map((t) => t.amountFils ?? 0);
-      if (amounts.some((a) => a < 0)) throw new ExpenseAllocationError("negative", "Amounts must be >= 0");
-      if (sum(amounts) !== amount) throw new ExpenseAllocationError("amount_sum", "Amounts must sum to the line amount");
+      if (amounts.some((a) => a < 0))
+        throw new ExpenseAllocationError("negative", "Amounts must be >= 0");
+      if (sum(amounts) !== amount)
+        throw new ExpenseAllocationError("amount_sum", "Amounts must sum to the line amount");
       return targets.map((t, i) => mk(t, amounts[i]!));
     }
   }

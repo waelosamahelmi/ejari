@@ -26,7 +26,15 @@ const ACCENTS = [
   ["pink", "#F0508C"],
 ] as const;
 
-export function OrgForm(props: { title: string; name: string; nameEn: string | null; logoUrl: string | null; letterhead: boolean; poweredBy: boolean; accent: string }) {
+export function OrgForm(props: {
+  title: string;
+  name: string;
+  nameEn: string | null;
+  logoUrl: string | null;
+  letterhead: boolean;
+  poweredBy: boolean;
+  accent: string;
+}) {
   const t = useTranslations("settings.org");
   const tc = useTranslations("common.actions");
   const router = useRouter();
@@ -38,23 +46,96 @@ export function OrgForm(props: { title: string; name: string; nameEn: string | n
   return (
     <SettingsShell title={props.title}>
       <Card className="space-y-4 p-5">
-        <Field label={t("name")} htmlFor="o-name"><Input id="o-name" value={name} onChange={(e) => setName(e.target.value)} /></Field>
-        <Field label={t("nameEn")} htmlFor="o-en"><Input id="o-en" dir="ltr" value={nameEn} onChange={(e) => setNameEn(e.target.value)} /></Field>
-        <Button loading={pending} onClick={() => exec(() => saveOrgProfile({ name, nameEn: nameEn || null }), { success: t("saved"), onSuccess: () => router.refresh() })}>{tc("save")}</Button>
+        <Field label={t("name")} htmlFor="o-name">
+          <Input id="o-name" value={name} onChange={(e) => setName(e.target.value)} />
+        </Field>
+        <Field label={t("nameEn")} htmlFor="o-en">
+          <Input id="o-en" dir="ltr" value={nameEn} onChange={(e) => setNameEn(e.target.value)} />
+        </Field>
+        <Button
+          loading={pending}
+          onClick={() =>
+            exec(() => saveOrgProfile({ name, nameEn: nameEn || null }), {
+              success: t("saved"),
+              onSuccess: () => router.refresh(),
+            })
+          }
+        >
+          {tc("save")}
+        </Button>
       </Card>
       <Card className="flex items-center gap-4 p-5">
         <div className="bg-inset grid size-20 place-items-center overflow-hidden rounded-[18px]">
-          {props.logoUrl ? <Image src={props.logoUrl} alt="" width={80} height={80} unoptimized className="size-full object-contain" /> : <Image src="/brand/mark.svg" alt="" width={40} height={40} className="dark:invert" />}
+          {props.logoUrl ? (
+            <Image
+              src={props.logoUrl}
+              alt=""
+              width={80}
+              height={80}
+              unoptimized
+              className="size-full object-contain"
+            />
+          ) : (
+            <Image src="/brand/mark.svg" alt="" width={40} height={40} className="dark:invert" />
+          )}
         </div>
         <div className="flex-1">
           <div className="text-[16px] font-semibold">{t("logo")}</div>
-          <Button variant="secondary" size="sm" className="mt-2" onClick={() => fileRef.current?.click()}><Upload />{t("uploadLogo")}</Button>
-          <input ref={fileRef} type="file" hidden accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; const fd = new FormData(); fd.set("file", f); await exec(() => uploadOrgLogo(fd), { success: t("saved"), onSuccess: () => router.refresh() }); }} />
+          <Button
+            variant="secondary"
+            size="sm"
+            className="mt-2"
+            onClick={() => fileRef.current?.click()}
+          >
+            <Upload />
+            {t("uploadLogo")}
+          </Button>
+          <input
+            ref={fileRef}
+            type="file"
+            hidden
+            accept="image/*"
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              if (!f) return;
+              const fd = new FormData();
+              fd.set("file", f);
+              await exec(() => uploadOrgLogo(fd), {
+                success: t("saved"),
+                onSuccess: () => router.refresh(),
+              });
+            }}
+          />
         </div>
       </Card>
       <GroupedSection>
-        <ListRow title={t("letterhead")} subtitle={t("letterheadHint")} trailing={<Toggle checked={props.letterhead} ariaLabel={t("letterhead")} onCheckedChange={(v) => exec(() => saveOrgSettings({ letterhead: v }), { onSuccess: () => router.refresh() })} />} />
-        <ListRow title={t("poweredBy")} trailing={<Toggle checked={props.poweredBy} ariaLabel={t("poweredBy")} onCheckedChange={(v) => exec(() => saveOrgSettings({ poweredBy: v }), { onSuccess: () => router.refresh() })} />} />
+        <ListRow
+          title={t("letterhead")}
+          subtitle={t("letterheadHint")}
+          trailing={
+            <Toggle
+              checked={props.letterhead}
+              ariaLabel={t("letterhead")}
+              onCheckedChange={(v) =>
+                exec(() => saveOrgSettings({ letterhead: v }), {
+                  onSuccess: () => router.refresh(),
+                })
+              }
+            />
+          }
+        />
+        <ListRow
+          title={t("poweredBy")}
+          trailing={
+            <Toggle
+              checked={props.poweredBy}
+              ariaLabel={t("poweredBy")}
+              onCheckedChange={(v) =>
+                exec(() => saveOrgSettings({ poweredBy: v }), { onSuccess: () => router.refresh() })
+              }
+            />
+          }
+        />
       </GroupedSection>
       <GroupedSection header={t("accent")}>
         <div className="flex flex-wrap gap-3 p-4">
@@ -70,7 +151,10 @@ export function OrgForm(props: { title: string; name: string; nameEn: string | n
                 void savePreferences({ accent: k as "ink" });
                 void saveOrgSettings({ accent: k });
               }}
-              className={cn("grid size-10 place-items-center rounded-full ring-offset-2 ring-offset-[var(--bg-elevated)]", accent === k && "ring-2 ring-[var(--label)]")}
+              className={cn(
+                "grid size-10 place-items-center rounded-full ring-offset-2 ring-offset-[var(--bg-elevated)]",
+                accent === k && "ring-2 ring-[var(--label)]",
+              )}
               style={{ background: color }}
             >
               {accent === k && <Check className="size-5 text-white" />}

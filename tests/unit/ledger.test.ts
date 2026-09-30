@@ -1,19 +1,47 @@
 import { describe, expect, it } from "vitest";
 import {
-  aging, agingBucketOf, arrearsAsOf, arrearsAtPeriodEnd, balanceSummary, buildLedger, chargeStates, daysLate, lastPaymentDate,
-  monthsOverdue, overdueCharges, periodStatus, type LedgerInput,
+  aging,
+  agingBucketOf,
+  arrearsAsOf,
+  arrearsAtPeriodEnd,
+  balanceSummary,
+  buildLedger,
+  chargeStates,
+  daysLate,
+  lastPaymentDate,
+  monthsOverdue,
+  overdueCharges,
+  periodStatus,
+  type LedgerInput,
 } from "@/domain/ledger";
 import type { Charge } from "@/domain/types";
 
-const charge = (period: string, amount: number, kind: Charge["kind"] = "rent", waived = 0): Charge => ({
-  id: `${kind}-${period}`, contractId: "c1", period, kind, amountFils: amount, waivedValueFils: waived, dueDate: `${period}-01`,
+const charge = (
+  period: string,
+  amount: number,
+  kind: Charge["kind"] = "rent",
+  waived = 0,
+): Charge => ({
+  id: `${kind}-${period}`,
+  contractId: "c1",
+  period,
+  kind,
+  amountFils: amount,
+  waivedValueFils: waived,
+  dueDate: `${period}-01`,
 });
 
 const base: LedgerInput = {
   charges: [charge("2026-07", 320000), charge("2026-08", 320000), charge("2026-09", 320000)],
   payments: [
     { id: "p1", contractId: "c1", amountFils: 320000, receivedAt: "2026-07-03", receiptNo: "4411" },
-    { id: "p2", contractId: "c1", amountFils: 300000, receivedAt: "2026-08-05", receiptNo: "51230" },
+    {
+      id: "p2",
+      contractId: "c1",
+      amountFils: 300000,
+      receivedAt: "2026-08-05",
+      receiptNo: "51230",
+    },
   ],
   allocations: [
     { paymentId: "p1", chargeId: "rent-2026-07", amountFils: 320000 },
@@ -34,9 +62,33 @@ describe("arrears", () => {
     const withAdj: LedgerInput = {
       ...base,
       adjustments: [
-        { id: "a1", contractId: "c1", chargeId: "rent-2026-08", kind: "discount", amountFils: 20000, date: "2026-08-20", reason: "خصم" },
-        { id: "a2", contractId: "c1", chargeId: null, kind: "write_off", amountFils: 5000, date: "2026-09-10", reason: "شطب" },
-        { id: "a3", contractId: "c1", chargeId: "missing", kind: "correction", amountFils: 1, date: "2026-09-10", reason: "x" },
+        {
+          id: "a1",
+          contractId: "c1",
+          chargeId: "rent-2026-08",
+          kind: "discount",
+          amountFils: 20000,
+          date: "2026-08-20",
+          reason: "خصم",
+        },
+        {
+          id: "a2",
+          contractId: "c1",
+          chargeId: null,
+          kind: "write_off",
+          amountFils: 5000,
+          date: "2026-09-10",
+          reason: "شطب",
+        },
+        {
+          id: "a3",
+          contractId: "c1",
+          chargeId: "missing",
+          kind: "correction",
+          amountFils: 1,
+          date: "2026-09-10",
+          reason: "x",
+        },
       ],
     };
     expect(arrearsAsOf(withAdj, "2026-08-31")).toBe(0);
@@ -50,7 +102,12 @@ describe("arrears", () => {
       charges: [...base.charges, { ...charge("2026-06", 1), voided: true }],
     };
     expect(arrearsAsOf(v, "2026-08-31")).toBe(320000);
-    expect(chargeStates({ ...base, allocations: [...base.allocations, { paymentId: "zz", chargeId: "x", amountFils: 1 }] }).size).toBe(3);
+    expect(
+      chargeStates({
+        ...base,
+        allocations: [...base.allocations, { paymentId: "zz", chargeId: "x", amountFils: 1 }],
+      }).size,
+    ).toBe(3);
   });
 });
 
@@ -59,10 +116,22 @@ describe("lateness", () => {
     expect(daysLate(base, "2026-09-30")).toBe(60);
     expect(daysLate(base, "2026-07-31")).toBe(0);
     expect(monthsOverdue(base, "2026-09-30")).toBe(2);
-    expect(overdueCharges(base, "2026-09-30").map((s) => s.charge.period)).toEqual(["2026-08", "2026-09"]);
+    expect(overdueCharges(base, "2026-09-30").map((s) => s.charge.period)).toEqual([
+      "2026-08",
+      "2026-09",
+    ]);
   });
   it("aging buckets", () => {
-    const l: LedgerInput = { charges: [charge("2026-05", 100), charge("2026-06", 200), charge("2026-07", 300), charge("2026-09", 400)], payments: [], allocations: [] };
+    const l: LedgerInput = {
+      charges: [
+        charge("2026-05", 100),
+        charge("2026-06", 200),
+        charge("2026-07", 300),
+        charge("2026-09", 400),
+      ],
+      payments: [],
+      allocations: [],
+    };
     expect(aging(l, "2026-09-15")).toEqual({ d0_30: 400, d31_60: 0, d61_90: 300, d90_plus: 300 });
     expect(agingBucketOf(10)).toBe("d0_30");
     expect(agingBucketOf(45)).toBe("d31_60");
@@ -80,7 +149,11 @@ describe("period statuses", () => {
     expect(periodStatus(base, "2026-09", "2026-09-30", { legal: true })).toBe("legal");
     expect(periodStatus(base, "2026-09", "2026-09-30", { occupied: false })).toBe("vacant");
     expect(periodStatus(base, "2026-12", "2026-09-30")).toBe("vacant");
-    const free: LedgerInput = { charges: [charge("2026-10", 0, "free", 650000)], payments: [], allocations: [] };
+    const free: LedgerInput = {
+      charges: [charge("2026-10", 0, "free", 650000)],
+      payments: [],
+      allocations: [],
+    };
     expect(periodStatus(free, "2026-10", "2026-10-31")).toBe("free");
     const adv: LedgerInput = {
       charges: [charge("2026-10", 400000)],
@@ -93,15 +166,61 @@ describe("period statuses", () => {
 
 describe("ledger & summaries", () => {
   it("running balance", () => {
-    const rows = buildLedger({ ...base, adjustments: [{ id: "a", contractId: "c1", chargeId: null, kind: "discount", amountFils: 1000, date: "2026-08-10", reason: "r" }] });
+    const rows = buildLedger({
+      ...base,
+      adjustments: [
+        {
+          id: "a",
+          contractId: "c1",
+          chargeId: null,
+          kind: "discount",
+          amountFils: 1000,
+          date: "2026-08-10",
+          reason: "r",
+        },
+      ],
+    });
     expect(rows.map((r) => r.balanceFils)).toEqual([320000, 0, 320000, 20000, 19000, 339000]);
     expect(buildLedger(base, { until: "2026-07-31" })).toHaveLength(2);
-    const withFreeAndVoid = buildLedger({ ...base, charges: [charge("2026-06", 0, "free", 1)], payments: [{ ...base.payments[0]!, voided: true }] });
+    const withFreeAndVoid = buildLedger({
+      ...base,
+      charges: [charge("2026-06", 0, "free", 1)],
+      payments: [{ ...base.payments[0]!, voided: true }],
+    });
     expect(withFreeAndVoid[0]!.kind).toBe("free");
-    expect(buildLedger({ ...base, adjustments: [{ id: "a", contractId: "c1", chargeId: null, kind: "discount", amountFils: 1, date: "2027-01-01", reason: "r" }] }, { until: "2026-12-31" })).toHaveLength(5);
+    expect(
+      buildLedger(
+        {
+          ...base,
+          adjustments: [
+            {
+              id: "a",
+              contractId: "c1",
+              chargeId: null,
+              kind: "discount",
+              amountFils: 1,
+              date: "2027-01-01",
+              reason: "r",
+            },
+          ],
+        },
+        { until: "2026-12-31" },
+      ),
+    ).toHaveLength(5);
   });
   it("balance summary with credit", () => {
-    const l: LedgerInput = { ...base, payments: [...base.payments, { id: "p3", contractId: "c1", amountFils: 500000, receivedAt: "2026-09-02" }], allocations: [...base.allocations, { paymentId: "p3", chargeId: "rent-2026-08", amountFils: 20000 }, { paymentId: "p3", chargeId: "rent-2026-09", amountFils: 320000 }] };
+    const l: LedgerInput = {
+      ...base,
+      payments: [
+        ...base.payments,
+        { id: "p3", contractId: "c1", amountFils: 500000, receivedAt: "2026-09-02" },
+      ],
+      allocations: [
+        ...base.allocations,
+        { paymentId: "p3", chargeId: "rent-2026-08", amountFils: 20000 },
+        { paymentId: "p3", chargeId: "rent-2026-09", amountFils: 320000 },
+      ],
+    };
     const s = balanceSummary(l, "2026-09-30");
     expect(s).toMatchObject({ arrearsFils: 0, creditFils: 160000, net: -160000 });
   });

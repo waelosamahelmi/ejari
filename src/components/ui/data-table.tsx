@@ -92,7 +92,7 @@ export function DataTable<T>({
           <input
             type="checkbox"
             aria-label={t("selected", { count: table.getSelectedRowModel().rows.length })}
-            className="accent-[var(--brand-ink)] size-[18px]"
+            className="size-[18px] accent-[var(--brand-ink)]"
             checked={table.getIsAllRowsSelected()}
             ref={(el) => {
               if (el) el.indeterminate = table.getIsSomeRowsSelected();
@@ -104,7 +104,7 @@ export function DataTable<T>({
           <input
             type="checkbox"
             aria-label={tc("select")}
-            className="accent-[var(--brand-ink)] size-[18px]"
+            className="size-[18px] accent-[var(--brand-ink)]"
             checked={row.getIsSelected()}
             disabled={!row.getCanSelect()}
             onClick={(e) => e.stopPropagation()}
@@ -145,7 +145,11 @@ export function DataTable<T>({
     if (e.key === "Enter" && onRowClick) onRowClick(row.original);
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
-      const next = (e.key === "ArrowDown" ? e.currentTarget.nextElementSibling : e.currentTarget.previousElementSibling) as HTMLElement | null;
+      const next = (
+        e.key === "ArrowDown"
+          ? e.currentTarget.nextElementSibling
+          : e.currentTarget.previousElementSibling
+      ) as HTMLElement | null;
       next?.focus();
     }
   };
@@ -223,7 +227,12 @@ export function DataTable<T>({
                     onSelect={(e) => e.preventDefault()}
                     className="flex h-10 cursor-pointer items-center gap-3 rounded-[10px] px-3 text-[15px] outline-none data-[highlighted]:bg-[color-mix(in_srgb,var(--label)_8%,transparent)]"
                   >
-                    <span className={cn("size-4 rounded-[5px] ring-1 ring-label-3", c.getIsVisible() && "bg-ink ring-ink")} />
+                    <span
+                      className={cn(
+                        "ring-label-3 size-4 rounded-[5px] ring-1",
+                        c.getIsVisible() && "bg-ink ring-ink",
+                      )}
+                    />
                     {typeof c.columnDef.header === "string" ? c.columnDef.header : c.id}
                   </Menu.CheckboxItem>
                 ))}
@@ -242,7 +251,10 @@ export function DataTable<T>({
 
       <div
         ref={scrollRef}
-        className={cn("bg-paper overflow-auto rounded-[20px] shadow-[var(--sh-card)]", renderCard && "hidden md:block")}
+        className={cn(
+          "bg-paper overflow-auto rounded-[20px] shadow-[var(--sh-card)]",
+          renderCard && "hidden md:block",
+        )}
         style={{ maxHeight }}
       >
         <table className="w-full border-collapse">
@@ -257,8 +269,17 @@ export function DataTable<T>({
                     <th
                       key={h.id}
                       scope="col"
-                      aria-sort={sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined}
-                      style={{ width: h.column.columnDef.size !== 150 ? h.column.columnDef.size : undefined }}
+                      aria-sort={
+                        sorted === "asc"
+                          ? "ascending"
+                          : sorted === "desc"
+                            ? "descending"
+                            : undefined
+                      }
+                      style={{
+                        width:
+                          h.column.columnDef.size !== 150 ? h.column.columnDef.size : undefined,
+                      }}
                       className={cn(
                         "text-label-2 h-11 text-[13px] font-medium first:ps-5 last:pe-5",
                         density === "compact" ? "px-2 leading-4" : "px-3 whitespace-nowrap",
@@ -270,10 +291,17 @@ export function DataTable<T>({
                         <button
                           type="button"
                           onClick={h.column.getToggleSortingHandler()}
-                          className={cn("hover:text-label inline-flex items-center gap-1", (meta?.numeric || meta?.align === "end") && "flex-row-reverse")}
+                          className={cn(
+                            "hover:text-label inline-flex items-center gap-1",
+                            (meta?.numeric || meta?.align === "end") && "flex-row-reverse",
+                          )}
                         >
                           {flexRender(h.column.columnDef.header, h.getContext())}
-                          {sorted === "asc" ? <ArrowUp className="size-3.5" /> : sorted === "desc" ? <ArrowDown className="size-3.5" /> : null}
+                          {sorted === "asc" ? (
+                            <ArrowUp className="size-3.5" />
+                          ) : sorted === "desc" ? (
+                            <ArrowDown className="size-3.5" />
+                          ) : null}
                         </button>
                       ) : (
                         flexRender(h.column.columnDef.header, h.getContext())
@@ -297,13 +325,27 @@ export function DataTable<T>({
                 <tr style={{ height: virtualizer.getVirtualItems()[0]?.start ?? 0 }} aria-hidden />
                 {virtualizer.getVirtualItems().map((vi) => renderRow(rows[vi.index]!))}
                 <tr
-                  style={{ height: virtualizer.getTotalSize() - (virtualizer.getVirtualItems().at(-1)?.end ?? 0) }}
+                  style={{
+                    height:
+                      virtualizer.getTotalSize() - (virtualizer.getVirtualItems().at(-1)?.end ?? 0),
+                  }}
                   aria-hidden
                 />
               </>
             ) : groups ? (
               groups.map(([key, gRows]) => (
-                <GroupRows key={key} span={cols.length} label={groupLabel ? groupLabel(key, gRows.map((r) => r.original)) : key}>
+                <GroupRows
+                  key={key}
+                  span={cols.length}
+                  label={
+                    groupLabel
+                      ? groupLabel(
+                          key,
+                          gRows.map((r) => r.original),
+                        )
+                      : key
+                  }
+                >
                   {gRows.map((r) => renderRow(r))}
                 </GroupRows>
               ))
@@ -319,7 +361,11 @@ export function DataTable<T>({
                   return (
                     <td
                       key={c.id}
-                      className={cn("h-12 px-3 text-[15px] font-semibold first:ps-5 last:pe-5", alignClass(meta?.align, meta?.numeric), meta?.numeric && "num")}
+                      className={cn(
+                        "h-12 px-3 text-[15px] font-semibold first:ps-5 last:pe-5",
+                        alignClass(meta?.align, meta?.numeric),
+                        meta?.numeric && "num",
+                      )}
                     >
                       {meta?.footer}
                     </td>
@@ -334,7 +380,9 @@ export function DataTable<T>({
       {selectable && bulkBar && selectedRows.length > 0 && (
         <div className="fixed inset-x-0 bottom-[calc(96px+var(--safe-bottom))] z-40 flex justify-center px-4 lg:bottom-6">
           <div className="bg-ink text-on-ink flex items-center gap-3 rounded-full py-2 ps-5 pe-2 shadow-[var(--sh-float)]">
-            <span className="text-[14px] font-medium">{t("selected", { count: selectedRows.length })}</span>
+            <span className="text-[14px] font-medium">
+              {t("selected", { count: selectedRows.length })}
+            </span>
             {bulkBar(selectedRows, () => setSelection({}))}
           </div>
         </div>
@@ -343,11 +391,23 @@ export function DataTable<T>({
   );
 }
 
-function GroupRows({ label, span, children }: { label: ReactNode; span: number; children: ReactNode }) {
+function GroupRows({
+  label,
+  span,
+  children,
+}: {
+  label: ReactNode;
+  span: number;
+  children: ReactNode;
+}) {
   return (
     <>
       <tr className="bg-paper-2">
-        <th colSpan={span} scope="rowgroup" className="text-label-2 h-9 px-5 text-start text-[13px] font-semibold">
+        <th
+          colSpan={span}
+          scope="rowgroup"
+          className="text-label-2 h-9 px-5 text-start text-[13px] font-semibold"
+        >
           {label}
         </th>
       </tr>

@@ -29,7 +29,9 @@ export function LargeTitleHeader({
   useEffect(() => {
     const el = sentinel.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => setCollapsed(!e!.isIntersecting), { rootMargin: "-56px 0px 0px 0px" });
+    const io = new IntersectionObserver(([e]) => setCollapsed(!e!.isIntersecting), {
+      rootMargin: "-56px 0px 0px 0px",
+    });
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -44,12 +46,22 @@ export function LargeTitleHeader({
         <div className="flex h-14 w-full items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-1">
             {back && (
-              <Link href={back.href} className="text-link -ms-2 flex h-10 items-center gap-0.5 rounded-full pe-2 text-[16px]" aria-label={back.label}>
+              <Link
+                href={back.href}
+                className="text-link -ms-2 flex h-10 items-center gap-0.5 rounded-full pe-2 text-[16px]"
+                aria-label={back.label}
+              >
                 <ChevronRight className="size-6 rotate-180 rtl:rotate-0" />
                 <span className="hidden max-w-40 truncate sm:inline">{back.label}</span>
               </Link>
             )}
-            <span className={cn("truncate text-[17px] font-semibold transition-opacity duration-200", collapsed ? "opacity-100" : "opacity-0")} aria-hidden={!collapsed}>
+            <span
+              className={cn(
+                "truncate text-[17px] font-semibold transition-opacity duration-200",
+                collapsed ? "opacity-100" : "opacity-0",
+              )}
+              aria-hidden={!collapsed}
+            >
               {title}
             </span>
           </div>

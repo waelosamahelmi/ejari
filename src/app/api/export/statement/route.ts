@@ -10,14 +10,17 @@ import { formatPeriod, isValidPeriod } from "@/domain/dates";
 export async function GET(req: NextRequest) {
   const ctx = await getSessionContext();
   if (!ctx) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  if (!can(ctx.role, "view_late_units") && ctx.role !== "owner") return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  if (!can(ctx.role, "view_late_units") && ctx.role !== "owner")
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const period = req.nextUrl.searchParams.get("period") ?? "";
   const property = req.nextUrl.searchParams.get("property") ?? "all";
   const lang = req.nextUrl.searchParams.get("lang") === "en" ? "en" : "ar";
   if (!isValidPeriod(period)) return NextResponse.json({ error: "validation" }, { status: 400 });
   const data = await loadOrgData(ctx);
   const t = await getTranslations({ locale: lang, namespace: "collections" });
-  const props = data.ds.properties.filter((p) => (property === "all" || p.id === property) && data.properties.get(p.id)?.active);
+  const props = data.ds.properties.filter(
+    (p) => (property === "all" || p.id === property) && data.properties.get(p.id)?.active,
+  );
   const columns = [
     { header: t("columns.unit"), key: "unit", width: 14 },
     { header: t("columns.tenant"), key: "tenant", width: 28 },
@@ -50,9 +53,18 @@ export async function GET(req: NextRequest) {
         next: r.nextFils || null,
         last: r.lastPaymentDate,
         arrears: r.vacant ? null : r.arrearsFils,
-        notes: r.notes.map((n) => (n === "free" ? t("free") : n === "notice" ? t("notice") : n)).join(" · "),
+        notes: r.notes
+          .map((n) => (n === "free" ? t("free") : n === "notice" ? t("notice") : n))
+          .join(" · "),
       })),
-      totals: { unit: t("totals.total"), rent: s.totals.rentFils, collected: s.totals.collectedFils, prev: s.totals.previousFils, next: s.totals.nextFils, arrears: s.totals.arrearsFils },
+      totals: {
+        unit: t("totals.total"),
+        rent: s.totals.rentFils,
+        collected: s.totals.collectedFils,
+        prev: s.totals.previousFils,
+        next: s.totals.nextFils,
+        arrears: s.totals.arrearsFils,
+      },
     };
   });
   const buf = await buildWorkbook(sheets, { creator: "Ejari" });

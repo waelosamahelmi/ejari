@@ -20,7 +20,9 @@ export default async function ContractsPage({ params }: LocaleParams) {
   const rows = await fetchAll((f, t) =>
     db
       .from("contracts")
-      .select("id, contract_no, type, status, start_date, end_date, move_out_date, monthly_rent_fils, auto_renew, tenants(full_name), properties(id, name), contract_units(units(label, sort_order))")
+      .select(
+        "id, contract_no, type, status, start_date, end_date, move_out_date, monthly_rent_fils, auto_renew, tenants(full_name), properties(id, name), contract_units(units(label, sort_order))",
+      )
       .order("created_at", { ascending: false })
       .range(f, t),
   );

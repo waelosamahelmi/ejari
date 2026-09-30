@@ -8,7 +8,10 @@ import { RecurringView } from "./recurring-view";
 
 export async function generateMetadata({ params }: LocaleParams) {
   const { locale } = await params;
-  const t = await getTranslations({ locale: locale as "ar" | "en", namespace: "expenses.recurringPage" });
+  const t = await getTranslations({
+    locale: locale as "ar" | "en",
+    namespace: "expenses.recurringPage",
+  });
   return { title: t("title") };
 }
 
@@ -16,7 +19,10 @@ export default async function RecurringPage({ params }: LocaleParams) {
   const { locale } = await pageLocale(params);
   const ctx = await requireContext(locale, { capability: "manage_expenses" });
   const db = await supabaseServer();
-  const { data } = await db.from("recurring_expenses").select("*, expense_categories(name_ar, name_en), beneficiaries(name)").order("created_at");
+  const { data } = await db
+    .from("recurring_expenses")
+    .select("*, expense_categories(name_ar, name_en), beneficiaries(name)")
+    .order("created_at");
   const opts = await voucherFormOptions(ctx);
   return (
     <RecurringView
@@ -27,7 +33,9 @@ export default async function RecurringPage({ params }: LocaleParams) {
         return {
           id: r.id,
           categoryId: r.category_id,
-          category: (r.expense_categories as unknown as { name_ar: string; name_en: string })[locale === "ar" ? "name_ar" : "name_en"],
+          category: (r.expense_categories as unknown as { name_ar: string; name_en: string })[
+            locale === "ar" ? "name_ar" : "name_en"
+          ],
           beneficiaryId: r.beneficiary_id,
           beneficiary: (r.beneficiaries as unknown as { name: string } | null)?.name ?? "",
           amountFils: r.amount_fils,

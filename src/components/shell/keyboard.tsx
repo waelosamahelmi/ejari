@@ -6,7 +6,13 @@ import { Sheet } from "@/components/ui/sheet";
 
 function isTyping(e: KeyboardEvent) {
   const el = e.target as HTMLElement | null;
-  return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable);
+  return (
+    !!el &&
+    (el.tagName === "INPUT" ||
+      el.tagName === "TEXTAREA" ||
+      el.tagName === "SELECT" ||
+      el.isContentEditable)
+  );
 }
 
 /** Global shortcuts: ⌘K palette, ? help, g d / g c navigation, n p / n c / n v creation. */
@@ -38,7 +44,15 @@ export function useGlobalShortcuts(openPalette: () => void) {
         const combo = prefix + k;
         prefix = null;
         clearTimeout(timer);
-        const map: Record<string, string> = { gd: "/dashboard", gc: "/collections", gp: "/properties", gr: "/reports", np: "/collections?pay=1", nc: "/contracts/new", nv: "/expenses/new" };
+        const map: Record<string, string> = {
+          gd: "/dashboard",
+          gc: "/collections",
+          gp: "/properties",
+          gr: "/reports",
+          np: "/collections?pay=1",
+          nc: "/contracts/new",
+          nv: "/expenses/new",
+        };
         if (map[combo]) {
           e.preventDefault();
           router.push(map[combo]);
@@ -56,7 +70,13 @@ export function useGlobalShortcuts(openPalette: () => void) {
   return { help, setHelp };
 }
 
-export function KeyboardShortcutsSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+export function KeyboardShortcutsSheet({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+}) {
   const t = useTranslations("ui.shortcuts");
   const rows: [string[], string][] = [
     [["⌘", "K"], t("palette")],
@@ -76,7 +96,10 @@ export function KeyboardShortcutsSheet({ open, onOpenChange }: { open: boolean; 
             <span>{label}</span>
             <span className="flex gap-1" dir="ltr">
               {keys.map((k) => (
-                <kbd key={k} className="bg-inset num min-w-7 rounded-[8px] px-2 py-0.5 text-center text-[13px] font-semibold">
+                <kbd
+                  key={k}
+                  className="bg-inset num min-w-7 rounded-[8px] px-2 py-0.5 text-center text-[13px] font-semibold"
+                >
                   {k}
                 </kbd>
               ))}

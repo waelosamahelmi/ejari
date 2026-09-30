@@ -21,10 +21,30 @@ export interface BeneficiaryRow {
   active: boolean;
 }
 
-const BLANK: BeneficiaryRow = { id: "", name: "", kind: "staff", phone: "", monthlySalaryFils: null, notes: "", active: true };
+const BLANK: BeneficiaryRow = {
+  id: "",
+  name: "",
+  kind: "staff",
+  phone: "",
+  monthlySalaryFils: null,
+  notes: "",
+  active: true,
+};
 
 /** Create/edit beneficiary (also used inline from the voucher line editor). */
-export function BeneficiarySheet({ open, onOpenChange, row, onSaved, initialName }: { open: boolean; onOpenChange: (o: boolean) => void; row: BeneficiaryRow | null; onSaved?: (b: { id: string; name: string }) => void; initialName?: string }) {
+export function BeneficiarySheet({
+  open,
+  onOpenChange,
+  row,
+  onSaved,
+  initialName,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  row: BeneficiaryRow | null;
+  onSaved?: (b: { id: string; name: string }) => void;
+  initialName?: string;
+}) {
   const t = useTranslations("catalog.beneficiaries");
   const tKind = useTranslations("enums.beneficiaryKind");
   const tc = useTranslations("common.actions");
@@ -42,20 +62,66 @@ export function BeneficiarySheet({ open, onOpenChange, row, onSaved, initialName
       },
     });
   return (
-    <Sheet open={open} onOpenChange={onOpenChange} title={v.id ? v.name : t("new")} footer={<Button block size="lg" onClick={save} loading={pending} disabled={!v.name.trim()}>{tc("save")}</Button>}>
+    <Sheet
+      open={open}
+      onOpenChange={onOpenChange}
+      title={v.id ? v.name : t("new")}
+      footer={
+        <Button block size="lg" onClick={save} loading={pending} disabled={!v.name.trim()}>
+          {tc("save")}
+        </Button>
+      }
+    >
       <div className="space-y-4">
-        <Field label={t("name")} htmlFor="b-name"><Input id="b-name" autoFocus value={v.name} onChange={(e) => setV({ ...v, name: e.target.value })} /></Field>
+        <Field label={t("name")} htmlFor="b-name">
+          <Input
+            id="b-name"
+            autoFocus
+            value={v.name}
+            onChange={(e) => setV({ ...v, name: e.target.value })}
+          />
+        </Field>
         <Field label={t("kind")}>
-          <SegmentedControl size="sm" options={(["staff", "vendor", "asset", "other"] as const).map((k) => ({ value: k, label: tKind(k) }))} value={v.kind} onChange={(k) => setV({ ...v, kind: k })} />
+          <SegmentedControl
+            size="sm"
+            options={(["staff", "vendor", "asset", "other"] as const).map((k) => ({
+              value: k,
+              label: tKind(k),
+            }))}
+            value={v.kind}
+            onChange={(k) => setV({ ...v, kind: k })}
+          />
         </Field>
         {v.kind === "staff" && (
-          <Field label={t("salary")} htmlFor="b-sal"><MoneyInput id="b-sal" value={v.monthlySalaryFils} onChange={(f) => setV({ ...v, monthlySalaryFils: f })} /></Field>
+          <Field label={t("salary")} htmlFor="b-sal">
+            <MoneyInput
+              id="b-sal"
+              value={v.monthlySalaryFils}
+              onChange={(f) => setV({ ...v, monthlySalaryFils: f })}
+            />
+          </Field>
         )}
-        <Field label={t("phone")} htmlFor="b-phone"><PhoneInput id="b-phone" value={v.phone} onChange={(e) => setV({ ...v, phone: e.target.value })} /></Field>
-        <Field label={t("notes")} htmlFor="b-notes"><Textarea id="b-notes" value={v.notes} onChange={(e) => setV({ ...v, notes: e.target.value })} /></Field>
+        <Field label={t("phone")} htmlFor="b-phone">
+          <PhoneInput
+            id="b-phone"
+            value={v.phone}
+            onChange={(e) => setV({ ...v, phone: e.target.value })}
+          />
+        </Field>
+        <Field label={t("notes")} htmlFor="b-notes">
+          <Textarea
+            id="b-notes"
+            value={v.notes}
+            onChange={(e) => setV({ ...v, notes: e.target.value })}
+          />
+        </Field>
         <label className="bg-paper flex items-center justify-between rounded-[14px] px-4 py-3">
           <span>{t("active")}</span>
-          <Toggle checked={v.active} onCheckedChange={(a) => setV({ ...v, active: a })} ariaLabel={t("active")} />
+          <Toggle
+            checked={v.active}
+            onCheckedChange={(a) => setV({ ...v, active: a })}
+            ariaLabel={t("active")}
+          />
         </label>
       </div>
     </Sheet>

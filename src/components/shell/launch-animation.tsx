@@ -31,7 +31,16 @@ export function LaunchAnimation() {
         >
           <div className="flex flex-col items-center gap-3">
             <svg viewBox="0 0 64 64" className="size-20">
-              <motion.path d={ARCH} fill="none" stroke="var(--brand-ink)" strokeWidth={3} strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.3, ease: "easeOut" }} />
+              <motion.path
+                d={ARCH}
+                fill="none"
+                stroke="var(--brand-ink)"
+                strokeWidth={3}
+                strokeLinecap="round"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
               <motion.path
                 d="M14 50V24a18 18 0 0 1 36 0v26h-14.5V23.5a3.5 3.5 0 0 0-7 0V50z"
                 fill="var(--brand-ink)"
@@ -39,9 +48,24 @@ export function LaunchAnimation() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.25, duration: 0.15 }}
               />
-              <motion.circle cx="32" cy="57.5" r="3" fill="var(--brand-ink)" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.35, type: "spring", stiffness: 500, damping: 20 }} />
+              <motion.circle
+                cx="32"
+                cy="57.5"
+                r="3"
+                fill="var(--brand-ink)"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.35, type: "spring", stiffness: 500, damping: 20 }}
+              />
             </svg>
-            <motion.img src="/brand/wordmark-ar.svg" alt="" className="h-8 dark:invert" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.2 }} />
+            <motion.img
+              src="/brand/wordmark-ar.svg"
+              alt=""
+              className="h-8 dark:invert"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.2 }}
+            />
           </div>
         </motion.div>
       )}

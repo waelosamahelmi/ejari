@@ -3,7 +3,14 @@ import { useTransition } from "react";
 import { Globe, LogOut, Moon, Settings, Sun, SunMoon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/menu";
 import { savePreferences, signOut } from "@/server/actions/preferences";
 import { initials } from "@/lib/utils";
 import { useSession } from "./prefs-context";
@@ -61,12 +68,22 @@ export function AccountMenu() {
           {locale === "ar" ? t("labels.english") : t("labels.arabic")}
         </DropdownMenuItem>
         <DropdownMenuLabel>{t("labels.appearance")}</DropdownMenuLabel>
-        <DropdownMenuItem icon={<Sun />} onSelect={() => setTheme("light")}>{t("labels.light")}</DropdownMenuItem>
-        <DropdownMenuItem icon={<Moon />} onSelect={() => setTheme("dark")}>{t("labels.dark")}</DropdownMenuItem>
-        <DropdownMenuItem icon={<SunMoon />} onSelect={() => setTheme("system")}>{t("labels.system")}</DropdownMenuItem>
+        <DropdownMenuItem icon={<Sun />} onSelect={() => setTheme("light")}>
+          {t("labels.light")}
+        </DropdownMenuItem>
+        <DropdownMenuItem icon={<Moon />} onSelect={() => setTheme("dark")}>
+          {t("labels.dark")}
+        </DropdownMenuItem>
+        <DropdownMenuItem icon={<SunMoon />} onSelect={() => setTheme("system")}>
+          {t("labels.system")}
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem icon={<Settings />} onSelect={() => router.push("/settings")}>{tNav("settings")}</DropdownMenuItem>
-        <DropdownMenuItem icon={<LogOut />} destructive onSelect={doSignOut}>{t("actions.signOut")}</DropdownMenuItem>
+        <DropdownMenuItem icon={<Settings />} onSelect={() => router.push("/settings")}>
+          {tNav("settings")}
+        </DropdownMenuItem>
+        <DropdownMenuItem icon={<LogOut />} destructive onSelect={doSignOut}>
+          {t("actions.signOut")}
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

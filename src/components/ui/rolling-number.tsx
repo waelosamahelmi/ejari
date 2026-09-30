@@ -3,7 +3,17 @@ import { useEffect, useRef, useState } from "react";
 import { animate, useReducedMotion } from "motion/react";
 
 /** Animates a number from its previous value to the next (rolling counter). */
-export function RollingNumber({ value, format, className, duration = 0.8 }: { value: number; format: (n: number) => string; className?: string; duration?: number }) {
+export function RollingNumber({
+  value,
+  format,
+  className,
+  duration = 0.8,
+}: {
+  value: number;
+  format: (n: number) => string;
+  className?: string;
+  duration?: number;
+}) {
   const reduced = useReducedMotion();
   const [shown, setShown] = useState(value);
   const prev = useRef(value);

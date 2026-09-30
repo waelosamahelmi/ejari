@@ -31,7 +31,23 @@ export const MoneyInput = forwardRef<
     onBlur?: () => void;
     size?: "md" | "lg";
   }
->(function MoneyInput({ value, onChange, id, placeholder = "0.000", disabled, showWords = true, className, invalid, autoFocus, name, onBlur, size = "md" }, ref) {
+>(function MoneyInput(
+  {
+    value,
+    onChange,
+    id,
+    placeholder = "0.000",
+    disabled,
+    showWords = true,
+    className,
+    invalid,
+    autoFocus,
+    name,
+    onBlur,
+    size = "md",
+  },
+  ref,
+) {
   const locale = useLocale();
   const [text, setText] = useState(display(value));
   const [focused, setFocused] = useState(false);

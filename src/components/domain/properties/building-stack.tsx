@@ -55,20 +55,31 @@ export function BuildingStack({
     groups.set(k, [...(groups.get(k) ?? []), u]);
   }
   const keys = [...groups.keys()].sort((a, b) => b - a);
-  const floorLabel = (k: number) => (k === 10_000 ? t("roof") : k === -10_000 ? t("noFloor") : k === 0 ? t("ground") : k < 0 ? t("basement") : t("floor", { n: k }));
+  const floorLabel = (k: number) =>
+    k === 10_000
+      ? t("roof")
+      : k === -10_000
+        ? t("noFloor")
+        : k === 0
+          ? t("ground")
+          : k < 0
+            ? t("basement")
+            : t("floor", { n: k });
 
   return (
     <div className="space-y-4">
       <div className="space-y-2.5">
         {keys.map((k) => (
           <div key={k} className="flex items-stretch gap-3">
-            <div className="text-label-2 flex w-16 shrink-0 items-center justify-end text-end text-[12px] font-medium sm:w-20">{floorLabel(k)}</div>
-            <div className="bg-paper-2 flex flex-1 flex-wrap gap-2 rounded-[16px] p-2 ring-1 ring-separator">
+            <div className="text-label-2 flex w-16 shrink-0 items-center justify-end text-end text-[12px] font-medium sm:w-20">
+              {floorLabel(k)}
+            </div>
+            <div className="bg-paper-2 ring-separator flex flex-1 flex-wrap gap-2 rounded-[16px] p-2 ring-1">
               {groups
                 .get(k)!
                 .sort((a, b) => a.sortOrder - b.sortOrder)
                 .map((u) => {
-                  const disabled = mode === "select" ? isDisabled?.(u) ?? null : null;
+                  const disabled = mode === "select" ? (isDisabled?.(u) ?? null) : null;
                   const isSel = selected?.has(u.id);
                   const style = UNIT_STATUS_STYLE[u.status];
                   const pay = PERIOD_STATUS_STYLE[u.periodStatus];
@@ -83,11 +94,21 @@ export function BuildingStack({
                         ) : isSel ? (
                           <Check className="size-4 shrink-0" aria-hidden />
                         ) : (
-                          <span className={cn("size-2 shrink-0 rounded-full", u.status === "vacant" ? style.dot : pay.dot)} aria-hidden />
+                          <span
+                            className={cn(
+                              "size-2 shrink-0 rounded-full",
+                              u.status === "vacant" ? style.dot : pay.dot,
+                            )}
+                            aria-hidden
+                          />
                         )}
                       </div>
-                      <div className="text-label-2 truncate text-[12px]">{u.tenantName ? firstName(u.tenantName) : tStatus(u.status)}</div>
-                      <div className="num text-label-2 truncate text-[12px]">{money(u.rentFils || u.askingRentFils, { showCurrency: false })}</div>
+                      <div className="text-label-2 truncate text-[12px]">
+                        {u.tenantName ? firstName(u.tenantName) : tStatus(u.status)}
+                      </div>
+                      <div className="num text-label-2 truncate text-[12px]">
+                        {money(u.rentFils || u.askingRentFils, { showCurrency: false })}
+                      </div>
                     </>
                   );
                   const cls = cn(
@@ -99,7 +120,16 @@ export function BuildingStack({
                   const aria = `${u.label} — ${u.tenantName ?? tStatus(u.status)}${u.status !== "vacant" ? ` — ${tPeriod(u.periodStatus)}` : ""}${disabled ? ` — ${disabled}` : ""}`;
                   if (mode === "select")
                     return (
-                      <button key={u.id} type="button" aria-pressed={isSel} aria-label={aria} title={disabled ?? undefined} disabled={!!disabled} onClick={() => onToggle?.(u.id)} className={cls}>
+                      <button
+                        key={u.id}
+                        type="button"
+                        aria-pressed={isSel}
+                        aria-label={aria}
+                        title={disabled ?? undefined}
+                        disabled={!!disabled}
+                        onClick={() => onToggle?.(u.id)}
+                        className={cls}
+                      >
                         {content}
                       </button>
                     );
@@ -113,7 +143,10 @@ export function BuildingStack({
           </div>
         ))}
       </div>
-      <div className="flex flex-wrap gap-x-4 gap-y-1.5 ps-[76px] sm:ps-[92px]" aria-label={t("legend")}>
+      <div
+        className="flex flex-wrap gap-x-4 gap-y-1.5 ps-[76px] sm:ps-[92px]"
+        aria-label={t("legend")}
+      >
         {(["occupied", "vacant", "reserved", "in_grace", "notice", "legal"] as const).map((s) => (
           <span key={s} className="text-label-2 flex items-center gap-1.5 text-[12px]">
             <span className={cn("size-2 rounded-full", UNIT_STATUS_STYLE[s].dot)} />

@@ -42,7 +42,9 @@ export function toFils(input: string | number): Fils {
     assertSafe(fils);
     return fils === 0 ? 0 : fils;
   }
-  const cleaned = normalizeDigits(input).replace(/[\s,]/g, "").replace(/(د\.ك|KWD)/gi, "");
+  const cleaned = normalizeDigits(input)
+    .replace(/[\s,]/g, "")
+    .replace(/(د\.ك|KWD)/gi, "");
   if (cleaned === "" || cleaned === "-" || cleaned === ".") return 0;
   const match = /^(-)?(\d*)(?:\.(\d*))?$/.exec(cleaned);
   if (!match) throw new TypeError(`Invalid amount: ${input}`);
@@ -95,13 +97,21 @@ export interface FormatOptions {
 
 /** Formats fils as KWD with 3 decimals ("300.000 د.ك"). */
 export function formatKWD(fils: Fils, opts: FormatOptions = {}): string {
-  const { locale = "ar", showCurrency = true, compact = false, digits = "latn", signed = false } = opts;
+  const {
+    locale = "ar",
+    showCurrency = true,
+    compact = false,
+    digits = "latn",
+    signed = false,
+  } = opts;
   let body: string;
   if (compact && Math.abs(fils) >= 1_000_000) {
     const dinars = fils / FILS_PER_DINAR;
     const abs = Math.abs(dinars);
     const [div, suffix] =
-      abs >= 1_000_000 ? [1_000_000, locale === "ar" ? " مليون" : "M"] : [1_000, locale === "ar" ? " ألف" : "K"];
+      abs >= 1_000_000
+        ? [1_000_000, locale === "ar" ? " مليون" : "M"]
+        : [1_000, locale === "ar" ? " ألف" : "K"];
     const v = dinars / div;
     body = `${v.toFixed(Math.abs(v) >= 100 ? 0 : 1).replace(/\.0$/, "")}${suffix}`;
   } else {
@@ -167,7 +177,8 @@ export function splitEven(total: Fils, n: number): Fils[] {
  */
 export function splitByWeights(total: Fils, weights: readonly number[]): Fils[] {
   if (weights.length === 0) throw new RangeError("weights must not be empty");
-  if (weights.some((w) => !Number.isFinite(w) || w < 0)) throw new RangeError("weights must be >= 0");
+  if (weights.some((w) => !Number.isFinite(w) || w < 0))
+    throw new RangeError("weights must be >= 0");
   assertSafe(total);
   const wSum = weights.reduce((a, b) => a + b, 0);
   if (wSum === 0) return splitEven(total, weights.length);

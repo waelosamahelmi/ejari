@@ -1,8 +1,23 @@
 {
   "slides": [
-    { "title": "Every door,", "strong": "accounted for", "subtitle": "Every unit, tenant and lease in one calm, precise ledger." },
-    { "title": "Collections", "strong": "without paper", "subtitle": "Record payments in the field, even offline." },
-    { "title": "Reports", "strong": "owners trust", "subtitle": "Monthly statements with arrears calculated for you." }
+    {
+      "title": "Every door,",
+      "strong": "accounted for",
+      "subtitle": "Every unit, tenant and lease in one calm, precise ledger."
+    },
+    {
+      "title": "Collections",
+      "strong": "without paper",
+      "subtitle": "Record payments in the field, even offline."
+    },
+    {
+      "title": "Reports",
+      "strong": "owners trust",
+      "subtitle": "Monthly statements with arrears calculated for you."
+    }
   ],
-  "start": "Get started", "login": "Login", "skip": "Skip", "page": "Page {n} of {total}"
+  "start": "Get started",
+  "login": "Login",
+  "skip": "Skip",
+  "page": "Page {n} of {total}"
 }

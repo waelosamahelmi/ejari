@@ -1,24 +1,116 @@
 {
-  "unitType": { "apartment": "Apartment", "shop": "Shop", "room": "Room", "basement": "Basement", "basement_front_half": "Front half-basement", "basement_back_half": "Back half-basement", "roof": "Roof", "office": "Office", "warehouse": "Warehouse", "plot": "Plot", "other": "Other" },
-  "propertyType": { "residential": "Residential", "investment": "Investment", "mixed": "Mixed", "industrial": "Industrial" },
-  "unitStatus": { "occupied": "Occupied", "vacant": "Vacant", "reserved": "Reserved", "in_grace": "Grace period", "notice": "Notice given", "legal": "Legal case" },
-  "periodStatus": { "paid": "Paid", "partial": "Partial", "unpaid": "Unpaid", "due": "Due", "advance": "Advance", "free": "Free", "vacant": "Vacant", "legal": "Legal" },
+  "unitType": {
+    "apartment": "Apartment",
+    "shop": "Shop",
+    "room": "Room",
+    "basement": "Basement",
+    "basement_front_half": "Front half-basement",
+    "basement_back_half": "Back half-basement",
+    "roof": "Roof",
+    "office": "Office",
+    "warehouse": "Warehouse",
+    "plot": "Plot",
+    "other": "Other"
+  },
+  "propertyType": {
+    "residential": "Residential",
+    "investment": "Investment",
+    "mixed": "Mixed",
+    "industrial": "Industrial"
+  },
+  "unitStatus": {
+    "occupied": "Occupied",
+    "vacant": "Vacant",
+    "reserved": "Reserved",
+    "in_grace": "Grace period",
+    "notice": "Notice given",
+    "legal": "Legal case"
+  },
+  "periodStatus": {
+    "paid": "Paid",
+    "partial": "Partial",
+    "unpaid": "Unpaid",
+    "due": "Due",
+    "advance": "Advance",
+    "free": "Free",
+    "vacant": "Vacant",
+    "legal": "Legal"
+  },
   "contractType": { "residential": "Residential", "investment": "Investment" },
-  "contractStatus": { "draft": "Draft", "active": "Active", "notice_given": "Notice given", "ended": "Ended", "terminated": "Terminated", "renewed": "Renewed" },
-  "chargeKind": { "rent": "Rent", "free": "Free month", "electricity_fixed": "Fixed electricity", "penalty": "Penalty", "maintenance_recharge": "Maintenance recharge", "other": "Other charge" },
-  "paymentMethod": { "cash": "Cash", "knet": "KNET", "bank_transfer": "Bank transfer", "cheque": "Cheque", "link": "Payment link" },
-  "adjustmentKind": { "discount": "Discount", "write_off": "Write-off", "correction": "Correction" },
-  "legalStatus": { "none": "None", "filed": "Filed", "in_progress": "In progress", "judgment": "Judgment", "enforcement": "Enforcement", "closed": "Closed" },
+  "contractStatus": {
+    "draft": "Draft",
+    "active": "Active",
+    "notice_given": "Notice given",
+    "ended": "Ended",
+    "terminated": "Terminated",
+    "renewed": "Renewed"
+  },
+  "chargeKind": {
+    "rent": "Rent",
+    "free": "Free month",
+    "electricity_fixed": "Fixed electricity",
+    "penalty": "Penalty",
+    "maintenance_recharge": "Maintenance recharge",
+    "other": "Other charge"
+  },
+  "paymentMethod": {
+    "cash": "Cash",
+    "knet": "KNET",
+    "bank_transfer": "Bank transfer",
+    "cheque": "Cheque",
+    "link": "Payment link"
+  },
+  "adjustmentKind": {
+    "discount": "Discount",
+    "write_off": "Write-off",
+    "correction": "Correction"
+  },
+  "legalStatus": {
+    "none": "None",
+    "filed": "Filed",
+    "in_progress": "In progress",
+    "judgment": "Judgment",
+    "enforcement": "Enforcement",
+    "closed": "Closed"
+  },
   "legalType": { "eviction": "Eviction", "rent_claim": "Rent claim", "other": "Other" },
   "utilitiesParty": { "owner": "Party 1 (owner)", "tenant": "Party 2 (tenant)" },
-  "depositStatus": { "none": "None", "held": "Held", "refunded": "Refunded", "forfeited_partially": "Partly forfeited", "forfeited": "Forfeited" },
+  "depositStatus": {
+    "none": "None",
+    "held": "Held",
+    "refunded": "Refunded",
+    "forfeited_partially": "Partly forfeited",
+    "forfeited": "Forfeited"
+  },
   "paidFrom": { "cash_box": "Cash box", "bank": "Bank", "cheque": "Cheque" },
   "voucherStatus": { "draft": "Draft", "posted": "Posted", "void": "Void" },
-  "allocationMode": { "single": "One property", "split_even": "Split evenly", "split_by_units": "By unit count", "split_by_rent": "By expected rent", "manual_percent": "Manual %", "manual_amount": "Manual amounts" },
-  "categoryType": { "operating": "Operating", "capital": "Capital", "payroll": "Payroll", "owner_draw": "Owner draw" },
+  "allocationMode": {
+    "single": "One property",
+    "split_even": "Split evenly",
+    "split_by_units": "By unit count",
+    "split_by_rent": "By expected rent",
+    "manual_percent": "Manual %",
+    "manual_amount": "Manual amounts"
+  },
+  "categoryType": {
+    "operating": "Operating",
+    "capital": "Capital",
+    "payroll": "Payroll",
+    "owner_draw": "Owner draw"
+  },
   "beneficiaryKind": { "staff": "Staff", "vendor": "Vendor", "asset": "Asset", "other": "Other" },
-  "depositDestination": { "owner_bank": "Owner's account", "office_bank": "Office account", "cash_to_owner": "Cash to owner" },
-  "role": { "admin": "Admin", "accountant": "Accountant", "collector": "Collector", "viewer": "Viewer", "owner": "Owner" },
+  "depositDestination": {
+    "owner_bank": "Owner's account",
+    "office_bank": "Office account",
+    "cash_to_owner": "Cash to owner"
+  },
+  "role": {
+    "admin": "Admin",
+    "accountant": "Accountant",
+    "collector": "Collector",
+    "viewer": "Viewer",
+    "owner": "Owner"
+  },
   "commissionKind": { "percent": "% of collected", "fixed": "Fixed monthly" },
   "increaseKind": { "percent": "Percent", "fixed": "Fixed amount" },
   "aging": { "d0_30": "0–30 days", "d31_60": "31–60", "d61_90": "61–90", "d90_plus": "90+" }

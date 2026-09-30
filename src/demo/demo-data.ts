@@ -9,7 +9,16 @@ import { allocateExpenseLine, type AllocationMode } from "@/domain/expenses";
 import { toFils, type Fils } from "@/domain/money";
 import { generateSchedule } from "@/domain/schedule";
 import { completeCivilId } from "@/domain/validation";
-import type { Allocation, Charge, ContractStatus, ContractType, LegalStatus, Payment, PaymentMethod, UnitType } from "@/domain/types";
+import type {
+  Allocation,
+  Charge,
+  ContractStatus,
+  ContractType,
+  LegalStatus,
+  Payment,
+  PaymentMethod,
+  UnitType,
+} from "@/domain/types";
 import type { Dataset } from "@/domain/reports";
 
 // ---------------------------------------------------------------- ids
@@ -62,7 +71,9 @@ function civilId(seed: number): string {
     const mm = 1 + ((seed * 3 + k) % 12);
     const dd = 1 + ((seed * 5 + k) % 28);
     const serial = String((seed * 7919 + k * 31) % 10000).padStart(4, "0");
-    const id = completeCivilId(`2${String(yy).padStart(2, "0")}${String(mm).padStart(2, "0")}${String(dd).padStart(2, "0")}${serial}`);
+    const id = completeCivilId(
+      `2${String(yy).padStart(2, "0")}${String(mm).padStart(2, "0")}${String(dd).padStart(2, "0")}${serial}`,
+    );
     if (id) return id;
   }
   throw new Error("could not build civil id");
@@ -233,7 +244,13 @@ export const DEMO_PASSWORD = "Demo12345!";
 export const DEMO_TODAY: ISODate = "2026-09-30";
 const MATERIALIZE_UNTIL: Period = "2026-12";
 
-const JABRIYA_UNITS: { label: string; type: UnitType; rent: number; collected: number | null; floor: number | null }[] = [
+const JABRIYA_UNITS: {
+  label: string;
+  type: UnitType;
+  rent: number;
+  collected: number | null;
+  floor: number | null;
+}[] = [
   { label: "واحد", type: "apartment", rent: 300, collected: 300, floor: 1 },
   { label: "اثنين", type: "apartment", rent: 300, collected: 300, floor: 1 },
   { label: "ثلاثة", type: "apartment", rent: 450, collected: 450, floor: 1 },
@@ -260,7 +277,13 @@ const JABRIYA_UNITS: { label: string; type: UnitType; rent: number; collected: n
   { label: "24", type: "apartment", rent: 0, collected: null, floor: 6 },
   { label: "غرفة", type: "room", rent: 100, collected: 100, floor: 7 },
   { label: "محل", type: "shop", rent: 0, collected: null, floor: 0 },
-  { label: "نصف السرداب الأمامي", type: "basement_front_half", rent: 0, collected: null, floor: -1 },
+  {
+    label: "نصف السرداب الأمامي",
+    type: "basement_front_half",
+    rent: 0,
+    collected: null,
+    floor: -1,
+  },
   { label: "نصف السرداب الخلفي", type: "basement_back_half", rent: 0, collected: null, floor: -1 },
   { label: "السطح", type: "roof", rent: 0, collected: null, floor: null },
 ];
@@ -334,12 +357,31 @@ export function buildDemoData(): DemoData {
     }
   };
 
-  const org = { id: demoId("org", 1), name: "مكتب الواحة لإدارة العقارات", nameEn: "Al Waha Property Management" };
+  const org = {
+    id: demoId("org", 1),
+    name: "مكتب الواحة لإدارة العقارات",
+    nameEn: "Al Waha Property Management",
+  };
   const users: DemoUser[] = [
     { id: demoId("user", 1), email: "admin@demo.test", role: "admin", displayName: "وائل" },
-    { id: demoId("user", 2), email: "accountant@demo.test", role: "accountant", displayName: "ريم المحاسبة" },
-    { id: demoId("user", 3), email: "collector@demo.test", role: "collector", displayName: "محمد المحصل" },
-    { id: demoId("user", 4), email: "owner@demo.test", role: "owner", displayName: "عبدالعزيز الصالح" },
+    {
+      id: demoId("user", 2),
+      email: "accountant@demo.test",
+      role: "accountant",
+      displayName: "ريم المحاسبة",
+    },
+    {
+      id: demoId("user", 3),
+      email: "collector@demo.test",
+      role: "collector",
+      displayName: "محمد المحصل",
+    },
+    {
+      id: demoId("user", 4),
+      email: "owner@demo.test",
+      role: "owner",
+      displayName: "عبدالعزيز الصالح",
+    },
   ];
   const collectorId = users[2]!.id;
 
@@ -429,7 +471,12 @@ export function buildDemoData(): DemoData {
       coverImage: "/brand/photos/building-3.jpg",
     },
   ];
-  const [jabriya, alRai, sabah, salmiya] = properties as [DemoProperty, DemoProperty, DemoProperty, DemoProperty];
+  const [jabriya, alRai, sabah, salmiya] = properties as [
+    DemoProperty,
+    DemoProperty,
+    DemoProperty,
+    DemoProperty,
+  ];
 
   const units: DemoUnit[] = [];
   JABRIYA_UNITS.forEach((u, i) =>
@@ -443,11 +490,15 @@ export function buildDemoData(): DemoData {
       areaM2: u.type === "apartment" ? 110 + (i % 4) * 15 : u.type === "room" ? 25 : 60,
       bedrooms: u.type === "apartment" ? 2 + (i % 2) : null,
       bathrooms: u.type === "apartment" ? 2 : null,
-      askingRentFils: toFils(u.rent || (u.type === "shop" ? 450 : u.type === "roof" ? 150 : u.type === "apartment" ? 300 : 200)),
+      askingRentFils: toFils(
+        u.rent ||
+          (u.type === "shop" ? 450 : u.type === "roof" ? 150 : u.type === "apartment" ? 300 : 200),
+      ),
       paciNo: null,
     }),
   );
-  const jUnit = (label: string) => units.find((u) => u.propertyId === jabriya.id && u.label === label)!;
+  const jUnit = (label: string) =>
+    units.find((u) => u.propertyId === jabriya.id && u.label === label)!;
 
   const alRaiShops = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => {
     const u: DemoUnit = {
@@ -521,7 +572,11 @@ export function buildDemoData(): DemoData {
 
   const contracts: DemoContract[] = [];
   const seq = new Map<string, number>();
-  const newContract = (c: Omit<DemoContract, "id" | "contractNo" | "endDate" | "clauseOverrides"> & { clauseOverrides?: DemoContract["clauseOverrides"] }) => {
+  const newContract = (
+    c: Omit<DemoContract, "id" | "contractNo" | "endDate" | "clauseOverrides"> & {
+      clauseOverrides?: DemoContract["clauseOverrides"];
+    },
+  ) => {
     const year = Number(c.contractDate.slice(0, 4));
     const seqKey = `${c.type}-${year}`;
     seq.set(seqKey, (seq.get(seqKey) ?? 0) + 1);
@@ -535,7 +590,14 @@ export function buildDemoData(): DemoData {
     contracts.push(contract);
     return contract;
   };
-  const residential = (tenantId: string, propertyId: string, unitIds: string[], start: ISODate, rent: number, term = 12) =>
+  const residential = (
+    tenantId: string,
+    propertyId: string,
+    unitIds: string[],
+    start: ISODate,
+    rent: number,
+    term = 12,
+  ) =>
     newContract({
       type: "residential",
       status: "active",
@@ -567,12 +629,30 @@ export function buildDemoData(): DemoData {
     const c = residential(t.id, jabriya.id, [jUnit(u.label).id], start, u.rent, 60);
     jabriyaRows.push({ contract: c, augustCollected: u.collected });
   });
-  const cA = residential(multiTenant.id, jabriya.id, [jUnit("واحد وعشرون").id], "2025-06-01", 270, 60);
-  const cB = residential(multiTenant.id, jabriya.id, ["22", "23", "24"].map((l) => jUnit(l).id), "2025-06-01", 2150, 60);
+  const cA = residential(
+    multiTenant.id,
+    jabriya.id,
+    [jUnit("واحد وعشرون").id],
+    "2025-06-01",
+    270,
+    60,
+  );
+  const cB = residential(
+    multiTenant.id,
+    jabriya.id,
+    ["22", "23", "24"].map((l) => jUnit(l).id),
+    "2025-06-01",
+    2150,
+    60,
+  );
   cB.purpose = "سكن موظفين";
   const cC = residential(multiTenant.id, jabriya.id, [jUnit("غرفة").id], "2025-06-01", 100, 60);
   cC.purpose = "سكن عزاب";
-  jabriyaRows.push({ contract: cA, augustCollected: 270 }, { contract: cB, augustCollected: 2150 }, { contract: cC, augustCollected: 100 });
+  jabriyaRows.push(
+    { contract: cA, augustCollected: 270 },
+    { contract: cB, augustCollected: 2150 },
+    { contract: cC, augustCollected: 100 },
+  );
 
   // Sabah Al-Salem: residential contract, apartment 3 (§15).
   const sabahTenant = newTenant();
@@ -681,7 +761,13 @@ export function buildDemoData(): DemoData {
       },
       { until: MATERIALIZE_UNTIL },
     )) {
-      charges.push({ id: demoId("charge"), contractId: c.id, ...s, voided: false, description: null });
+      charges.push({
+        id: demoId("charge"),
+        contractId: c.id,
+        ...s,
+        voided: false,
+        description: null,
+      });
     }
   }
 
@@ -690,14 +776,30 @@ export function buildDemoData(): DemoData {
   const allocations: Allocation[] = [];
   let systemSeq = 0;
   const systemSeqByYear = new Map<string, number>();
-  const methods: PaymentMethod[] = ["cash", "cash", "knet", "bank_transfer", "cash", "cheque", "link"];
+  const methods: PaymentMethod[] = [
+    "cash",
+    "cash",
+    "knet",
+    "bank_transfer",
+    "cash",
+    "cheque",
+    "link",
+  ];
   const pay = (c: DemoContract, amount: Fils, date: ISODate) => {
     if (amount <= 0) return;
     const open: OpenCharge[] = charges
       .filter((ch) => ch.contractId === c.id && ch.amountFils > 0)
       .map((ch) => {
-        const allocated = allocations.filter((a) => a.chargeId === ch.id).reduce((s, a) => s + a.amountFils, 0);
-        return { id: ch.id, period: ch.period, kind: ch.kind, dueDate: ch.dueDate, outstandingFils: ch.amountFils - allocated };
+        const allocated = allocations
+          .filter((a) => a.chargeId === ch.id)
+          .reduce((s, a) => s + a.amountFils, 0);
+        return {
+          id: ch.id,
+          period: ch.period,
+          kind: ch.kind,
+          dueDate: ch.dueDate,
+          outstandingFils: ch.amountFils - allocated,
+        };
       })
       .filter((o) => o.outstandingFils > 0);
     const id = demoId("payment");
@@ -717,22 +819,33 @@ export function buildDemoData(): DemoData {
       collectedBy: collectorId,
       voided: false,
     });
-    for (const a of result.allocations) allocations.push({ paymentId: id, chargeId: a.chargeId, amountFils: a.amountFils });
+    for (const a of result.allocations)
+      allocations.push({ paymentId: id, chargeId: a.chargeId, amountFils: a.amountFils });
   };
   const dayIn = (period: Period, k: number) => `${period}-${String(1 + (k % 25)).padStart(2, "0")}`;
 
   // Everything through July 2026 is fully paid (except the legal case), one payment per month.
   const paidThrough = (c: DemoContract, last: Period, k: number) => {
-    const periods = [...new Set(charges.filter((ch) => ch.contractId === c.id && ch.amountFils > 0).map((ch) => ch.period))].filter(
-      (p) => p <= last,
-    );
+    const periods = [
+      ...new Set(
+        charges.filter((ch) => ch.contractId === c.id && ch.amountFils > 0).map((ch) => ch.period),
+      ),
+    ].filter((p) => p <= last);
     for (const p of periods) {
-      const due = charges.filter((ch) => ch.contractId === c.id && ch.period === p).reduce((s, ch) => s + ch.amountFils, 0);
+      const due = charges
+        .filter((ch) => ch.contractId === c.id && ch.period === p)
+        .reduce((s, ch) => s + ch.amountFils, 0);
       pay(c, due, dayIn(p, k + Number(p.slice(5))));
     }
   };
   let k = 0;
-  for (const c of [...jabriyaRows.map((r) => r.contract), sabahContract, shop5, ...salmiyaContracts]) paidThrough(c, "2026-07", k++);
+  for (const c of [
+    ...jabriyaRows.map((r) => r.contract),
+    sabahContract,
+    shop5,
+    ...salmiyaContracts,
+  ])
+    paidThrough(c, "2026-07", k++);
   paidThrough(shop3, "2026-06", k++);
 
   // August 2026: Jabriya exactly per the paper statement, dates spread 01/08–25/08.
@@ -742,11 +855,15 @@ export function buildDemoData(): DemoData {
   salmiyaContracts.forEach((c, i) => pay(c, c.monthlyRentFils, dayIn("2026-08", i * 2 + 1)));
 
   // September 2026: ~70 % of tenants paid; the Sabah tenant paid 3 months (2 in advance).
-  const septPayers = jabriyaRows.map((r) => r.contract).filter((_, i) => i % 10 < 7 && i !== 8 && i !== 19);
+  const septPayers = jabriyaRows
+    .map((r) => r.contract)
+    .filter((_, i) => i % 10 < 7 && i !== 8 && i !== 19);
   septPayers.forEach((c, i) => pay(c, c.monthlyRentFils, dayIn("2026-09", i)));
   pay(sabahContract, toFils(1200), "2026-09-03");
   pay(shop5, toFils(600), "2026-09-06");
-  salmiyaContracts.filter((_, i) => i % 3 !== 2).forEach((c, i) => pay(c, c.monthlyRentFils, dayIn("2026-09", i * 2 + 2)));
+  salmiyaContracts
+    .filter((_, i) => i % 3 !== 2)
+    .forEach((c, i) => pay(c, c.monthlyRentFils, dayIn("2026-09", i * 2 + 2)));
 
   // ------------------------------------------------------------ expenses
   const categories: DemoCategory[] = [
@@ -760,11 +877,21 @@ export function buildDemoData(): DemoData {
     ["عمولات", "Commissions", "operating"],
     ["تأمين", "Insurance", "operating"],
     ["أخرى", "Other", "operating"],
-  ].map(([nameAr, nameEn, type]) => ({ id: demoId("category"), nameAr: nameAr!, nameEn: nameEn!, type: type as DemoCategory["type"] }));
+  ].map(([nameAr, nameEn, type]) => ({
+    id: demoId("category"),
+    nameAr: nameAr!,
+    nameEn: nameEn!,
+    type: type as DemoCategory["type"],
+  }));
   const cat = (name: string) => categories.find((c) => c.nameAr === name)!.id;
 
   const beneficiaries: DemoBeneficiary[] = [
-    { id: demoId("beneficiary"), name: "محمد (حارس)", kind: "staff", monthlySalaryFils: toFils(170) },
+    {
+      id: demoId("beneficiary"),
+      name: "محمد (حارس)",
+      kind: "staff",
+      monthlySalaryFils: toFils(170),
+    },
     { id: demoId("beneficiary"), name: "العمارتين", kind: "vendor", monthlySalaryFils: null },
     { id: demoId("beneficiary"), name: "السيارة فورد", kind: "asset", monthlySalaryFils: null },
   ];
@@ -805,8 +932,18 @@ export function buildDemoData(): DemoData {
       notes: "مصاريف شهر أغسطس 2026",
       lines: [
         line(1, 170, cat("راتب شهري"), haris.id, "راتب شهر أغسطس 2026", "single", [jabriya.id]),
-        line(2, 4.75, cat("مصاريف صيانة"), vendor.id, "تصوير عداد الكهرباء الجابرية والسالمية", "split_even", [jabriya.id, salmiya.id]),
-        line(3, 20.25, cat("وقود وسيارات"), car.id, "فاتورة بنزين للسيارة الفورد", "single", [jabriya.id]),
+        line(
+          2,
+          4.75,
+          cat("مصاريف صيانة"),
+          vendor.id,
+          "تصوير عداد الكهرباء الجابرية والسالمية",
+          "split_even",
+          [jabriya.id, salmiya.id],
+        ),
+        line(3, 20.25, cat("وقود وسيارات"), car.id, "فاتورة بنزين للسيارة الفورد", "single", [
+          jabriya.id,
+        ]),
       ],
     },
   ];
@@ -914,7 +1051,14 @@ export function demoDataset(d: DemoData = buildDemoData()): Dataset {
     payments: d.payments,
     allocations: d.allocations,
     adjustments: [],
-    legalCases: d.legalCases.map((l) => ({ id: l.id, contractId: l.contractId, tenantId: l.tenantId, status: l.status, nextHearingDate: l.nextHearingDate, caseNo: l.caseNo })),
+    legalCases: d.legalCases.map((l) => ({
+      id: l.id,
+      contractId: l.contractId,
+      tenantId: l.tenantId,
+      status: l.status,
+      nextHearingDate: l.nextHearingDate,
+      caseNo: l.caseNo,
+    })),
     expenseAllocations: d.vouchers.flatMap((v) =>
       v.lines.flatMap((l) =>
         l.allocations.map((a) => ({
@@ -941,7 +1085,11 @@ export function demoDataset(d: DemoData = buildDemoData()): Dataset {
       status: "posted" as const,
     })),
     deposits: d.deposits,
-    propertyOwners: d.properties.map((p) => ({ propertyId: p.id, ownerId: p.ownerId, sharePct: 100 })),
+    propertyOwners: d.properties.map((p) => ({
+      propertyId: p.id,
+      ownerId: p.ownerId,
+      sharePct: 100,
+    })),
   };
 }
 

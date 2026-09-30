@@ -6,7 +6,19 @@ import { Button, type ButtonProps } from "@/components/ui/button";
 import { PaymentSheet } from "./payment-sheet";
 import { ReminderSheet } from "./reminder-sheet";
 
-export function RecordPaymentButton({ contractId, variant = "primary", size = "lg", className, label }: { contractId: string; variant?: ButtonProps["variant"]; size?: ButtonProps["size"]; className?: string; label?: string }) {
+export function RecordPaymentButton({
+  contractId,
+  variant = "primary",
+  size = "lg",
+  className,
+  label,
+}: {
+  contractId: string;
+  variant?: ButtonProps["variant"];
+  size?: ButtonProps["size"];
+  className?: string;
+  label?: string;
+}) {
   const t = useTranslations("collections.actions");
   const [open, setOpen] = useState(false);
   return (
@@ -20,7 +32,13 @@ export function RecordPaymentButton({ contractId, variant = "primary", size = "l
   );
 }
 
-export function RemindButton({ contractId, className }: { contractId: string; className?: string }) {
+export function RemindButton({
+  contractId,
+  className,
+}: {
+  contractId: string;
+  className?: string;
+}) {
   const t = useTranslations("collections.actions");
   const [open, setOpen] = useState(false);
   return (

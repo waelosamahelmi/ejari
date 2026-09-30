@@ -4,7 +4,19 @@
  */
 import type { Fils } from "./money";
 
-const ONES = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة", "عشرة"];
+const ONES = [
+  "",
+  "واحد",
+  "اثنان",
+  "ثلاثة",
+  "أربعة",
+  "خمسة",
+  "ستة",
+  "سبعة",
+  "ثمانية",
+  "تسعة",
+  "عشرة",
+];
 const TEENS: Record<number, string> = {
   11: "أحد عشر",
   12: "اثنا عشر",
@@ -73,7 +85,8 @@ function scaleWords(count: number, s: Scale): string {
 
 /** Plain number in Arabic words (0 → "صفر"). Supports 0..999,999,999. */
 export function tafqeetNumber(n: number): string {
-  if (!Number.isInteger(n) || n < 0 || n > MAX_DINARS) throw new RangeError(`Unsupported number: ${n}`);
+  if (!Number.isInteger(n) || n < 0 || n > MAX_DINARS)
+    throw new RangeError(`Unsupported number: ${n}`);
   if (n === 0) return "صفر";
   const parts: string[] = [];
   let rest = n;
@@ -210,7 +223,18 @@ const EN_ONES = [
   "eighteen",
   "nineteen",
 ];
-const EN_TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+const EN_TENS = [
+  "",
+  "",
+  "twenty",
+  "thirty",
+  "forty",
+  "fifty",
+  "sixty",
+  "seventy",
+  "eighty",
+  "ninety",
+];
 
 function enBelow1000(n: number): string {
   const parts: string[] = [];
@@ -219,13 +243,15 @@ function enBelow1000(n: number): string {
   if (h > 0) parts.push(`${EN_ONES[h]} hundred`);
   if (r > 0) {
     if (r < 20) parts.push(EN_ONES[r]!);
-    else parts.push(r % 10 ? `${EN_TENS[Math.floor(r / 10)]}-${EN_ONES[r % 10]}` : EN_TENS[r / 10]!);
+    else
+      parts.push(r % 10 ? `${EN_TENS[Math.floor(r / 10)]}-${EN_ONES[r % 10]}` : EN_TENS[r / 10]!);
   }
   return parts.join(" ");
 }
 
 export function numberWordsEN(n: number): string {
-  if (!Number.isInteger(n) || n < 0 || n > MAX_DINARS) throw new RangeError(`Unsupported number: ${n}`);
+  if (!Number.isInteger(n) || n < 0 || n > MAX_DINARS)
+    throw new RangeError(`Unsupported number: ${n}`);
   if (n === 0) return "zero";
   const parts: string[] = [];
   const millions = Math.floor(n / 1_000_000);
@@ -247,7 +273,8 @@ export function wordsEN(fils: Fils): string {
   const dinars = Math.floor(fils / 1000);
   const f = fils % 1000;
   const parts: string[] = [];
-  if (dinars > 0) parts.push(`${numberWordsEN(dinars)} Kuwaiti ${dinars === 1 ? "dinar" : "dinars"}`);
+  if (dinars > 0)
+    parts.push(`${numberWordsEN(dinars)} Kuwaiti ${dinars === 1 ? "dinar" : "dinars"}`);
   if (f > 0) parts.push(`${numberWordsEN(f)} fils`);
   if (parts.length === 0) parts.push("zero Kuwaiti dinars");
   return `${capitalize(parts.join(" and "))} only`;

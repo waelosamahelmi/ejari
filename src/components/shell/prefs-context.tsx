@@ -20,7 +20,13 @@ export interface ClientSession {
 
 const Ctx = createContext<ClientSession | null>(null);
 
-export function SessionProvider({ value, children }: { value: ClientSession; children: ReactNode }) {
+export function SessionProvider({
+  value,
+  children,
+}: {
+  value: ClientSession;
+  children: ReactNode;
+}) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
@@ -39,8 +45,17 @@ export function useMoney() {
   const locale = useLocale() as "ar" | "en";
   const s = useOptionalSession();
   const digits = s?.digits ?? "latn";
-  return (fils: number, opts: { showCurrency?: boolean; compact?: boolean; signed?: boolean } = {}) =>
-    formatKWD(fils, { locale, digits, showCurrency: opts.showCurrency ?? true, compact: opts.compact, signed: opts.signed });
+  return (
+    fils: number,
+    opts: { showCurrency?: boolean; compact?: boolean; signed?: boolean } = {},
+  ) =>
+    formatKWD(fils, {
+      locale,
+      digits,
+      showCurrency: opts.showCurrency ?? true,
+      compact: opts.compact,
+      signed: opts.signed,
+    });
 }
 
 /** Number formatter (counts, percents) honoring digit preference. */
@@ -48,5 +63,6 @@ export function useNum() {
   const locale = useLocale();
   const s = useOptionalSession();
   const nu = s?.digits === "arab" ? "arab" : "latn";
-  return (n: number, opts: Intl.NumberFormatOptions = {}) => new Intl.NumberFormat(`${locale}-KW-u-nu-${nu}`, opts).format(n);
+  return (n: number, opts: Intl.NumberFormatOptions = {}) =>
+    new Intl.NumberFormat(`${locale}-KW-u-nu-${nu}`, opts).format(n);
 }

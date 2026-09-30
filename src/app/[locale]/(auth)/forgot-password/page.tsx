@@ -25,16 +25,40 @@ export default function ForgotPasswordPage() {
           start(async () => {
             const r = await sendPasswordReset({ email, locale });
             if (r.ok) setSent(true);
-            else setError(tErr(r.error === "validation" ? "field.invalidEmail" : (r.error as "generic")));
+            else
+              setError(
+                tErr(r.error === "validation" ? "field.invalidEmail" : (r.error as "generic")),
+              );
           });
         }}
       >
         <Field label={t("title")} htmlFor="email" error={error}>
-          <Input id="email" type="email" dir="ltr" autoComplete="email" autoFocus required value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Input
+            id="email"
+            type="email"
+            dir="ltr"
+            autoComplete="email"
+            autoFocus
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </Field>
-        {sent && <p role="status" className="bg-green/12 text-green-text rounded-[14px] px-4 py-3 text-[14px]">{t("sent")}</p>}
-        <Button type="submit" size="lg" block loading={pending} disabled={!email}>{t("submit")}</Button>
-        <Link href="/login" className="text-link flex items-center justify-center gap-1 py-2 text-[15px] font-medium">
+        {sent && (
+          <p
+            role="status"
+            className="bg-green/12 text-green-text rounded-[14px] px-4 py-3 text-[14px]"
+          >
+            {t("sent")}
+          </p>
+        )}
+        <Button type="submit" size="lg" block loading={pending} disabled={!email}>
+          {t("submit")}
+        </Button>
+        <Link
+          href="/login"
+          className="text-link flex items-center justify-center gap-1 py-2 text-[15px] font-medium"
+        >
           <ChevronRight className="size-4 rotate-180 rtl:rotate-0" />
           {t("back")}
         </Link>

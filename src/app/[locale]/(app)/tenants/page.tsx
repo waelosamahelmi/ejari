@@ -37,7 +37,10 @@ export default async function TenantsPage({ params }: LocaleParams) {
       name: t.fullName,
       civilIdMasked: maskCivilId(t.civilId),
       phone: t.phones[0] ?? null,
-      units: live.map((c) => `${data.properties.get(c.propertyId)?.name ?? ""} · ${c.unitIds.map((u) => data.units.get(u)?.label).join(", ")}`),
+      units: live.map(
+        (c) =>
+          `${data.properties.get(c.propertyId)?.name ?? ""} · ${c.unitIds.map((u) => data.units.get(u)?.label).join(", ")}`,
+      ),
       arrearsFils: arrears,
       creditFils: credit,
       daysLate: late,

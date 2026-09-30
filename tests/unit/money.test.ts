@@ -1,7 +1,20 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
 import {
-  add, formatKWD, fromFils, max, min, mulRound, normalizeDigits, splitByWeights, splitDinarFils, splitEven, sub, sum, toArabicIndic, toFils,
+  add,
+  formatKWD,
+  fromFils,
+  max,
+  min,
+  mulRound,
+  normalizeDigits,
+  splitByWeights,
+  splitDinarFils,
+  splitEven,
+  sub,
+  sum,
+  toArabicIndic,
+  toFils,
 } from "@/domain/money";
 
 describe("toFils", () => {
@@ -87,12 +100,16 @@ describe("splitEven", () => {
   });
   it("always sums to total (property)", () => {
     fc.assert(
-      fc.property(fc.integer({ min: -1e9, max: 1e9 }), fc.integer({ min: 1, max: 50 }), (total, n) => {
-        const parts = splitEven(total, n);
-        expect(parts).toHaveLength(n);
-        expect(parts.reduce((a, b) => a + b, 0)).toBe(total);
-        expect(Math.max(...parts) - Math.min(...parts)).toBeLessThanOrEqual(1);
-      }),
+      fc.property(
+        fc.integer({ min: -1e9, max: 1e9 }),
+        fc.integer({ min: 1, max: 50 }),
+        (total, n) => {
+          const parts = splitEven(total, n);
+          expect(parts).toHaveLength(n);
+          expect(parts.reduce((a, b) => a + b, 0)).toBe(total);
+          expect(Math.max(...parts) - Math.min(...parts)).toBeLessThanOrEqual(1);
+        },
+      ),
     );
   });
 });
@@ -118,7 +135,10 @@ describe("splitByWeights", () => {
           expect(parts.reduce((a, b) => a + b, 0)).toBe(total);
           parts.forEach((p) => expect(p).toBeGreaterThanOrEqual(0));
           const wSum = weights.reduce((a, b) => a + b, 0);
-          if (wSum > 0) weights.forEach((w, i) => expect(Math.abs(parts[i]! - (total * w) / wSum)).toBeLessThan(1.0001));
+          if (wSum > 0)
+            weights.forEach((w, i) =>
+              expect(Math.abs(parts[i]! - (total * w) / wSum)).toBeLessThan(1.0001),
+            );
         },
       ),
     );

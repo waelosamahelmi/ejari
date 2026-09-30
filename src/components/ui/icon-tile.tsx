@@ -18,7 +18,17 @@ const TONES = {
 export type Tone = keyof typeof TONES;
 
 /** Leading icon tile: colored rounded square like iOS Settings. */
-export function IconTile({ tone = "ink", children, size = "md", className }: { tone?: Tone; children: ReactNode; size?: "sm" | "md" | "lg"; className?: string }) {
+export function IconTile({
+  tone = "ink",
+  children,
+  size = "md",
+  className,
+}: {
+  tone?: Tone;
+  children: ReactNode;
+  size?: "sm" | "md" | "lg";
+  className?: string;
+}) {
   return (
     <span
       aria-hidden
@@ -37,7 +47,15 @@ export function IconTile({ tone = "ink", children, size = "md", className }: { t
 }
 
 /** Round icon circle (amenity column, chips). */
-export function IconCircle({ children, className, active }: { children: ReactNode; className?: string; active?: boolean }) {
+export function IconCircle({
+  children,
+  className,
+  active,
+}: {
+  children: ReactNode;
+  className?: string;
+  active?: boolean;
+}) {
   return (
     <span
       aria-hidden

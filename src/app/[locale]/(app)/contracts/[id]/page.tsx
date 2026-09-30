@@ -24,14 +24,18 @@ export default async function ContractPage({ params }: LocaleParams<{ id: string
   const db = await supabaseServer();
   const { data: c } = await db
     .from("contracts")
-    .select("*, tenants(id, full_name, phones), properties(id, name), contract_units(units(id, label, sort_order)), contract_rent_revisions(effective_from, monthly_rent_fils, reason, created_at)")
+    .select(
+      "*, tenants(id, full_name, phones), properties(id, name), contract_units(units(id, label, sort_order)), contract_rent_revisions(effective_from, monthly_rent_fils, reason, created_at)",
+    )
     .eq("id", id)
     .maybeSingle();
   if (!c) notFound();
   if (c.status === "draft") redirect(`/${locale}/contracts/new?draft=${id}`);
   const [{ data: renewedTo }, { data: renewedFrom }] = await Promise.all([
     db.from("contracts").select("id, contract_no").eq("renewed_from_id", id).maybeSingle(),
-    c.renewed_from_id ? db.from("contracts").select("id, contract_no").eq("id", c.renewed_from_id).maybeSingle() : Promise.resolve({ data: null }),
+    c.renewed_from_id
+      ? db.from("contracts").select("id, contract_no").eq("id", c.renewed_from_id).maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
   const data = await loadOrgData(ctx);
   const today = todayKuwait();
@@ -52,10 +56,16 @@ export default async function ContractPage({ params }: LocaleParams<{ id: string
     };
   });
   const bal = balanceSummary(ledger, today);
-  const units = (c.contract_units ?? []).map((u) => u.units as unknown as { id: string; label: string; sort_order: number }).sort((a, b) => a.sort_order - b.sort_order);
+  const units = (c.contract_units ?? [])
+    .map((u) => u.units as unknown as { id: string; label: string; sort_order: number })
+    .sort((a, b) => a.sort_order - b.sort_order);
   const tenant = c.tenants as unknown as { id: string; full_name: string; phones: string[] };
   const property = c.properties as unknown as { id: string; name: string };
-  const payments = ledger.payments.map((p) => ({ date: p.receivedAt, amountFils: p.amountFils, receiptNo: p.receiptNo ?? null }));
+  const payments = ledger.payments.map((p) => ({
+    date: p.receivedAt,
+    amountFils: p.amountFils,
+    receiptNo: p.receiptNo ?? null,
+  }));
   return (
     <ContractDetailView
       today={today}
@@ -89,17 +99,41 @@ export default async function ContractPage({ params }: LocaleParams<{ id: string
         createdAt: c.created_at,
         activatedAt: c.activated_at,
         signedUrl: c.signed_file_path ? await signPath("contracts", c.signed_file_path) : null,
-        revisions: (c.contract_rent_revisions ?? []).map((r) => ({ effectiveFrom: r.effective_from, monthlyRentFils: r.monthly_rent_fils, reason: r.reason, createdAt: r.created_at })),
+        revisions: (c.contract_rent_revisions ?? []).map((r) => ({
+          effectiveFrom: r.effective_from,
+          monthlyRentFils: r.monthly_rent_fils,
+          reason: r.reason,
+          createdAt: r.created_at,
+        })),
         renewedTo: renewedTo ?? null,
         renewedFrom: renewedFrom ?? null,
-        suggestedPenaltyToday: earlyExitPenalty({ type: c.type, startDate: c.start_date, freeMonths: c.free_months, freeMonthsPenaltyWindowMonths: c.free_months_penalty_window_months, monthlyRentFils: c.monthly_rent_fils }, today),
+        suggestedPenaltyToday: earlyExitPenalty(
+          {
+            type: c.type,
+            startDate: c.start_date,
+            freeMonths: c.free_months,
+            freeMonthsPenaltyWindowMonths: c.free_months_penalty_window_months,
+            monthlyRentFils: c.monthly_rent_fils,
+          },
+          today,
+        ),
       }}
       schedule={schedule}
-      balance={{ arrearsFils: bal.arrearsFils, creditFils: bal.creditFils, paidFils: bal.paidFils, chargedFils: bal.chargedFils }}
+      balance={{
+        arrearsFils: bal.arrearsFils,
+        creditFils: bal.creditFils,
+        paidFils: bal.paidFils,
+        chargedFils: bal.chargedFils,
+      }}
       payments={payments}
       canManage={can(ctx.role, "manage_contracts")}
       canPay={can(ctx.role, "record_payment")}
-      paymentAction={can(ctx.role, "record_payment") && (c.status === "active" || c.status === "notice_given" || bal.arrearsFils > 0) ? <RecordPaymentButton contractId={c.id} size="md" /> : undefined}
+      paymentAction={
+        can(ctx.role, "record_payment") &&
+        (c.status === "active" || c.status === "notice_given" || bal.arrearsFils > 0) ? (
+          <RecordPaymentButton contractId={c.id} size="md" />
+        ) : undefined
+      }
     />
   );
 }

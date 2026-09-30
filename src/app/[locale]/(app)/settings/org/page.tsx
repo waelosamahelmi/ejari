@@ -8,5 +8,15 @@ export default async function OrgSettingsPage({ params }: LocaleParams) {
   const { locale } = await pageLocale(params);
   const ctx = await requireContext(locale, { capability: "manage_org" });
   const t = await getTranslations("settings.items");
-  return <OrgForm title={t("org")} name={ctx.orgName} nameEn={ctx.orgNameEn} logoUrl={ctx.orgLogo ? await signPath("branding", ctx.orgLogo) : null} letterhead={ctx.settings.letterhead} poweredBy={ctx.settings.poweredBy} accent={ctx.prefs.accent} />;
+  return (
+    <OrgForm
+      title={t("org")}
+      name={ctx.orgName}
+      nameEn={ctx.orgNameEn}
+      logoUrl={ctx.orgLogo ? await signPath("branding", ctx.orgLogo) : null}
+      letterhead={ctx.settings.letterhead}
+      poweredBy={ctx.settings.poweredBy}
+      accent={ctx.prefs.accent}
+    />
+  );
 }

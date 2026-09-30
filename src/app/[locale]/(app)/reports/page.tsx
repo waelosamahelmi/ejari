@@ -1,4 +1,15 @@
-import { BarChart3, CalendarClock, CalendarRange, DoorOpen, FileClock, FileText, HandCoins, ReceiptText, UserRound, Wallet } from "lucide-react";
+import {
+  BarChart3,
+  CalendarClock,
+  CalendarRange,
+  DoorOpen,
+  FileClock,
+  FileText,
+  HandCoins,
+  ReceiptText,
+  UserRound,
+  Wallet,
+} from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireContext } from "@/lib/auth";
 import { pageLocale, type LocaleParams } from "@/lib/i18n";
@@ -40,11 +51,18 @@ export default async function ReportsHub({ params }: LocaleParams) {
           const M = META[k];
           return (
             <li key={k}>
-              <Link href={`/reports/${k}`} className="card press flex h-full items-start gap-4 p-5 hover:shadow-[var(--sh-float)]">
-                <IconTile tone={M.tone} size="lg"><M.icon /></IconTile>
+              <Link
+                href={`/reports/${k}`}
+                className="card press flex h-full items-start gap-4 p-5 hover:shadow-[var(--sh-float)]"
+              >
+                <IconTile tone={M.tone} size="lg">
+                  <M.icon />
+                </IconTile>
                 <div className="min-w-0">
                   <h2 className="text-[17px] font-semibold">{t(`types.${k}.title`)}</h2>
-                  <p className="text-label-2 mt-0.5 text-[14px] leading-5">{t(`types.${k}.desc`)}</p>
+                  <p className="text-label-2 mt-0.5 text-[14px] leading-5">
+                    {t(`types.${k}.desc`)}
+                  </p>
                 </div>
               </Link>
             </li>

@@ -9,7 +9,12 @@
 import { formatDate, dayNameAr, type ISODate } from "./dates";
 import { fromFils, type Fils } from "./money";
 import { amountWords, tafqeetDuration, tafqeetKWD } from "./tafqeet";
-import { UNIT_TYPE_LABELS_AR, UNIT_TYPE_PLURAL_AR, type ContractType, type UnitType } from "./types";
+import {
+  UNIT_TYPE_LABELS_AR,
+  UNIT_TYPE_PLURAL_AR,
+  type ContractType,
+  type UnitType,
+} from "./types";
 
 export type VarValue = string | number | boolean | null | undefined;
 export type Vars = Record<string, VarValue>;
@@ -219,7 +224,8 @@ function parseText(src: string): Node[] {
       top.nodes.push(section);
       stack.push({ name, nodes: section.children });
     } else if (sigil === "/") {
-      if (stack.length === 1 || top.name !== name) throw new TemplateError(`Unbalanced section {{/${name}}}`);
+      if (stack.length === 1 || top.name !== name)
+        throw new TemplateError(`Unbalanced section {{/${name}}}`);
       stack.pop();
     } else if (name.startsWith("clause_ref:")) {
       top.nodes.push({ k: "ref", key: name.slice("clause_ref:".length) });
@@ -227,7 +233,8 @@ function parseText(src: string): Node[] {
       top.nodes.push({ k: "var", name });
     }
   }
-  if (stack.length !== 1) throw new TemplateError(`Unclosed section {{#${stack[stack.length - 1]!.name}}}`);
+  if (stack.length !== 1)
+    throw new TemplateError(`Unclosed section {{#${stack[stack.length - 1]!.name}}}`);
   if (last < src.length) root.push({ k: "text", v: src.slice(last) });
   return root;
 }
@@ -366,7 +373,10 @@ export function renderContract(
   custom: readonly CustomClause[] = [],
 ): RenderedContract {
   const included: { key: string; body: string; custom?: boolean }[] = [
-    ...includedClauses(tpl, vars, overrides).map((c) => ({ key: c.key, body: overrides.text?.[c.key] ?? c.body })),
+    ...includedClauses(tpl, vars, overrides).map((c) => ({
+      key: c.key,
+      body: overrides.text?.[c.key] ?? c.body,
+    })),
     ...custom.filter((c) => c.text.trim()).map((c) => ({ key: c.key, body: c.text, custom: true })),
   ];
   const refs: Record<string, number> = {};
@@ -399,7 +409,13 @@ export function propertyDescription(p: PropertyAddress, type: ContractType): str
   const part = (label: string, v?: string | null) => (v && v.trim() ? `${label} ${v.trim()}` : "");
   const parts =
     type === "residential"
-      ? [p.area?.trim() ?? "", part("قطعة", p.block), part("شارع", p.street), part("جادة", p.avenue), part("منزل", p.houseOrPlot)]
+      ? [
+          p.area?.trim() ?? "",
+          part("قطعة", p.block),
+          part("شارع", p.street),
+          part("جادة", p.avenue),
+          part("منزل", p.houseOrPlot),
+        ]
       : [
           part("القسيمة رقم", p.houseOrPlot),
           p.area?.trim() ? `في ${p.area.trim()}` : "",

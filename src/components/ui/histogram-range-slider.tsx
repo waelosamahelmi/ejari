@@ -60,8 +60,11 @@ export function HistogramRangeSlider({
   const thumb = (which: 0 | 1) => {
     const v = which === 0 ? lo : hi;
     return (
-      <div className="absolute top-1/2 -translate-y-1/2 ltr:-translate-x-1/2 rtl:translate-x-1/2" style={{ insetInlineStart: `${pct(v)}%` }}>
-        <span className="bg-ink text-on-ink num pointer-events-none absolute bottom-7 start-1/2 rounded-full px-2.5 py-1 text-[12px] font-semibold whitespace-nowrap ltr:-translate-x-1/2 rtl:translate-x-1/2">
+      <div
+        className="absolute top-1/2 -translate-y-1/2 ltr:-translate-x-1/2 rtl:translate-x-1/2"
+        style={{ insetInlineStart: `${pct(v)}%` }}
+      >
+        <span className="bg-ink text-on-ink num pointer-events-none absolute start-1/2 bottom-7 rounded-full px-2.5 py-1 text-[12px] font-semibold whitespace-nowrap ltr:-translate-x-1/2 rtl:translate-x-1/2">
           {format(v)}
         </span>
         <button
@@ -77,7 +80,8 @@ export function HistogramRangeSlider({
             (e.target as HTMLElement).setPointerCapture(e.pointerId);
           }}
           onPointerMove={(e) => {
-            if ((e.target as HTMLElement).hasPointerCapture(e.pointerId)) setFromPointer(e.clientX, which);
+            if ((e.target as HTMLElement).hasPointerCapture(e.pointerId))
+              setFromPointer(e.clientX, which);
           }}
           onKeyDown={(e) => {
             const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
@@ -104,21 +108,31 @@ export function HistogramRangeSlider({
           return (
             <div
               key={i}
-              className={cn("flex-1 rounded-t-[2px] transition-colors", inside ? "bg-ink" : "bg-label-3/50")}
+              className={cn(
+                "flex-1 rounded-t-[2px] transition-colors",
+                inside ? "bg-ink" : "bg-label-3/50",
+              )}
               style={{ height: `${c === 0 ? 4 : 12 + (c / peak) * 88}%` }}
             />
           );
         })}
       </div>
-      <div ref={track} className="bg-inset relative mt-2 h-1.5 rounded-full" onPointerDown={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
-        let ratio = (e.clientX - r.left) / r.width;
-        if (rtl) ratio = 1 - ratio;
-        const v = min + ratio * span;
-        setFromPointer(e.clientX, Math.abs(v - lo) <= Math.abs(v - hi) ? 0 : 1);
-      }}>
-        <div className="bg-ink absolute inset-y-0 rounded-full" style={{ insetInlineStart: `${pct(lo)}%`, width: `${pct(hi) - pct(lo)}%` }} />
+      <div
+        ref={track}
+        className="bg-inset relative mt-2 h-1.5 rounded-full"
+        onPointerDown={(e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
+          let ratio = (e.clientX - r.left) / r.width;
+          if (rtl) ratio = 1 - ratio;
+          const v = min + ratio * span;
+          setFromPointer(e.clientX, Math.abs(v - lo) <= Math.abs(v - hi) ? 0 : 1);
+        }}
+      >
+        <div
+          className="bg-ink absolute inset-y-0 rounded-full"
+          style={{ insetInlineStart: `${pct(lo)}%`, width: `${pct(hi) - pct(lo)}%` }}
+        />
         {thumb(0)}
         {thumb(1)}
       </div>

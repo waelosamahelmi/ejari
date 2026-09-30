@@ -16,8 +16,18 @@ export default async function ExportPage({ params }: LocaleParams) {
         <h2 className="text-[20px] font-semibold">{t("export.title")}</h2>
         <p className="text-label-2 text-[15px] leading-6">{t("export.text")}</p>
         <div className="flex flex-wrap gap-2">
-          <Button asChild><a href={`/api/export/all?lang=${locale}`}><Download />{t("export.download")}</a></Button>
-          <Button asChild variant="secondary"><a href={`/api/export/all?format=csv&lang=${locale}`}><Download />{t("export.csv")}</a></Button>
+          <Button asChild>
+            <a href={`/api/export/all?lang=${locale}`}>
+              <Download />
+              {t("export.download")}
+            </a>
+          </Button>
+          <Button asChild variant="secondary">
+            <a href={`/api/export/all?format=csv&lang=${locale}`}>
+              <Download />
+              {t("export.csv")}
+            </a>
+          </Button>
         </div>
       </Card>
     </SettingsShell>

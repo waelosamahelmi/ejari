@@ -7,6 +7,7 @@ import { SessionProvider } from "@/components/shell/prefs-context";
 import { AccountMenu } from "@/components/shell/account-menu";
 import { NotificationBell } from "@/components/shell/notification-center";
 import { Link } from "@/i18n/navigation";
+import { PwaProvider } from "@/components/pwa/pwa-provider";
 
 /** Owner portal: simplified read-only shell (§10.12). */
 export default async function PortalLayout({
@@ -56,9 +57,11 @@ export default async function PortalLayout({
           </div>
         </div>
       </header>
-      <main id="main" className="mx-auto max-w-6xl overflow-x-clip px-4 pb-16">
-        {children}
-      </main>
+      <PwaProvider offlineRoutes={["/owner"]}>
+        <main id="main" className="mx-auto max-w-6xl overflow-x-clip px-4 pb-16">
+          {children}
+        </main>
+      </PwaProvider>
     </SessionProvider>
   );
 }

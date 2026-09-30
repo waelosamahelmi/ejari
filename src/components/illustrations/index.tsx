@@ -8,15 +8,41 @@ const SAND = "var(--brand-sand)";
 
 function Frame({ children, label }: { children: ReactNode; label?: string }) {
   return (
-    <svg viewBox="0 0 160 120" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" role={label ? "img" : undefined} aria-hidden={label ? undefined : true} aria-label={label} className="h-auto w-full">
+    <svg
+      viewBox="0 0 160 120"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      role={label ? "img" : undefined}
+      aria-hidden={label ? undefined : true}
+      aria-label={label}
+      className="h-auto w-full"
+    >
       <path d="M12 104h136" opacity=".35" />
       {children}
     </svg>
   );
 }
 
-const Arch = ({ x, y, w, h, fill }: { x: number; y: number; w: number; h: number; fill?: string }) => (
-  <path d={`M${x} ${y + h}V${y + w / 2}a${w / 2} ${w / 2} 0 0 1 ${w} 0V${y + h}`} fill={fill ?? "none"} />
+const Arch = ({
+  x,
+  y,
+  w,
+  h,
+  fill,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  fill?: string;
+}) => (
+  <path
+    d={`M${x} ${y + h}V${y + w / 2}a${w / 2} ${w / 2} 0 0 1 ${w} 0V${y + h}`}
+    fill={fill ?? "none"}
+  />
 );
 
 export function NoPropertiesIllustration() {
@@ -25,7 +51,9 @@ export function NoPropertiesIllustration() {
       <path d="M44 104V40h72v64" />
       <path d="M36 40h88" />
       <Arch x={70} y={74} w={20} h={30} fill={SAND} />
-      {[52, 94].map((x) => [48, 62].map((y) => <Arch key={`${x}-${y}`} x={x} y={y} w={12} h={10} />))}
+      {[52, 94].map((x) =>
+        [48, 62].map((y) => <Arch key={`${x}-${y}`} x={x} y={y} w={12} h={10} />),
+      )}
       <path d="M80 24v16M72 30h16" opacity=".5" />
     </Frame>
   );
@@ -35,7 +63,20 @@ export function NoUnitsIllustration() {
   return (
     <Frame>
       <rect x="40" y="28" width="80" height="76" rx="4" />
-      {[0, 1, 2].map((r) => [0, 1, 2].map((c) => <rect key={`${r}${c}`} x={48 + c * 24} y={36 + r * 22} width="16" height="14" rx="3" fill={r === 1 && c === 1 ? SAND : "none"} strokeDasharray={r === 1 && c === 1 ? undefined : "3 3"} />))}
+      {[0, 1, 2].map((r) =>
+        [0, 1, 2].map((c) => (
+          <rect
+            key={`${r}${c}`}
+            x={48 + c * 24}
+            y={36 + r * 22}
+            width="16"
+            height="14"
+            rx="3"
+            fill={r === 1 && c === 1 ? SAND : "none"}
+            strokeDasharray={r === 1 && c === 1 ? undefined : "3 3"}
+          />
+        )),
+      )}
     </Frame>
   );
 }
@@ -118,7 +159,11 @@ export function NoLateUnitsIllustration() {
         [128, 64],
         [34, 70],
       ].map(([x, y], i) => (
-        <path key={i} d={`M${x} ${y! - 4}v8M${x! - 4} ${y}h8`} stroke={i % 2 ? SAND : "currentColor"} />
+        <path
+          key={i}
+          d={`M${x} ${y! - 4}v8M${x! - 4} ${y}h8`}
+          stroke={i % 2 ? SAND : "currentColor"}
+        />
       ))}
     </Frame>
   );
@@ -128,7 +173,11 @@ export function NoVacantUnitsIllustration() {
   return (
     <Frame>
       <path d="M44 104V36h72v68" />
-      {[0, 1, 2].map((r) => [0, 1, 2].map((c) => <Arch key={`${r}${c}`} x={54 + c * 20} y={44 + r * 18} w={12} h={12} fill={SAND} />))}
+      {[0, 1, 2].map((r) =>
+        [0, 1, 2].map((c) => (
+          <Arch key={`${r}${c}`} x={54 + c * 20} y={44 + r * 18} w={12} h={12} fill={SAND} />
+        )),
+      )}
       <path d="M36 36h88" />
     </Frame>
   );

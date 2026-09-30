@@ -3,15 +3,31 @@ import { useCallback, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-type Result<T> = { ok: true; data: T } | { ok: false; error: string; fieldErrors?: Record<string, string> };
+type Result<T> =
+  { ok: true; data: T } | { ok: false; error: string; fieldErrors?: Record<string, string> };
 
 /** Runs a server action inside a transition; shows a translated error toast on failure. */
 export function useAction() {
   const tErr = useTranslations("errors");
+  const tPwa = useTranslations("pwa.pill");
   const [pending, start] = useTransition();
   const exec = useCallback(
-    <T,>(fn: () => Promise<Result<T>>, opts: { success?: string; onSuccess?: (data: T) => void; onError?: (r: Extract<Result<T>, { ok: false }>) => void } = {}) =>
+    <T>(
+      fn: () => Promise<Result<T>>,
+      opts: {
+        success?: string;
+        onSuccess?: (data: T) => void;
+        onError?: (r: Extract<Result<T>, { ok: false }>) => void;
+      } = {},
+    ) =>
       new Promise<Result<T>>((resolve) => {
+        // Offline, writes other than payments (which queue in the outbox) are disabled with an explanation.
+        if (typeof navigator !== "undefined" && navigator.onLine === false) {
+          toast.error(tPwa("offlineAction"));
+          const r = { ok: false as const, error: "network" };
+          opts.onError?.(r);
+          return resolve(r);
+        }
         start(async () => {
           let r: Result<T>;
           try {
@@ -30,7 +46,7 @@ export function useAction() {
           resolve(r);
         });
       }),
-    [tErr],
+    [tErr, tPwa],
   );
   return { pending, exec };
 }

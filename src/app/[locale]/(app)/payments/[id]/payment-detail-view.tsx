@@ -23,9 +23,25 @@ export function PaymentDetailView({
 }: {
   canVoid: boolean;
   payment: {
-    id: string; receiptNo: string | null; systemNo: string | null; amountFils: number; method: PaymentMethod; date: string; reference: string | null; notes: string | null;
-    voided: boolean; voidReason: string | null; tenantId: string; tenant: string; contractId: string; contractNo: string; unit: string; collector: string;
-    allocations: { amountFils: number; period: string; kind: string }[]; creditFils: number; attachmentUrl: string | null;
+    id: string;
+    receiptNo: string | null;
+    systemNo: string | null;
+    amountFils: number;
+    method: PaymentMethod;
+    date: string;
+    reference: string | null;
+    notes: string | null;
+    voided: boolean;
+    voidReason: string | null;
+    tenantId: string;
+    tenant: string;
+    contractId: string;
+    contractNo: string;
+    unit: string;
+    collector: string;
+    allocations: { amountFils: number; period: string; kind: string }[];
+    creditFils: number;
+    attachmentUrl: string | null;
   };
 }) {
   const t = useTranslations("payments");
@@ -46,40 +62,98 @@ export function PaymentDetailView({
         back={{ href: "/payments", label: t("title") }}
         actions={
           <Button asChild variant="secondary" size="icon" aria-label={t("detail.print")}>
-            <a href={`/print/receipt/${p.id}?lang=${locale}`} target="_blank" rel="noreferrer"><Printer /></a>
+            <a href={`/print/receipt/${p.id}?lang=${locale}`} target="_blank" rel="noreferrer">
+              <Printer />
+            </a>
           </Button>
         }
       >
-        {p.voided && <Pill className="bg-red/14 text-red-text h-7 px-3">{t("detail.voidedBadge")}{p.voidReason ? ` — ${p.voidReason}` : ""}</Pill>}
+        {p.voided && (
+          <Pill className="bg-red/14 text-red-text h-7 px-3">
+            {t("detail.voidedBadge")}
+            {p.voidReason ? ` — ${p.voidReason}` : ""}
+          </Pill>
+        )}
       </LargeTitleHeader>
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="space-y-5">
           <Card className="p-6">
             <div className="num text-[40px] font-semibold">{money(p.amountFils)}</div>
-            <p className="text-label-2 mt-1 text-[14px]">{locale === "ar" ? tafqeetKWD(p.amountFils) : wordsEN(p.amountFils)}</p>
+            <p className="text-label-2 mt-1 text-[14px]">
+              {locale === "ar" ? tafqeetKWD(p.amountFils) : wordsEN(p.amountFils)}
+            </p>
           </Card>
           <GroupedSection>
-            <ListRow title={t("columns.date")} trailing={<span className="num">{formatDate(p.date)}</span>} />
+            <ListRow
+              title={t("columns.date")}
+              trailing={<span className="num">{formatDate(p.date)}</span>}
+            />
             <ListRow title={t("columns.method")} trailing={tMethod(p.method)} />
-            {p.reference && <ListRow title={t("sheet.reference")} trailing={<span className="num">{p.reference}</span>} />}
-            <ListRow title={t("columns.system")} trailing={<span className="num">{p.systemNo}</span>} />
+            {p.reference && (
+              <ListRow
+                title={t("sheet.reference")}
+                trailing={<span className="num">{p.reference}</span>}
+              />
+            )}
+            <ListRow
+              title={t("columns.system")}
+              trailing={<span className="num">{p.systemNo}</span>}
+            />
             <ListRow title={t("columns.collector")} trailing={p.collector} />
-            <ListRow LinkComponent={Link} href={`/tenants/${p.tenantId}`} title={t("columns.tenant")} trailing={p.tenant} chevron />
-            <ListRow LinkComponent={Link} href={`/contracts/${p.contractId}`} title={tc("labels.contract")} trailing={<span className="num">{p.contractNo}</span>} subtitle={p.unit} chevron />
+            <ListRow
+              LinkComponent={Link}
+              href={`/tenants/${p.tenantId}`}
+              title={t("columns.tenant")}
+              trailing={p.tenant}
+              chevron
+            />
+            <ListRow
+              LinkComponent={Link}
+              href={`/contracts/${p.contractId}`}
+              title={tc("labels.contract")}
+              trailing={<span className="num">{p.contractNo}</span>}
+              subtitle={p.unit}
+              chevron
+            />
             {p.notes && <ListRow title={tc("labels.notes")} subtitle={p.notes} />}
-            {p.attachmentUrl && <ListRow leading={<Paperclip className="size-5" />} title={t("detail.attachment")} href={p.attachmentUrl} LinkComponent={(x: React.ComponentProps<"a">) => <a {...x} target="_blank" rel="noreferrer" />} chevron />}
+            {p.attachmentUrl && (
+              <ListRow
+                leading={<Paperclip className="size-5" />}
+                title={t("detail.attachment")}
+                href={p.attachmentUrl}
+                LinkComponent={(x: React.ComponentProps<"a">) => (
+                  <a {...x} target="_blank" rel="noreferrer" />
+                )}
+                chevron
+              />
+            )}
           </GroupedSection>
         </div>
         <div className="space-y-5">
           <GroupedSection header={t("detail.allocations")}>
             {p.allocations.map((a, i) => (
-              <ListRow key={i} title={formatPeriod(a.period, locale)} subtitle={tKind(a.kind as "rent")} trailing={<span className="num">{money(a.amountFils)}</span>} />
+              <ListRow
+                key={i}
+                title={formatPeriod(a.period, locale)}
+                subtitle={tKind(a.kind as "rent")}
+                trailing={<span className="num">{money(a.amountFils)}</span>}
+              />
             ))}
-            {p.creditFils > 0 && <ListRow title={<span className="text-indigo-text">{t("detail.unallocated")}</span>} trailing={<span className="num text-indigo-text">{money(p.creditFils)}</span>} />}
+            {p.creditFils > 0 && (
+              <ListRow
+                title={<span className="text-indigo-text">{t("detail.unallocated")}</span>}
+                trailing={<span className="num text-indigo-text">{money(p.creditFils)}</span>}
+              />
+            )}
           </GroupedSection>
           {canVoid && !p.voided && (
             <GroupedSection>
-              <ListRow leading={<XOctagon className="text-red-text size-5" />} title={t("detail.void")} destructive onClick={() => setConfirm(true)} />
+              <ListRow
+                leading={<XOctagon className="text-red-text size-5" />}
+                title={t("detail.void")}
+                destructive
+                onClick={() => setConfirm(true)}
+              />
             </GroupedSection>
           )}
         </div>
@@ -94,9 +168,23 @@ export function PaymentDetailView({
         destructive
         loading={pending}
         confirmDisabled={!reason.trim()}
-        onConfirm={() => exec(() => voidPayment(p.id, reason), { success: t("detail.voided"), onSuccess: () => { setConfirm(false); router.refresh(); } })}
+        onConfirm={() =>
+          exec(() => voidPayment(p.id, reason), {
+            success: t("detail.voided"),
+            onSuccess: () => {
+              setConfirm(false);
+              router.refresh();
+            },
+          })
+        }
       >
-        <Textarea aria-label={t("detail.voidReason")} placeholder={t("detail.voidReason")} rows={2} value={reason} onChange={(e) => setReason(e.target.value)} />
+        <Textarea
+          aria-label={t("detail.voidReason")}
+          placeholder={t("detail.voidReason")}
+          rows={2}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+        />
       </AlertDialog>
     </>
   );

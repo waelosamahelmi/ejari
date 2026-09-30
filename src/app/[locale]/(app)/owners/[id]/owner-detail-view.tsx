@@ -25,7 +25,15 @@ export interface OwnerDetail {
   properties: { id: string; name: string; area: string | null; share: number }[];
 }
 
-export function OwnerDetailView({ owner: o, canEdit, portalSlot }: { owner: OwnerDetail; canEdit: boolean; portalSlot?: React.ReactNode }) {
+export function OwnerDetailView({
+  owner: o,
+  canEdit,
+  portalSlot,
+}: {
+  owner: OwnerDetail;
+  canEdit: boolean;
+  portalSlot?: React.ReactNode;
+}) {
   const t = useTranslations("owners");
   const tDocs = useTranslations("documents");
   const [editing, setEditing] = useState(false);
@@ -34,25 +42,87 @@ export function OwnerDetailView({ owner: o, canEdit, portalSlot }: { owner: Owne
       <LargeTitleHeader
         title={o.fullName}
         back={{ href: "/owners", label: t("title") }}
-        actions={canEdit ? <Button variant="secondary" size="icon" aria-label={t("edit")} onClick={() => setEditing(true)}><Pencil /></Button> : undefined}
+        actions={
+          canEdit ? (
+            <Button
+              variant="secondary"
+              size="icon"
+              aria-label={t("edit")}
+              onClick={() => setEditing(true)}
+            >
+              <Pencil />
+            </Button>
+          ) : undefined
+        }
       />
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <GroupedList>
           <GroupedSection header={t("sections.properties")}>
             {o.properties.map((p) => (
-              <ListRow key={p.id} LinkComponent={Link} href={`/properties/${p.id}`} leading={<IconTile tone="gulf"><Building2 /></IconTile>} title={p.name} subtitle={p.area ?? undefined} trailing={<span className="num">{t("share", { pct: p.share })}</span>} chevron />
+              <ListRow
+                key={p.id}
+                LinkComponent={Link}
+                href={`/properties/${p.id}`}
+                leading={
+                  <IconTile tone="gulf">
+                    <Building2 />
+                  </IconTile>
+                }
+                title={p.name}
+                subtitle={p.area ?? undefined}
+                trailing={<span className="num">{t("share", { pct: p.share })}</span>}
+                chevron
+              />
             ))}
           </GroupedSection>
           <GroupedSection header={t("sections.contact")}>
-            {o.civilId && <ListRow title={t("fields.civilId")} trailing={<span className="num">{o.civilId}</span>} />}
+            {o.civilId && (
+              <ListRow
+                title={t("fields.civilId")}
+                trailing={<span className="num">{o.civilId}</span>}
+              />
+            )}
             {o.phones.map((p) => (
-              <ListRow key={p} leading={<IconTile tone="green"><Phone /></IconTile>} title={<a className="num" dir="ltr" href={`tel:+965${p}`}>{formatPhone(p)}</a>} />
+              <ListRow
+                key={p}
+                leading={
+                  <IconTile tone="green">
+                    <Phone />
+                  </IconTile>
+                }
+                title={
+                  <a className="num" dir="ltr" href={`tel:+965${p}`}>
+                    {formatPhone(p)}
+                  </a>
+                }
+              />
             ))}
-            {o.email && <ListRow leading={<IconTile tone="gulf"><Mail /></IconTile>} title={o.email} />}
+            {o.email && (
+              <ListRow
+                leading={
+                  <IconTile tone="gulf">
+                    <Mail />
+                  </IconTile>
+                }
+                title={o.email}
+              />
+            )}
             {o.address && <ListRow title={t("fields.address")} subtitle={o.address} />}
           </GroupedSection>
           <GroupedSection header={t("sections.bank")}>
-            <ListRow leading={<IconTile tone="sand"><Landmark /></IconTile>} title={o.bankName || "—"} subtitle={<span className="num" dir="ltr">{o.iban || "—"}</span>} />
+            <ListRow
+              leading={
+                <IconTile tone="sand">
+                  <Landmark />
+                </IconTile>
+              }
+              title={o.bankName || "—"}
+              subtitle={
+                <span className="num" dir="ltr">
+                  {o.iban || "—"}
+                </span>
+              }
+            />
           </GroupedSection>
         </GroupedList>
         <div className="space-y-5">
@@ -63,7 +133,21 @@ export function OwnerDetailView({ owner: o, canEdit, portalSlot }: { owner: Owne
           </section>
         </div>
       </div>
-      <OwnerFormSheet open={editing} onOpenChange={setEditing} owner={{ id: o.id, fullName: o.fullName, civilId: o.civilId, phones: o.phones, email: o.email, iban: o.iban, bankName: o.bankName, address: o.address, notes: o.notes }} />
+      <OwnerFormSheet
+        open={editing}
+        onOpenChange={setEditing}
+        owner={{
+          id: o.id,
+          fullName: o.fullName,
+          civilId: o.civilId,
+          phones: o.phones,
+          email: o.email,
+          iban: o.iban,
+          bankName: o.bankName,
+          address: o.address,
+          notes: o.notes,
+        }}
+      />
     </>
   );
 }

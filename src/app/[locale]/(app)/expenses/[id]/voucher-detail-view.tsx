@@ -24,8 +24,23 @@ export function VoucherDetailView({
 }: {
   canManage: boolean;
   voucher: {
-    id: string; no: string; date: string; paidFrom: "cash_box" | "bank" | "cheque"; recipient: string | null; reference: string | null; notes: string | null; status: "draft" | "posted" | "void"; voidReason: string | null;
-    lines: { amountFils: number; category: string; beneficiary: string; description: string; mode: AllocationMode; allocations: { property: string; unit: string | null; amountFils: number }[] }[];
+    id: string;
+    no: string;
+    date: string;
+    paidFrom: "cash_box" | "bank" | "cheque";
+    recipient: string | null;
+    reference: string | null;
+    notes: string | null;
+    status: "draft" | "posted" | "void";
+    voidReason: string | null;
+    lines: {
+      amountFils: number;
+      category: string;
+      beneficiary: string;
+      description: string;
+      mode: AllocationMode;
+      allocations: { property: string; unit: string | null; amountFils: number }[];
+    }[];
   };
 }) {
   const t = useTranslations("expenses");
@@ -46,21 +61,39 @@ export function VoucherDetailView({
         title={<span className="num">{v.no}</span>}
         subtitle={formatDate(v.date)}
         back={{ href: "/expenses", label: t("title") }}
-        actions={<Button asChild variant="secondary" size="icon" aria-label={t("detail.print")}><a href={`/print/voucher/${v.id}?lang=${locale}`} target="_blank" rel="noreferrer"><Printer /></a></Button>}
+        actions={
+          <Button asChild variant="secondary" size="icon" aria-label={t("detail.print")}>
+            <a href={`/print/voucher/${v.id}?lang=${locale}`} target="_blank" rel="noreferrer">
+              <Printer />
+            </a>
+          </Button>
+        }
       >
-        <Pill className={v.status === "void" ? "bg-red/14 text-red-text" : "bg-green/14 text-green-text"}>{tStatus(v.status)}{v.voidReason ? ` — ${v.voidReason}` : ""}</Pill>
+        <Pill
+          className={
+            v.status === "void" ? "bg-red/14 text-red-text" : "bg-green/14 text-green-text"
+          }
+        >
+          {tStatus(v.status)}
+          {v.voidReason ? ` — ${v.voidReason}` : ""}
+        </Pill>
       </LargeTitleHeader>
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-4">
           <Card className="p-6">
             <div className="num text-[36px] font-semibold">{money(total)}</div>
-            <p className="text-label-2 mt-1 text-[14px]">{locale === "ar" ? tafqeetKWD(total) : wordsEN(total)}</p>
+            <p className="text-label-2 mt-1 text-[14px]">
+              {locale === "ar" ? tafqeetKWD(total) : wordsEN(total)}
+            </p>
           </Card>
           {v.lines.map((l, i) => (
             <Card key={i} className="p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-[16px] font-semibold">{l.category}{l.beneficiary ? ` · ${l.beneficiary}` : ""}</div>
+                  <div className="text-[16px] font-semibold">
+                    {l.category}
+                    {l.beneficiary ? ` · ${l.beneficiary}` : ""}
+                  </div>
                   <div className="text-label-2 text-[14px]">{l.description}</div>
                 </div>
                 <div className="num text-[18px] font-semibold">{money(l.amountFils)}</div>
@@ -68,7 +101,13 @@ export function VoucherDetailView({
               <div className="text-label-2 mt-3 text-[12px]">{tMode(l.mode)}</div>
               <ul className="mt-1 space-y-1 text-[14px]">
                 {l.allocations.map((a, k) => (
-                  <li key={k} className="flex justify-between"><span>{a.property}{a.unit ? ` · ${a.unit}` : ""}</span><span className="num">{money(a.amountFils)}</span></li>
+                  <li key={k} className="flex justify-between">
+                    <span>
+                      {a.property}
+                      {a.unit ? ` · ${a.unit}` : ""}
+                    </span>
+                    <span className="num">{money(a.amountFils)}</span>
+                  </li>
                 ))}
               </ul>
             </Card>
@@ -78,19 +117,58 @@ export function VoucherDetailView({
           <GroupedSection>
             <ListRow title={t("form.paidFrom")} trailing={tFrom(v.paidFrom)} />
             {v.recipient && <ListRow title={t("form.recipient")} trailing={v.recipient} />}
-            {v.reference && <ListRow title={t("form.reference")} trailing={<span className="num">{v.reference}</span>} />}
+            {v.reference && (
+              <ListRow
+                title={t("form.reference")}
+                trailing={<span className="num">{v.reference}</span>}
+              />
+            )}
             {v.notes && <ListRow title={tc("labels.notes")} subtitle={v.notes} />}
           </GroupedSection>
-          <Documents entityType="voucher" entityId={v.id} canEdit={canManage && v.status !== "void"} canDelete={canManage} />
+          <Documents
+            entityType="voucher"
+            entityId={v.id}
+            canEdit={canManage && v.status !== "void"}
+            canDelete={canManage}
+          />
           {canManage && v.status === "posted" && (
             <GroupedSection>
-              <ListRow leading={<XOctagon className="text-red-text size-5" />} title={t("detail.void")} destructive onClick={() => setConfirm(true)} />
+              <ListRow
+                leading={<XOctagon className="text-red-text size-5" />}
+                title={t("detail.void")}
+                destructive
+                onClick={() => setConfirm(true)}
+              />
             </GroupedSection>
           )}
         </div>
       </div>
-      <AlertDialog open={confirm} onOpenChange={setConfirm} title={t("detail.voidConfirm")} confirmLabel={t("detail.void")} cancelLabel={tc("actions.cancel")} destructive loading={pending} confirmDisabled={!reason.trim()} onConfirm={() => exec(() => voidVoucher(v.id, reason), { success: t("detail.voided"), onSuccess: () => { setConfirm(false); router.refresh(); } })}>
-        <Textarea aria-label={t("detail.voidReason")} placeholder={t("detail.voidReason")} rows={2} value={reason} onChange={(e) => setReason(e.target.value)} />
+      <AlertDialog
+        open={confirm}
+        onOpenChange={setConfirm}
+        title={t("detail.voidConfirm")}
+        confirmLabel={t("detail.void")}
+        cancelLabel={tc("actions.cancel")}
+        destructive
+        loading={pending}
+        confirmDisabled={!reason.trim()}
+        onConfirm={() =>
+          exec(() => voidVoucher(v.id, reason), {
+            success: t("detail.voided"),
+            onSuccess: () => {
+              setConfirm(false);
+              router.refresh();
+            },
+          })
+        }
+      >
+        <Textarea
+          aria-label={t("detail.voidReason")}
+          placeholder={t("detail.voidReason")}
+          rows={2}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+        />
       </AlertDialog>
     </>
   );

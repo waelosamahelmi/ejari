@@ -11,5 +11,7 @@ import type { Database } from "./types";
 export function supabaseAdmin() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!key) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
-  return createClient<Database>(PUBLIC_ENV.supabaseUrl, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  return createClient<Database>(PUBLIC_ENV.supabaseUrl, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 }

@@ -6,11 +6,22 @@ import { cn } from "@/lib/utils";
 /** Full-width 52px pill search field (§21.1.12). */
 export const SearchField = forwardRef<
   HTMLInputElement,
-  Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> & { value: string; onValueChange: (v: string) => void; clearLabel?: string; size?: "md" | "lg" }
->(function SearchField({ className, value, onValueChange, clearLabel = "Clear", size = "lg", ...props }, ref) {
+  Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> & {
+    value: string;
+    onValueChange: (v: string) => void;
+    clearLabel?: string;
+    size?: "md" | "lg";
+  }
+>(function SearchField(
+  { className, value, onValueChange, clearLabel = "Clear", size = "lg", ...props },
+  ref,
+) {
   return (
     <div className={cn("relative", className)}>
-      <Search className="text-label-2 pointer-events-none absolute start-4 top-1/2 size-5 -translate-y-1/2" aria-hidden />
+      <Search
+        className="text-label-2 pointer-events-none absolute start-4 top-1/2 size-5 -translate-y-1/2"
+        aria-hidden
+      />
       <input
         ref={ref}
         type="search"

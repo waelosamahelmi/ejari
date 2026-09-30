@@ -48,7 +48,8 @@ export function sortChargesFIFO<T extends Pick<OpenCharge, "period" | "kind" | "
 }
 
 function assertAmount(amount: Fils): void {
-  if (!Number.isSafeInteger(amount) || amount < 0) throw new RangeError("Payment amount must be a non-negative integer");
+  if (!Number.isSafeInteger(amount) || amount < 0)
+    throw new RangeError("Payment amount must be a non-negative integer");
 }
 
 /** FIFO allocation of `amount` over open charges. */
@@ -90,7 +91,8 @@ export function allocateManual(
   const merged = new Map<string, number>();
   for (const l of lines) {
     if (l.amountFils < 0) throw new AllocationError("negative", "Allocation amounts must be >= 0");
-    if (!byId.has(l.chargeId)) throw new AllocationError("unknown_charge", `Unknown charge ${l.chargeId}`);
+    if (!byId.has(l.chargeId))
+      throw new AllocationError("unknown_charge", `Unknown charge ${l.chargeId}`);
     merged.set(l.chargeId, (merged.get(l.chargeId) ?? 0) + l.amountFils);
   }
   let total = 0;
@@ -98,11 +100,13 @@ export function allocateManual(
   for (const c of sortChargesFIFO(charges)) {
     const a = merged.get(c.id);
     if (!a) continue;
-    if (a > c.outstandingFils) throw new AllocationError("exceeds_outstanding", `Allocation exceeds charge ${c.id}`);
+    if (a > c.outstandingFils)
+      throw new AllocationError("exceeds_outstanding", `Allocation exceeds charge ${c.id}`);
     total += a;
     allocations.push({ chargeId: c.id, amountFils: a });
   }
-  if (total > amount) throw new AllocationError("exceeds_payment", "Allocations exceed the payment amount");
+  if (total > amount)
+    throw new AllocationError("exceeds_payment", "Allocations exceed the payment amount");
   return { allocations, creditFils: amount - total };
 }
 
@@ -131,7 +135,10 @@ export function consumeCredit(creditFils: Fils, charges: readonly OpenCharge[]):
  * Credit balance for a contract: payments − allocations. Voided payments and
  * their allocations are excluded by the caller.
  */
-export function creditBalance(payments: readonly { amountFils: Fils }[], allocations: readonly { amountFils: Fils }[]): Fils {
+export function creditBalance(
+  payments: readonly { amountFils: Fils }[],
+  allocations: readonly { amountFils: Fils }[],
+): Fils {
   const p = payments.reduce((a, b) => a + b.amountFils, 0);
   const a = allocations.reduce((x, y) => x + y.amountFils, 0);
   return p - a;
@@ -139,5 +146,7 @@ export function creditBalance(payments: readonly { amountFils: Fils }[], allocat
 
 /** Sum of amounts that are outstanding and due by `asOf`. */
 export function amountDue(charges: readonly OpenCharge[], asOf: ISODate): Fils {
-  return charges.filter((c) => c.dueDate <= asOf).reduce((a, c) => a + Math.max(0, c.outstandingFils), 0);
+  return charges
+    .filter((c) => c.dueDate <= asOf)
+    .reduce((a, c) => a + Math.max(0, c.outstandingFils), 0);
 }

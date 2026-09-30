@@ -53,7 +53,12 @@ describe("periods", () => {
     expect(d.periodStart("2026-08")).toBe("2026-08-01");
     expect(d.periodEnd("2026-02")).toBe("2026-02-28");
     expect(d.periodDays("2028-02")).toBe(29);
-    expect(d.periodRange("2026-11", "2027-02")).toEqual(["2026-11", "2026-12", "2027-01", "2027-02"]);
+    expect(d.periodRange("2026-11", "2027-02")).toEqual([
+      "2026-11",
+      "2026-12",
+      "2027-01",
+      "2027-02",
+    ]);
     expect(d.periodRange("2026-11", "2026-10")).toEqual([]);
   });
   it("format", () => {

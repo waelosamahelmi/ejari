@@ -33,7 +33,9 @@ export default function NoOrgPage() {
         <Field label={t("nameEn")} htmlFor="nameEn" error={error}>
           <Input id="nameEn" dir="ltr" value={nameEn} onChange={(e) => setNameEn(e.target.value)} />
         </Field>
-        <Button type="submit" size="lg" block loading={pending} disabled={name.trim().length < 2}>{t("submit")}</Button>
+        <Button type="submit" size="lg" block loading={pending} disabled={name.trim().length < 2}>
+          {t("submit")}
+        </Button>
       </form>
     </AuthCard>
   );

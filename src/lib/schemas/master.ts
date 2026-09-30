@@ -28,10 +28,18 @@ export const propertySchema = z
     propertyType: z.enum(["residential", "investment", "mixed", "industrial"]),
     floors: z.number().int().min(0).max(200).nullable().optional(),
     notes: optText(2000),
-    owners: z.array(z.object({ ownerId: z.string().uuid(), sharePct: z.number().positive().max(100) })).min(1, "required"),
-    commission: z.object({ kind: z.enum(["percent", "fixed"]), value: z.number().nonnegative() }).nullable().optional(),
+    owners: z
+      .array(z.object({ ownerId: z.string().uuid(), sharePct: z.number().positive().max(100) }))
+      .min(1, "required"),
+    commission: z
+      .object({ kind: z.enum(["percent", "fixed"]), value: z.number().nonnegative() })
+      .nullable()
+      .optional(),
   })
-  .refine((p) => Math.abs(p.owners.reduce((a, o) => a + o.sharePct, 0) - 100) < 0.001, { message: "shares100", path: ["owners"] });
+  .refine((p) => Math.abs(p.owners.reduce((a, o) => a + o.sharePct, 0) - 100) < 0.001, {
+    message: "shares100",
+    path: ["owners"],
+  });
 export type PropertyInput = z.input<typeof propertySchema>;
 
 export const unitSchema = z.object({

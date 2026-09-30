@@ -27,8 +27,22 @@ export default function WelcomePage() {
       pageLabel={(n, total) => t("page", { n, total })}
       logo={
         <>
-          <Image src="/brand/lockup-ar-white.svg" alt={tApp("fullName")} width={120} height={36} className="h-8 w-auto ltr:hidden" priority />
-          <Image src="/brand/lockup-en-white.svg" alt={tApp("fullName")} width={120} height={36} className="h-8 w-auto rtl:hidden" priority />
+          <Image
+            src="/brand/lockup-ar-white.svg"
+            alt={tApp("fullName")}
+            width={120}
+            height={36}
+            className="h-8 w-auto ltr:hidden"
+            priority
+          />
+          <Image
+            src="/brand/lockup-en-white.svg"
+            alt={tApp("fullName")}
+            width={120}
+            height={36}
+            className="h-8 w-auto rtl:hidden"
+            priority
+          />
         </>
       }
     />

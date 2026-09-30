@@ -15,11 +15,24 @@ function hash(s: string) {
 }
 
 /** Generated architectural cover when a property has no photo: dusk gradient, arch motif, initials. Never a gray box. */
-export function CoverFallback({ name, className, showInitials = true }: { name: string; className?: string; showInitials?: boolean }) {
+export function CoverFallback({
+  name,
+  className,
+  showInitials = true,
+}: {
+  name: string;
+  className?: string;
+  showInitials?: boolean;
+}) {
   const p = PALETTES[hash(name) % PALETTES.length]!;
   const id = `cf-${hash(name)}`;
   return (
-    <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" className={cn("size-full", className)} aria-hidden>
+    <svg
+      viewBox="0 0 400 500"
+      preserveAspectRatio="xMidYMid slice"
+      className={cn("size-full", className)}
+      aria-hidden
+    >
       <defs>
         <linearGradient id={`${id}-sky`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor={p[0]} />
@@ -40,7 +53,12 @@ export function CoverFallback({ name, className, showInitials = true }: { name: 
             const y = 200 + row * 90;
             const lit = (row * 4 + col + hash(name)) % 3 === 0;
             return (
-              <path key={`${row}-${col}`} d={`M${x} ${y + 60}V${y + 16}a16 16 0 0 1 32 0V${y + 60}z`} fill={lit ? `url(#${id}-glow)` : p[2]} opacity={lit ? 1 : 0.55} />
+              <path
+                key={`${row}-${col}`}
+                d={`M${x} ${y + 60}V${y + 16}a16 16 0 0 1 32 0V${y + 60}z`}
+                fill={lit ? `url(#${id}-glow)` : p[2]}
+                opacity={lit ? 1 : 0.55}
+              />
             );
           }),
         )}
@@ -48,7 +66,16 @@ export function CoverFallback({ name, className, showInitials = true }: { name: 
       <path d="M170 500V420a30 30 0 0 1 60 0v80z" fill={p[2]} opacity=".8" />
       <rect y="470" width="400" height="30" fill="#000" opacity=".06" />
       {showInitials && (
-        <text x="200" y="120" textAnchor="middle" fontSize="64" fontWeight="600" fill="#fff" opacity=".9" style={{ fontFamily: "var(--ff-arabic), var(--ff-latin), sans-serif" }}>
+        <text
+          x="200"
+          y="120"
+          textAnchor="middle"
+          fontSize="64"
+          fontWeight="600"
+          fill="#fff"
+          opacity=".9"
+          style={{ fontFamily: "var(--ff-arabic), var(--ff-latin), sans-serif" }}
+        >
           {initials(name)}
         </text>
       )}

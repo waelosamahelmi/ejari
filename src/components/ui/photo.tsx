@@ -4,7 +4,9 @@ import { cn } from "@/lib/utils";
 import { PHOTOS, type PhotoName } from "@/config/generated-assets";
 import { CoverFallback } from "./cover-fallback";
 
-export function resolvePhoto(src: string | null | undefined): { src: string; blur?: string } | null {
+export function resolvePhoto(
+  src: string | null | undefined,
+): { src: string; blur?: string } | null {
   if (!src) return null;
   const brand = Object.values(PHOTOS).find((p) => p.src === src);
   if (brand) return { src: brand.src, blur: brand.blur };

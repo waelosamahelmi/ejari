@@ -30,7 +30,9 @@ test.describe("contracts", () => {
     await page.getByRole("button", { name: "التالي" }).click();
     // finish
     await page.getByRole("button", { name: "تفعيل العقد" }).click();
-    await expect(page.getByRole("heading", { name: /تم تفعيل العقد I-\d{4}-\d{4}/ })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("heading", { name: /تم تفعيل العقد I-\d{4}-\d{4}/ })).toBeVisible({
+      timeout: 20_000,
+    });
     const open = page.getByRole("link", { name: "فتح العقد" });
     const href = await open.getAttribute("href");
     const id = href!.split("/").pop()!;

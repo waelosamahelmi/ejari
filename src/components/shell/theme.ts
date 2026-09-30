@@ -1,7 +1,9 @@
 /** Applies theme + accent to <html> immediately (no reload). */
 export function applyTheme(theme: "light" | "dark" | "system", accent?: string) {
   const root = document.documentElement;
-  const dark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const dark =
+    theme === "dark" ||
+    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
   root.classList.toggle("dark", dark);
   root.dataset.theme = theme;
   if (accent) root.dataset.accent = accent;
