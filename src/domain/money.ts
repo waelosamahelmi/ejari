@@ -1,5 +1,5 @@
 /**
- * Money in Ijari is always an integer number of fils (1 KWD = 1000 fils).
+ * Money in Ejari is always an integer number of fils (1 KWD = 1000 fils).
  * Never use floats for stored amounts.
  */
 

@@ -1,0 +1,11 @@
+{
+  "prevMonth": "الشهر السابق", "nextMonth": "الشهر التالي", "prevYear": "السنة السابقة", "nextYear": "السنة التالية", "chooseMonth": "اختر الشهر",
+  "openCalendar": "فتح التقويم", "today": "اليوم", "decrement": "إنقاص", "increment": "زيادة", "clearSearch": "مسح البحث",
+  "selected": "{count, plural, zero {لا شيء محدد} one {عنصر محدد} two {عنصران محددان} few {# عناصر محددة} many {# عنصرًا محددًا} other {# عنصر محدد}}",
+  "columns": "الأعمدة", "density": "الكثافة", "comfortable": "مريحة", "compact": "مضغوطة", "noRows": "لا توجد بيانات", "sortAsc": "ترتيب تصاعدي", "sortDesc": "ترتيب تنازلي",
+  "grabber": "اسحب للإغلاق", "range": "النطاق", "min": "الأدنى", "max": "الأعلى", "average": "المتوسط {value}", "step": "الخطوة {n} من {total}",
+  "shortcuts": { "title": "اختصارات لوحة المفاتيح", "palette": "فتح لوحة الأوامر", "help": "عرض الاختصارات", "newPayment": "تسجيل دفعة", "newContract": "عقد جديد", "newVoucher": "سند صرف جديد", "goDashboard": "الرئيسية", "goCollections": "التحصيل", "search": "البحث" },
+  "palette": { "placeholder": "ابحث أو اكتب أمرًا…", "empty": "لا نتائج مطابقة.", "actions": "إجراءات", "navigate": "انتقال", "tenants": "المستأجرون", "units": "الوحدات", "contracts": "العقود", "receipts": "الإيصالات", "vouchers": "سندات الصرف", "recordPayment": "سجّل دفعة", "newContract": "عقد جديد", "newVoucher": "سند صرف جديد", "statement": "كشف {month}", "searching": "جارٍ البحث…" },
+  "wizard": { "saveDraft": "حفظ كمسودة", "back": "السابق", "next": "التالي", "finish": "إنهاء" },
+  "celebrate": "تحصيل كامل لهذا الشهر!"
+}

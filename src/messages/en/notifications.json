@@ -1,0 +1,10 @@
+{
+  "title": "Notifications", "markAllRead": "Mark all read", "empty": "No notifications", "emptyText": "We'll let you know here about new payments, late rent and contracts ending soon.",
+  "groups": { "today": "Today", "week": "This week", "earlier": "Earlier" }, "filters": { "all": "All", "payments": "Payments", "late": "Late", "contracts": "Contracts", "other": "Other" },
+  "dismiss": "Dismiss", "unread": "Unread", "open": "Open",
+  "types": {
+    "payment_recorded": "Payment recorded", "offline_synced": "Payments synced", "offline_review": "Payment needs review", "daily_digest": "Daily digest", "tenant_late": "Tenant late",
+    "grace_ending": "Grace period ending", "contract_expiring": "Contract expiring", "notice_recorded": "Notice to vacate", "unit_vacant": "Unit became vacant",
+    "hearing_tomorrow": "Hearing tomorrow", "voucher_threshold": "Large voucher", "month_end": "Month end", "deposit_recorded": "Deposit recorded", "statement_ready": "Statement ready", "test": "Test notification"
+  }
+}

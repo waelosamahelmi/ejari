@@ -1,0 +1,10 @@
+{
+  "title": "الإشعارات", "markAllRead": "تحديد الكل كمقروء", "empty": "لا توجد إشعارات", "emptyText": "سنخبرك هنا بالدفعات الجديدة والمتأخرات والعقود القريبة من الانتهاء.",
+  "groups": { "today": "اليوم", "week": "هذا الأسبوع", "earlier": "سابقًا" }, "filters": { "all": "الكل", "payments": "الدفعات", "late": "المتأخرات", "contracts": "العقود", "other": "أخرى" },
+  "dismiss": "إخفاء", "unread": "غير مقروء", "open": "فتح",
+  "types": {
+    "payment_recorded": "دفعة جديدة", "offline_synced": "مزامنة الدفعات", "offline_review": "دفعة تحتاج مراجعة", "daily_digest": "ملخص اليوم", "tenant_late": "تأخر مستأجر",
+    "grace_ending": "انتهاء فترة السماح", "contract_expiring": "عقد قارب على الانتهاء", "notice_recorded": "إخطار بالإخلاء", "unit_vacant": "وحدة أصبحت خالية",
+    "hearing_tomorrow": "جلسة قضائية غدًا", "voucher_threshold": "سند صرف كبير", "month_end": "نهاية الشهر", "deposit_recorded": "إيداع جديد", "statement_ready": "الكشف الشهري جاهز", "test": "إشعار تجريبي"
+  }
+}

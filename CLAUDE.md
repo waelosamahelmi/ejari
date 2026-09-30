@@ -1,6 +1,6 @@
 # CLAUDE.md — Ijari (إيجاري) · Rental Property Management System for Kuwait
 
-> Product name: **إيجاري | Ijari** (Arabic primary, English secondary; single source of truth in `src/config/app.ts`).
+> Product name: **إيجاري | Ejari** (domain ejarikw.com; client decision 2026-09-30) (Arabic primary, English secondary; single source of truth in `src/config/app.ts`).
 > Primary market: Kuwaiti property owners and property-management offices.
 > Primary language: **Arabic (RTL)**. Secondary: English (LTR).
 > Currency: **Kuwaiti Dinar (KWD), 3 decimals (1 dinar = 1000 fils)**.
@@ -825,7 +825,7 @@ Design the brand **before** the design system (Phase 3). It must be original, ow
 - **Name**: **إيجاري** (Ijari), "my rent / my lease". Instantly understood by every Kuwaiti owner and tenant, possessive and personal, describes exactly what the product does. English name **Ijari**, pronounced *ee-JAA-ree*.
 - **Idea**: *"Every door, accounted for."* / *"كل باب… في مكانه."* The product turns a building full of doors into one calm, precise ledger.
 - **Symbol**: the **arched doorway** of Gulf architecture. Inside the arch, the door opening is drawn as the letter **ا** (alif, the first letter of إيجاري) as a tall vertical slot, with the **hamza** of إ as a small precise mark beneath the threshold. Read together: a door, and the start of the name. Built from circles and straight lines only, so it holds up from a 16px favicon to a billboard.
-- **Naming note**: Dubai's government tenancy registration system is also called إيجاري (English "Ejari"). Always use the English spelling **Ijari** (never "Ejari"), never use Dubai/RERA colors or styling, and add a line to `docs/DECISIONS.md` noting the client should run a Kuwait trademark check before launch.
+- **Naming note (updated by client 2026-09-30)**: the English name is **Ejari** and the domain is **ejarikw.com**. Dubai's government tenancy system is also called Ejari (إيجاري): never use Dubai/RERA colors or styling; the client should run a Kuwait trademark check before launch (logged in `docs/DECISIONS.md`).
 - **Personality**: trustworthy, calm, precise, quietly premium, hospitable. A well-run family office, not a startup.
 
 ### 18.2 Logo system (hand-written, optimized SVG; no raster, no live fonts inside the mark)

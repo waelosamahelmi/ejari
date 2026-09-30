@@ -1,0 +1,6 @@
+{
+  "dashboard": "Home", "collections": "Collections", "properties": "Properties", "units": "Units", "tenants": "Tenants", "owners": "Owners",
+  "contracts": "Contracts", "payments": "Receipts", "expenses": "Expenses", "deposits": "Deposits", "legal": "Legal", "reports": "Reports",
+  "settings": "Settings", "audit": "Audit log", "more": "More", "portal": "Owner portal", "sections": { "work": "Daily work", "records": "Records", "finance": "Finance", "admin": "Admin" },
+  "search": "Search tenants, units, contracts, receipts…", "collapse": "Collapse sidebar", "expand": "Expand sidebar", "notFound": "Page not found"
+}

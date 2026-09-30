@@ -1,10 +1,9 @@
-import { useTranslations } from "next-intl";
+import { redirect } from "next/navigation";
+import { getSessionContext } from "@/lib/auth";
 
-export default function Home() {
-  const t = useTranslations("app");
-  return (
-    <main className="grid min-h-dvh place-items-center">
-      <h1 className="text-4xl font-semibold">{t("name")}</h1>
-    </main>
-  );
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const ctx = await getSessionContext();
+  if (!ctx) redirect(`/${locale}/login`);
+  redirect(`/${locale}/${ctx.role === "owner" ? "owner" : "dashboard"}`);
 }

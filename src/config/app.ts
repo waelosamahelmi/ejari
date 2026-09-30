@@ -1,10 +1,12 @@
 /** Single source of truth for product identity. */
 export const APP = {
   nameAr: "إيجاري",
-  nameEn: "Ijari",
-  fullName: "إيجاري | Ijari",
+  nameEn: "Ejari",
+  fullName: "إيجاري | Ejari",
   taglineAr: "كل باب… في مكانه.",
   taglineEn: "Every door, accounted for.",
+  domain: "ejarikw.com",
+  url: "https://ejarikw.com",
   timeZone: "Asia/Kuwait",
   currency: "KWD",
   locales: ["ar", "en"] as const,

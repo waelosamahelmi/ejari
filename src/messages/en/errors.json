@@ -1,0 +1,42 @@
+{
+  "generic": "Something went wrong. Please try again.",
+  "network": "Couldn't connect. Check your internet and try again.",
+  "unauthenticated": "Your session expired. Sign in again.",
+  "forbidden": "You don't have permission to do that.",
+  "notFound": "This item doesn't exist or was removed.",
+  "validation": "Check the highlighted fields.",
+  "period_closed": "This month is closed. Ask an admin to reopen it first.",
+  "overlap": "This unit is already leased under another active contract for these dates. Choose another unit or change the dates.",
+  "duplicate": "This value is already in use.",
+  "duplicate_receipt": "This receipt number is used by another payment.",
+  "has_dependents": "Can't delete: other records depend on it.",
+  "exceeds_outstanding": "The allocation is more than what is due.",
+  "exceeds_payment": "Allocations exceed the payment amount.",
+  "percent_sum": "Percentages must add up to 100%.",
+  "amount_sum": "Amounts must add up to the line amount.",
+  "invalid_transition": "This action isn't available for the contract's current status.",
+  "contract_not_live": "The contract isn't active.",
+  "offline": "This action needs an internet connection.",
+  "page": {
+    "title": "Something went wrong",
+    "subtitle": "We couldn't show this page. Your data is safe.",
+    "notFoundTitle": "Page not found",
+    "notFoundSubtitle": "It may have been moved or removed."
+  },
+  "field": {
+    "required": "This field is required.",
+    "invalidAmount": "Enter a valid amount.",
+    "invalidDate": "Enter a valid date (dd/mm/yyyy).",
+    "invalidPhone": "Phone numbers are 8 digits starting with 2, 4, 5, 6 or 9.",
+    "invalidPaci": "PACI numbers are 8 digits.",
+    "invalidEmail": "Invalid email address.",
+    "invalidCivilId": "Civil IDs are 12 digits.",
+    "civilIdChecksum": "Check digit doesn't match — please verify (it will be saved as entered).",
+    "positive": "Must be greater than zero.",
+    "tooLong": "Too long.",
+    "minPassword": "At least 8 characters."
+  },
+  "invalid_credentials": "Email or password is incorrect.",
+  "rate_limited": "Too many attempts. Wait a minute and try again.",
+  "link": "This link expired or was already used. Request a new one."
+}

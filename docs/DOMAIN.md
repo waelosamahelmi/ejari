@@ -1,4 +1,4 @@
-# Ijari — Domain glossary & business rules
+# Ejari — Domain glossary & business rules
 
 All business logic lives in `src/domain/*` (pure, no I/O, ≥ 90 % covered). The server loads rows and calls these functions, so every number on screen, in print and in Excel comes from one tested implementation.
 
