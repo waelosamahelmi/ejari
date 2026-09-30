@@ -1,6 +1,6 @@
-# CLAUDE.md — Ijari (إيجاري) · Rental Property Management System for Kuwait
+# CLAUDE.md — Ejari (إيجاري) · Rental Property Management System for Kuwait
 
-> Product name: **إيجاري | Ejari** (domain ejarikw.com; client decision 2026-09-30) (Arabic primary, English secondary; single source of truth in `src/config/app.ts`).
+> Product name: **إيجاري | Ejari** · domain **ejarikw.com** (Arabic primary, English secondary; single source of truth in `src/config/app.ts`).
 > Primary market: Kuwaiti property owners and property-management offices.
 > Primary language: **Arabic (RTL)**. Secondary: English (LTR).
 > Currency: **Kuwaiti Dinar (KWD), 3 decimals (1 dinar = 1000 fils)**.
@@ -32,15 +32,15 @@ You are building this entire product **in one continuous run**. The human will n
 
 ## 1. PRODUCT OVERVIEW
 
-Ijari replaces the paper workflow of a Kuwaiti rental office that currently:
+Ejari replaces the paper workflow of a Kuwaiti rental office that currently:
 - writes lease contracts by editing Word documents by hand,
 - prints a **monthly collection statement** per building (بيان بالإيرادات والمصروفات),
 - issues **payment vouchers** for expenses (سند صرف),
 - prepares a **monthly cover summary** across buildings: total collected, deposits, expenses.
 
-Known problems with the paper process that Ijari must solve:
-- **Arrears are invisible.** In the sample statement for Jabriya 157 (August 2026), expected rent is 8,960.000 and collected is 8,890.000, yet the arrears column shows 0.000 for every unit. Ijari calculates arrears automatically and carries them forward.
-- **Shared expenses are charged to one building** (a meter-photocopy job covering Jabriya *and* Salmiya was charged only to Jabriya 157; salaries and car fuel are overhead). Ijari supports expense allocation across properties.
+Known problems with the paper process that Ejari must solve:
+- **Arrears are invisible.** In the sample statement for Jabriya 157 (August 2026), expected rent is 8,960.000 and collected is 8,890.000, yet the arrears column shows 0.000 for every unit. Ejari calculates arrears automatically and carries them forward.
+- **Shared expenses are charged to one building** (a meter-photocopy job covering Jabriya *and* Salmiya was charged only to Jabriya 157; salaries and car fuel are overhead). Ejari supports expense allocation across properties.
 - **Contracts have no structured data**, so grace periods, free months, renewals, notice periods and expirations are not tracked.
 
 ### Core modules
@@ -817,12 +817,12 @@ DoD: §17 checklist all true.
 
 ---
 
-## 18. BRAND IDENTITY — "إيجاري | Ijari"
+## 18. BRAND IDENTITY — "إيجاري | Ejari"
 
 Design the brand **before** the design system (Phase 3). It must be original, ownable and equally beautiful in Arabic and English. Nothing generic: no stock house-with-roof icons, no key clip-art, no default Tailwind blue. The visual direction in §21 governs how the brand is expressed in the UI.
 
 ### 18.1 Concept
-- **Name**: **إيجاري** (Ijari), "my rent / my lease". Instantly understood by every Kuwaiti owner and tenant, possessive and personal, describes exactly what the product does. English name **Ijari**, pronounced *ee-JAA-ree*.
+- **Name**: **إيجاري** (Ejari), "my rent / my lease". Instantly understood by every Kuwaiti owner and tenant, possessive and personal, describes exactly what the product does. English name **Ejari**, pronounced *eh-JAA-ree*; website **ejarikw.com**.
 - **Idea**: *"Every door, accounted for."* / *"كل باب… في مكانه."* The product turns a building full of doors into one calm, precise ledger.
 - **Symbol**: the **arched doorway** of Gulf architecture. Inside the arch, the door opening is drawn as the letter **ا** (alif, the first letter of إيجاري) as a tall vertical slot, with the **hamza** of إ as a small precise mark beneath the threshold. Read together: a door, and the start of the name. Built from circles and straight lines only, so it holds up from a 16px favicon to a billboard.
 - **Naming note (updated by client 2026-09-30)**: the English name is **Ejari** and the domain is **ejarikw.com**. Dubai's government tenancy system is also called Ejari (إيجاري): never use Dubai/RERA colors or styling; the client should run a Kuwait trademark check before launch (logged in `docs/DECISIONS.md`).
@@ -832,9 +832,9 @@ Design the brand **before** the design system (Phase 3). It must be original, ow
 Create in `public/brand/`:
 - `mark.svg` (primary symbol), `mark-mono.svg` (currentColor; badges, favicons, print).
 - `lockup-ar.svg`: mark + **إيجاري**, horizontal, mark on the **right**.
-- `lockup-en.svg`: mark + **Ijari**, horizontal, mark on the left.
-- `lockup-bilingual.svg`: mark with **إيجاري** above **Ijari**, stacked (splash, login, letterhead).
-- `wordmark-ar.svg`, `wordmark-en.svg`: glyphs converted to outlined paths. Arabic based on IBM Plex Sans Arabic Bold; the alif of إ is drawn slightly taller to echo the door slot in the mark, and the final ي tail is kept short and flat so the word sits calmly on the baseline; English "Ijari" on Inter Semibold, tracking −2%, with the dot of the first i replaced by a tiny arch.
+- `lockup-en.svg`: mark + **Ejari**, horizontal, mark on the left.
+- `lockup-bilingual.svg`: mark with **إيجاري** above **Ejari**, stacked (splash, login, letterhead).
+- `wordmark-ar.svg`, `wordmark-en.svg`: glyphs converted to outlined paths. Arabic based on IBM Plex Sans Arabic Bold; the alif of إ is drawn slightly taller to echo the door slot in the mark, and the final ي tail is kept short and flat so the word sits calmly on the baseline; English "Ejari" on Inter Semibold, tracking −2%, with the dot of the first i replaced by a tiny arch.
 Document in `docs/BRAND.md`: clear space (= the arch's inner opening height), minimum sizes (mark 16px, lockup 96px), do/don't (no stretching, outlines, shadows or off-palette colors).
 
 **App icon**: white mark centered on an **Ink squircle** (see palette), with a faint warm light gradient inside the arch opening, like light through a doorway at dusk. Mark ≈ 58% of icon width. Maskable variant keeps the mark within the 80% safe zone.
@@ -872,7 +872,7 @@ Chart series order: gulf, ink (60%), sand, teal, gray. Users may change the acce
 - **Onboarding & login** exactly in the spirit of the references: full-bleed architecture photograph, dark gradient fade at the bottom, large headline, one-line subtitle, page dots, white pill "ابدأ / Get started" + glass pill "تسجيل الدخول / Login".
 - **Empty-state illustrations**: 10 custom SVG line illustrations, one style (1.75px strokes, rounded caps, ink lines, one sand accent, the arch motif recurring): no properties, units, tenants, contracts, payments, expenses, notifications, offline, and celebratory "no late units" / "no vacant units".
 - **Arch pattern**: subtle geometric pattern from the arch (mashrabiya feel), ≤ 4% opacity, only on print cover sheets and the login backdrop.
-- **Print letterhead**: bilingual lockup + org name (AR/EN) + thin ink rule; org logo may replace or sit beside the mark ("Powered by Ijari / بواسطة إيجاري" footer toggle).
+- **Print letterhead**: bilingual lockup + org name (AR/EN) + thin ink rule; org logo may replace or sit beside the mark ("Powered by Ejari / بواسطة إيجاري" footer toggle).
 - **Transactional emails** (Supabase Auth: invite, magic link, reset, email change): branded, bilingual (Arabic RTL first, English below), table-based, dark-mode friendly, in `supabase/templates/`, wired in `config.toml`.
 - **Celebration**: when a property hits 100% collected for the month, a sand shimmer sweeps the ring widget once, plus a light haptic on Android.
 - **Brand page** `/[locale]/dev/brand`: logos, palette with contrast ratios, type scale, icons, illustrations, photography rules, voice examples.
@@ -888,7 +888,7 @@ Chart series order: gulf, ink (60%), sand, teal, gray. Users may change the acce
 ## 19. PWA, OFFLINE & NOTIFICATIONS
 
 ### 19.1 Installability
-- `app/manifest.ts`: `name "إيجاري | Ijari"`, `short_name "إيجاري"`, `lang "ar"`, `dir "rtl"`, `id "/"`, `scope "/"`, `start_url "/ar/dashboard?source=pwa"`, `display "standalone"`, `display_override ["window-controls-overlay","standalone"]`, `orientation "any"`, `background_color #ECEEF2`, `theme_color` light `#ECEEF2` / dark `#0B0B0D` (also as `<meta name="theme-color" media=…>`), `categories ["business","finance","productivity"]`.
+- `app/manifest.ts`: `name "إيجاري | Ejari"`, `short_name "إيجاري"`, `lang "ar"`, `dir "rtl"`, `id "/"`, `scope "/"`, `start_url "/ar/dashboard?source=pwa"`, `display "standalone"`, `display_override ["window-controls-overlay","standalone"]`, `orientation "any"`, `background_color #ECEEF2`, `theme_color` light `#ECEEF2` / dark `#0B0B0D` (also as `<meta name="theme-color" media=…>`), `categories ["business","finance","productivity"]`.
   - Icons: 192/512 `any`, 192/512 `maskable`, monochrome 96.
   - `shortcuts`: سجّل دفعة / Record payment, تحصيل هذا الشهر / This month's collections, سند صرف جديد / New voucher, الوحدات المتأخرة / Late units (each with a 96px icon).
   - `screenshots`: 3 narrow + 2 wide, Arabic, captured by Playwright from seeded data (`scripts/capture-screenshots.ts`) with `form_factor`.
@@ -1003,7 +1003,7 @@ The client chose a specific style. Three reference boards are in `docs/design/re
 
 ### 21.1 Signature elements
 1. **Full-bleed photo heroes** with a bottom scrim (`linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0) 55%)`), white text on the scrim: onboarding, login, property detail, unit detail, owner portal home.
-2. **Frosted glass controls** over photos: round icon buttons (44px, `backdrop-filter: blur(20px) saturate(160%)`, `background: rgba(255,255,255,.22)`, 1px `rgba(255,255,255,.35)` inner border), glass pills for metadata (location, price, rating-style chips → in Ijari: "٩ وحدات", "٩٦٪ محصل", "٣٠٠٫٠٠٠ د.ك/شهر").
+2. **Frosted glass controls** over photos: round icon buttons (44px, `backdrop-filter: blur(20px) saturate(160%)`, `background: rgba(255,255,255,.22)`, 1px `rgba(255,255,255,.35)` inner border), glass pills for metadata (location, price, rating-style chips → in Ejari: "٩ وحدات", "٩٦٪ محصل", "٣٠٠٫٠٠٠ د.ك/شهر").
 3. **Pill buttons**: primary = Ink fill, white text, height 52, full-width in sheets; secondary = white fill, ink text; tertiary on photos = glass. Radius fully rounded (`9999px`).
 4. **Floating tab bar** (mobile): a detached dark pill (`#0E0F12` at 92% + blur) floating 12px above the safe area, 4–5 round icon buttons; the active one is a white circle with an ink icon (reference 2), or active expands to icon + label pill (reference 1). Choose the icon + label variant for Arabic clarity. Content scrolls **under** it.
 5. **Large rounded cards**: radius 28px (cards), 32px (hero images and sheets), 20px (inner tiles), 14px (inputs). Cards are white on Mist with no visible border and a very soft shadow (`0 1px 2px rgba(16,24,40,.04), 0 12px 32px rgba(16,24,40,.06)`).
@@ -1015,10 +1015,10 @@ The client chose a specific style. Three reference boards are in `docs/design/re
 11. **Headlines with weight contrast** ("إدارة **عقاراتك**"، "Explore **Modern Living**"), 32–40px on mobile, left/right aligned by direction.
 12. **Greeting header** (reference 1): "مرحبًا، وائل" / "Hello, Wael", a small location/org switcher line with a chevron under it, round glass bell button on the trailing side. Below: search pill (full-width, 52px, white on Mist, leading search icon) + round filter button.
 13. **Section headers**: title 20px semibold + trailing "عرض الكل / View all" text button.
-14. **Thumbnail strips** inside cards (reference 1 detail): rounded 16px photo tiles for unit galleries; a vertical column of round icon tiles for amenities → in Ijari: bedrooms, bathrooms, area, floor, meters.
+14. **Thumbnail strips** inside cards (reference 1 detail): rounded 16px photo tiles for unit galleries; a vertical column of round icon tiles for amenities → in Ejari: bedrooms, bathrooms, area, floor, meters.
 15. **Detail page pattern** (reference 1 & 3): hero photo top ~42% of viewport with glass back button and glass action button; content card overlapping the hero by 24px; tab pills (Ink active) for sections; sticky bottom bar with the key figure on the start side ("٣٠٠٫٠٠٠ د.ك /شهريًا") and the primary pill on the end side ("سجّل دفعة").
 
-### 21.2 Mapping to Ijari screens
+### 21.2 Mapping to Ejari screens
 - **Onboarding** (first launch, 3 pages): full-bleed Gulf architecture photos; headlines: "كل باب… في مكانه" / "Every door, accounted for"; "تحصيل بلا أوراق" / "Collections without paper"; "تقارير يثق بها المالك" / "Reports owners trust". Page dots (active dot elongated). White pill "ابدأ" + glass pill "تسجيل الدخول".
 - **Login**: same hero photo, form in a bottom sheet (mobile) or a white card beside the photo (desktop).
 - **Dashboard (mobile)**: greeting header → search + filter → property chips → "أداء هذا الشهر" hero widget (ring + big number on a white card) → horizontally scrolling **property photo cards** → remaining widgets from §10.1 as white cards in a 2-column bento.
