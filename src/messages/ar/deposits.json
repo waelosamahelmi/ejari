@@ -1,0 +1,11 @@
+{
+  "title": "الإيداعات", "new": "إيداع جديد", "edit": "تعديل الإيداع", "empty": "لا توجد إيداعات", "emptyText": "سجّل المبالغ المودعة في البنك أو المسلّمة للمالك.",
+  "tabs": { "summary": "الملخص الشهري", "list": "الإيداعات" },
+  "columns": { "date": "التاريخ", "amount": "المبلغ", "destination": "الوجهة", "owner": "المالك", "bank": "البنك", "reference": "المرجع", "properties": "العقارات" },
+  "form": { "date": "تاريخ الإيداع", "amount": "المبلغ", "destination": "الوجهة", "owner": "المالك", "noOwner": "—", "bank": "البنك", "reference": "المرجع", "notes": "ملاحظات", "split": "التوزيع على العقارات (اختياري)", "remaining": "المتبقي للتوزيع: {amount}", "saved": "تم حفظ الإيداع", "delete": "حذف الإيداع", "deleteConfirm": "حذف هذا الإيداع؟", "deleted": "تم الحذف" },
+  "summary": {
+    "heading": "الإيجارات المحصلة عن شهر {month}", "collected": "إجمالي الإيجارات المحصلة", "deposits": "إيداعات", "expenses": "مصاريف", "difference": "الفرق (نقد بالصندوق)", "reconciled": "مطابق",
+    "explain": "توضيح الفرق", "explainPlaceholder": "مثال: مبلغ نقدي بالصندوق سيُودع يوم الأحد", "saveNote": "حفظ التوضيح", "noteSaved": "تم حفظ التوضيح",
+    "perProperty": "حسب العقار", "expected": "المتوقع", "arrears": "المتأخرات", "net": "الصافي", "print": "اطبع الملخص", "owner": "المالك", "allOwners": "كل الملاك"
+  }
+}

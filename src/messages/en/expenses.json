@@ -1,0 +1,15 @@
+{
+  "title": "Expenses", "new": "New voucher", "edit": "Edit voucher", "search": "Search by voucher no., beneficiary or description", "recurring": "Recurring expenses",
+  "empty": "No expenses", "emptyText": "Record a voucher for salaries, maintenance or fuel and split it across properties.", "noResults": "No matching vouchers",
+  "filters": { "period": "Period", "all": "All", "draft": "Drafts", "posted": "Posted", "void": "Void", "property": "Property", "category": "Category" },
+  "columns": { "no": "Voucher no.", "date": "Date", "recipient": "Recipient", "lines": "Lines", "properties": "Properties", "total": "Total", "status": "Status" },
+  "form": {
+    "voucherNo": "Voucher no.", "voucherNoHint": "Leave empty for automatic numbering", "date": "Date", "paidFrom": "Paid from", "reference": "Reference", "recipient": "Recipient name", "notes": "Notes",
+    "lines": "Lines", "addLine": "Add line", "line": "Line {n}", "amount": "Amount", "category": "Category", "beneficiary": "Beneficiary", "newBeneficiary": "New beneficiary", "description": "Description",
+    "allocation": "Allocation", "property": "Property", "unit": "Unit (optional)", "noUnit": "Whole property", "properties": "Properties", "percent": "Percent", "total": "Total", "totalWords": "Amount in words",
+    "preview": "Split preview", "saveDraft": "Save draft", "post": "Post voucher", "saved": "Voucher saved", "posted": "Voucher posted", "removeLine": "Remove line", "attachments": "Attachments (invoice photos)", "sumMismatch": "Allocations don't add up to the line amount"
+  },
+  "detail": { "print": "Print voucher", "void": "Void voucher", "voidConfirm": "Void this voucher?", "voidReason": "Reason", "voided": "Voucher voided", "delete": "Delete draft", "deleted": "Draft deleted" },
+  "print": { "title": "Payment voucher", "dinar": "KWD", "fils": "Fils", "no": "No.", "date": "Date", "amountWords": "The sum of", "notes": "Notes", "type": "Category", "beneficiary": "Beneficiary", "description": "Description", "owner": "Owner", "property": "Property", "unit": "Unit", "floor": "Floor", "paidFrom": "Paid from", "cashBox": "Cash box", "bank": "Bank - cash", "cheque": "Cheque", "recipient": "Received by", "signature": "Signature" },
+  "recurringPage": { "title": "Recurring expenses", "new": "New template", "generate": "Generate {month} vouchers", "generated": "{count, plural, =0 {No new vouchers} one {# voucher created} other {# vouchers created}}", "day": "Day of month", "last": "Last generated: {month}", "never": "Not generated yet", "active": "Active", "empty": "No recurring templates", "emptyText": "Like the caretaker's monthly salary or a cleaning subscription." }
+}

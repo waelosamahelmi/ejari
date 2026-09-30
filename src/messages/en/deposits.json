@@ -1,0 +1,11 @@
+{
+  "title": "Deposits", "new": "New deposit", "edit": "Edit deposit", "empty": "No deposits", "emptyText": "Record amounts deposited to the bank or handed to the owner.",
+  "tabs": { "summary": "Monthly summary", "list": "Deposits" },
+  "columns": { "date": "Date", "amount": "Amount", "destination": "Destination", "owner": "Owner", "bank": "Bank", "reference": "Reference", "properties": "Properties" },
+  "form": { "date": "Deposit date", "amount": "Amount", "destination": "Destination", "owner": "Owner", "noOwner": "—", "bank": "Bank", "reference": "Reference", "notes": "Notes", "split": "Split across properties (optional)", "remaining": "Left to allocate: {amount}", "saved": "Deposit saved", "delete": "Delete deposit", "deleteConfirm": "Delete this deposit?", "deleted": "Deleted" },
+  "summary": {
+    "heading": "Rent collected for {month}", "collected": "Total rent collected", "deposits": "Deposits", "expenses": "Expenses", "difference": "Difference (cash on hand)", "reconciled": "Reconciled",
+    "explain": "Explain the difference", "explainPlaceholder": "e.g. cash on hand to be deposited on Sunday", "saveNote": "Save note", "noteSaved": "Note saved",
+    "perProperty": "By property", "expected": "Expected", "arrears": "Arrears", "net": "Net", "print": "Print summary", "owner": "Owner", "allOwners": "All owners"
+  }
+}

@@ -129,6 +129,31 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"cash_reconciliations": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"note": string,"org_id": string,"owner_id": string | null,"period": string,"updated_at": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"note"?: string,"org_id": string,"owner_id"?: string | null,"period": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"note"?: string,"org_id"?: string,"owner_id"?: string | null,"period"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "cash_reconciliations_org_id_fkey"
+      columns: ["org_id"]
+isOneToOne: false
+      referencedRelation: "orgs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cash_reconciliations_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "owners"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"charges": {
                   Row: {
                     "amount_fils": number,"contract_id": string,"created_at": string,"created_by": string | null,"description": string | null,"due_date": string,"id": string,"kind": Database["public"]['Enums']["charge_kind"],"org_id": string,"period": string,"unit_id": string | null,"updated_at": string,"void_reason": string | null,"voided": boolean,"waived_value_fils": number

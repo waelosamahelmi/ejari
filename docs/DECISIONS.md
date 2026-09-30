@@ -38,3 +38,5 @@
 | 2026-09-30 | Vercel Cron: `/api/cron/charges` daily at 21:00 UTC (00:00 Kuwait) and `/api/cron/notifications` hourly (decisions in Kuwait time). Both require `Authorization: Bearer $CRON_SECRET`. | §6.4, §19.6. |
 | 2026-09-30 | The collections table uses compact density (44px rows) so all 10 statement columns plus status fit at 1440px without horizontal scroll; mobile gets one-handed cards. | §21.5 data density. |
 | 2026-09-30 | Statement print uses A4 landscape; receipts print A5 landscape with a دينار/فلس box like the paper forms. | Matches the office's paper documents. |
+| 2026-09-30 | Cover-summary "Explain" notes live in `cash_reconciliations` (per org, month and optional owner). Org-wide expenses on the cover = Σ posted voucher totals of the month; owner/property-scoped summaries use allocated amounts. | §6.8. |
+| 2026-09-30 | Posted vouchers are immutable (void with reason); drafts are editable/deletable. Recurring templates generate draft vouchers ("Generate this month's vouchers") and remember the last generated month. | Audit-safe expenses. |
