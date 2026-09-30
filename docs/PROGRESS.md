@@ -3,7 +3,7 @@
 Resume rule: read this file first and continue from the first unchecked item.
 
 - [x] Phase 0 — Bootstrap
-- [ ] Phase 1 — Domain core
+- [x] Phase 1 — Domain core (237 tests, coverage ≥ 90 %)
 - [ ] Phase 2 — Database
 - [ ] Phase 3 — Brand, design system & shell
 - [ ] Phase 4 — Master data
