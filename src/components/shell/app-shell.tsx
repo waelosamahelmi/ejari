@@ -33,7 +33,7 @@ export function AppShell({ session, children, banner }: { session: ClientSession
           <Sidebar role={session.role} orgName={session.orgName} />
           <div className="min-w-0 flex-1">
             {banner}
-            <main id="main" className="mx-auto w-full max-w-[1440px] px-4 pb-[calc(120px+var(--safe-bottom))] lg:px-8 lg:pb-12">
+            <main id="main" className="mx-auto w-full max-w-[1440px] overflow-x-clip px-4 pb-[calc(120px+var(--safe-bottom))] lg:px-8 lg:pb-12">
               {children}
             </main>
           </div>

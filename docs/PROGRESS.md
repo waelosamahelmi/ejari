@@ -6,7 +6,7 @@ Resume rule: read this file first and continue from the first unchecked item.
 - [x] Phase 1 — Domain core (237 tests, coverage ≥ 90 %)
 - [x] Phase 2 — Database (migrations, RLS, seed, types; RLS suite: `pnpm test:rls`)
 - [x] Phase 3 — Brand, design system & shell (Ejari brand, tokens, primitives, shell, auth, /dev/ui, /dev/brand)
-- [ ] Phase 4 — Master data
+- [x] Phase 4 — Master data (owners, properties + Building Stack, bulk units, units, tenants, categories, beneficiaries, documents, photos)
 - [ ] Phase 5 — Contracts
 - [ ] Phase 6 — Billing & collections
 - [ ] Phase 7 — Expenses & deposits

@@ -1,0 +1,14 @@
+{
+  "title": "Properties", "subtitle": "{count, plural, =0 {No properties} one {# property} other {# properties}}",
+  "new": "New property", "edit": "Edit property", "search": "Search by name or area", "details": "View property details",
+  "empty": "No properties yet", "emptyText": "Add your first building, then its units, to start collecting.", "noResults": "No matching properties",
+  "filters": { "all": "All", "owner": "Owner", "type": "Type", "inactive": "Show inactive" },
+  "pills": { "units": "{count, plural, =0 {No units} one {# unit} other {# units}}", "occupancy": "{pct}% occupied", "collected": "{pct}% collected", "arrears": "{amount} overdue" },
+  "tabs": { "overview": "Overview", "units": "Units", "contracts": "Contracts", "statement": "Statement", "expenses": "Expenses", "documents": "Documents", "settings": "Settings" },
+  "fields": { "name": "Property name", "nameEn": "English name", "area": "Area", "block": "Block", "street": "Street", "avenue": "Avenue", "houseOrPlot": "House / plot", "paciNo": "PACI address no.", "type": "Property type", "floors": "Floors", "notes": "Notes", "owners": "Owners", "share": "Share %", "addOwner": "Add owner", "commission": "Management commission", "commissionNone": "No commission", "commissionValuePct": "Percent", "commissionValueFixed": "Monthly amount", "photos": "Photos", "addPhoto": "Add photo", "cover": "Cover" },
+  "overview": { "thisMonth": "This month", "expected": "Expected", "collected": "Collected", "arrears": "Overdue", "occupancy": "Occupancy", "vacant": "Vacant", "address": "Address", "openMaps": "Open in Maps", "owners": "Owners", "late": "Late units", "lastMonths": "Last 12 months" },
+  "stack": { "title": "Building stack", "roof": "Roof", "ground": "Ground", "basement": "Basement", "floor": "Floor {n}", "noFloor": "No floor", "legend": "Legend", "bulk": "Add units", "addUnit": "New unit", "maintenance": "Maintenance" },
+  "bulk": { "title": "Add units in bulk", "count": "How many", "startNumber": "Number from", "prefix": "Prefix (optional)", "floorFrom": "From floor", "floorTo": "To floor", "preview": "Creates {count} units: {first} … {last}", "created": "{count} units added" },
+  "saved": "Property saved", "deactivate": "Deactivate property", "activate": "Activate property", "inactive": "Inactive",
+  "printStatement": "Print statement", "collectedOf": "{collected} of {expected}"
+}

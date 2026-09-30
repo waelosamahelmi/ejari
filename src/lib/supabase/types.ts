@@ -1007,13 +1007,13 @@ isOneToOne: false
                   ]
                 },"units": {
                   Row: {
-                    "active": boolean,"area_m2": number | null,"asking_rent_fils": number,"bathrooms": number | null,"bedrooms": number | null,"created_at": string,"created_by": string | null,"elec_meter_no": string | null,"floor": number | null,"id": string,"label": string,"notes": string | null,"org_id": string,"paci_no": string | null,"photos": NonNullable<Json>,"property_id": string,"sort_order": number,"type": Database["public"]['Enums']["unit_type"],"under_maintenance": boolean,"updated_at": string,"water_meter_no": string | null
+                    "active": boolean,"area_m2": number | null,"asking_rent_fils": number,"available_since": string,"bathrooms": number | null,"bedrooms": number | null,"created_at": string,"created_by": string | null,"elec_meter_no": string | null,"floor": number | null,"id": string,"label": string,"notes": string | null,"org_id": string,"paci_no": string | null,"photos": NonNullable<Json>,"property_id": string,"sort_order": number,"type": Database["public"]['Enums']["unit_type"],"under_maintenance": boolean,"updated_at": string,"water_meter_no": string | null
                   }
                   Insert: {
-                    "active"?: boolean,"area_m2"?: number | null,"asking_rent_fils"?: number,"bathrooms"?: number | null,"bedrooms"?: number | null,"created_at"?: string,"created_by"?: string | null,"elec_meter_no"?: string | null,"floor"?: number | null,"id"?: string,"label": string,"notes"?: string | null,"org_id": string,"paci_no"?: string | null,"photos"?: NonNullable<Json>,"property_id": string,"sort_order"?: number,"type"?: Database["public"]['Enums']["unit_type"],"under_maintenance"?: boolean,"updated_at"?: string,"water_meter_no"?: string | null
+                    "active"?: boolean,"area_m2"?: number | null,"asking_rent_fils"?: number,"available_since"?: string,"bathrooms"?: number | null,"bedrooms"?: number | null,"created_at"?: string,"created_by"?: string | null,"elec_meter_no"?: string | null,"floor"?: number | null,"id"?: string,"label": string,"notes"?: string | null,"org_id": string,"paci_no"?: string | null,"photos"?: NonNullable<Json>,"property_id": string,"sort_order"?: number,"type"?: Database["public"]['Enums']["unit_type"],"under_maintenance"?: boolean,"updated_at"?: string,"water_meter_no"?: string | null
                   }
                   Update: {
-                    "active"?: boolean,"area_m2"?: number | null,"asking_rent_fils"?: number,"bathrooms"?: number | null,"bedrooms"?: number | null,"created_at"?: string,"created_by"?: string | null,"elec_meter_no"?: string | null,"floor"?: number | null,"id"?: string,"label"?: string,"notes"?: string | null,"org_id"?: string,"paci_no"?: string | null,"photos"?: NonNullable<Json>,"property_id"?: string,"sort_order"?: number,"type"?: Database["public"]['Enums']["unit_type"],"under_maintenance"?: boolean,"updated_at"?: string,"water_meter_no"?: string | null
+                    "active"?: boolean,"area_m2"?: number | null,"asking_rent_fils"?: number,"available_since"?: string,"bathrooms"?: number | null,"bedrooms"?: number | null,"created_at"?: string,"created_by"?: string | null,"elec_meter_no"?: string | null,"floor"?: number | null,"id"?: string,"label"?: string,"notes"?: string | null,"org_id"?: string,"paci_no"?: string | null,"photos"?: NonNullable<Json>,"property_id"?: string,"sort_order"?: number,"type"?: Database["public"]['Enums']["unit_type"],"under_maintenance"?: boolean,"updated_at"?: string,"water_meter_no"?: string | null
                   }
                   Relationships: [
                     {
@@ -1032,13 +1032,13 @@ isOneToOne: false
                   ]
                 },"user_settings": {
                   Row: {
-                    "accent": string,"created_at": string,"dashboard_layout": Json | null,"density": string,"digest_time": string,"digits": string,"install_prompt_dismissed_at": string | null,"locale": string,"muted_property_ids": (string)[],"onboarding_done": boolean,"org_id": string | null,"quiet_end": string,"quiet_start": string,"sessions_count": number,"theme": string,"updated_at": string,"user_id": string
+                    "accent": string,"created_at": string,"dashboard_layout": Json | null,"density": string,"digest_time": string,"digits": string,"install_prompt_dismissed_at": string | null,"locale": string,"muted_property_ids": (string)[],"onboarding_done": boolean,"org_id": string | null,"pinned_property_ids": (string)[],"quiet_end": string,"quiet_start": string,"sessions_count": number,"theme": string,"updated_at": string,"user_id": string
                   }
                   Insert: {
-                    "accent"?: string,"created_at"?: string,"dashboard_layout"?: Json | null,"density"?: string,"digest_time"?: string,"digits"?: string,"install_prompt_dismissed_at"?: string | null,"locale"?: string,"muted_property_ids"?: (string)[],"onboarding_done"?: boolean,"org_id"?: string | null,"quiet_end"?: string,"quiet_start"?: string,"sessions_count"?: number,"theme"?: string,"updated_at"?: string,"user_id": string
+                    "accent"?: string,"created_at"?: string,"dashboard_layout"?: Json | null,"density"?: string,"digest_time"?: string,"digits"?: string,"install_prompt_dismissed_at"?: string | null,"locale"?: string,"muted_property_ids"?: (string)[],"onboarding_done"?: boolean,"org_id"?: string | null,"pinned_property_ids"?: (string)[],"quiet_end"?: string,"quiet_start"?: string,"sessions_count"?: number,"theme"?: string,"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "accent"?: string,"created_at"?: string,"dashboard_layout"?: Json | null,"density"?: string,"digest_time"?: string,"digits"?: string,"install_prompt_dismissed_at"?: string | null,"locale"?: string,"muted_property_ids"?: (string)[],"onboarding_done"?: boolean,"org_id"?: string | null,"quiet_end"?: string,"quiet_start"?: string,"sessions_count"?: number,"theme"?: string,"updated_at"?: string,"user_id"?: string
+                    "accent"?: string,"created_at"?: string,"dashboard_layout"?: Json | null,"density"?: string,"digest_time"?: string,"digits"?: string,"install_prompt_dismissed_at"?: string | null,"locale"?: string,"muted_property_ids"?: (string)[],"onboarding_done"?: boolean,"org_id"?: string | null,"pinned_property_ids"?: (string)[],"quiet_end"?: string,"quiet_start"?: string,"sessions_count"?: number,"theme"?: string,"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {

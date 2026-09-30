@@ -34,7 +34,9 @@
     "civilIdChecksum": "Check digit doesn't match — please verify (it will be saved as entered).",
     "positive": "Must be greater than zero.",
     "tooLong": "Too long.",
-    "minPassword": "At least 8 characters."
+    "minPassword": "At least 8 characters.",
+    "invalidIban": "Invalid IBAN (starts with KW).",
+    "shares100": "Owner shares must add up to 100%."
   },
   "invalid_credentials": "Email or password is incorrect.",
   "rate_limited": "Too many attempts. Wait a minute and try again.",

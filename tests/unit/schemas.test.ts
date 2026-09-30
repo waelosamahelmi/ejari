@@ -1,0 +1,29 @@
+import { describe, expect, it } from "vitest";
+import { bulkUnitsSchema, ownerSchema, propertySchema, tenantSchema, unitSchema } from "@/lib/schemas/master";
+
+describe("master data schemas", () => {
+  it("tenant: normalizes phones and civil ID, rejects bad phones", () => {
+    const ok = tenantSchema.parse({ fullName: " خالد ", civilId: "٢٨٥٠١٠١١٢٣٥٨", phones: ["+965 5512 3456", ""], email: "" });
+    expect(ok).toMatchObject({ fullName: "خالد", civilId: "285010112358", phones: ["55123456"], email: null });
+    expect(() => tenantSchema.parse({ fullName: "x", phones: ["1234"] })).toThrow();
+    expect(() => tenantSchema.parse({ fullName: "", phones: [] })).toThrow();
+    expect(() => tenantSchema.parse({ fullName: "x", civilId: "123", phones: [] })).toThrow();
+  });
+  it("owner: IBAN and email validation", () => {
+    expect(ownerSchema.parse({ fullName: "م", phones: [], iban: "kw81 cbku 0000 0000 0000 1234 5601 01" }).iban).toBe("KW81CBKU0000000000001234560101");
+    expect(() => ownerSchema.parse({ fullName: "م", phones: [], iban: "KW00" })).toThrow();
+    expect(() => ownerSchema.parse({ fullName: "م", phones: [], email: "bad" })).toThrow();
+  });
+  it("property: owner shares must total 100 and PACI is 8 digits", () => {
+    const base = { name: "الجابرية 157", propertyType: "mixed" as const, owners: [{ ownerId: "0c000000-0000-4000-8000-000000000001", sharePct: 100 }] };
+    expect(propertySchema.parse({ ...base, paciNo: "12045781" }).paciNo).toBe("12045781");
+    expect(() => propertySchema.parse({ ...base, paciNo: "123" })).toThrow();
+    expect(() => propertySchema.parse({ ...base, owners: [{ ownerId: base.owners[0]!.ownerId, sharePct: 60 }] })).toThrow();
+    expect(() => propertySchema.parse({ ...base, owners: [] })).toThrow();
+  });
+  it("unit & bulk", () => {
+    expect(unitSchema.parse({ propertyId: "0d000000-0000-4000-8000-000000000001", label: "8", type: "shop", askingRentFils: 650000 }).active).toBe(true);
+    expect(() => unitSchema.parse({ propertyId: "x", label: "8", type: "shop", askingRentFils: 1 })).toThrow();
+    expect(() => bulkUnitsSchema.parse({ propertyId: "0d000000-0000-4000-8000-000000000001", type: "apartment", count: 0, startNumber: 1, floorFrom: 1, floorTo: 5, askingRentFils: 300000 })).toThrow();
+  });
+});

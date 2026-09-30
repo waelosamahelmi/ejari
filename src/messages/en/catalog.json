@@ -1,0 +1,4 @@
+{
+  "categories": { "title": "Expense categories", "new": "New category", "nameAr": "Arabic name", "nameEn": "English name", "type": "Type", "active": "Active", "saved": "Saved", "empty": "No categories" },
+  "beneficiaries": { "title": "Beneficiaries", "new": "New beneficiary", "name": "Name", "kind": "Kind", "phone": "Phone", "salary": "Monthly salary", "notes": "Notes", "active": "Active", "saved": "Saved", "empty": "No beneficiaries", "emptyText": "Add staff, vendors and assets (like the car) to record expenses against them." }
+}

@@ -1,0 +1,10 @@
+{
+  "title": "Unit {label}", "new": "New unit", "edit": "Edit unit", "saved": "Unit saved", "deleted": "Unit deleted", "deactivated": "This unit has past contracts, so it was deactivated instead of deleted.",
+  "fields": { "label": "Unit number / name", "type": "Type", "floor": "Floor", "area": "Area m²", "bedrooms": "Bedrooms", "bathrooms": "Bathrooms", "paci": "Unit PACI no.", "askingRent": "Asking rent", "elecMeter": "Electricity meter", "waterMeter": "Water meter", "notes": "Notes", "active": "Active", "sortOrder": "Order" },
+  "floorHint": "−1 for basement, 0 for ground; leave empty for roof",
+  "sections": { "tenant": "Current tenant", "contract": "Current contract", "history": "Past contracts", "meters": "Meters", "photos": "Photos", "documents": "Documents", "last12": "Last 12 months" },
+  "noContract": "No active contract for this unit", "rentPerMonth": "Monthly rent", "balance": "Balance", "askingPerMonth": "Asking rent",
+  "actions": { "newContract": "New contract", "recordPayment": "Record payment", "markMaintenance": "Mark as maintenance", "clearMaintenance": "End maintenance", "delete": "Delete unit" },
+  "deleteConfirm": "Delete unit {label}?", "deleteText": "If the unit has past contracts it will only be deactivated.", "maintenanceOn": "Unit marked under maintenance", "maintenanceOff": "Maintenance ended",
+  "vacantSince": "Vacant since {date}"
+}

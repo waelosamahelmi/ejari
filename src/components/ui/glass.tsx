@@ -1,6 +1,9 @@
 import { forwardRef, type ButtonHTMLAttributes, type HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
+export const glassButtonClass =
+  "glass press inline-flex size-11 items-center justify-center rounded-full text-white shadow-[0_2px_12px_rgba(0,0,0,.12)] [&_svg]:size-5";
+
 /** Round 44px frosted-glass icon button for use over photos (§21.1.2). */
 export const GlassButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { size?: "md" | "lg" }>(
   function GlassButton({ className, size = "md", type = "button", ...props }, ref) {

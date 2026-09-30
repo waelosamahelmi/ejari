@@ -212,6 +212,7 @@ values (gen_random_uuid(), ${lit(u.id)}, ${lit(u.id)}, ${lit({ sub: u.id, email:
         bathrooms: u.bathrooms,
         paci_no: u.paciNo,
         asking_rent_fils: u.askingRentFils,
+        available_since: "2025-01-01",
       })),
     ),
   );

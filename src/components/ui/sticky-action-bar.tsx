@@ -12,7 +12,7 @@ export function StickyActionBar({ figure, caption, action, className }: { figure
     >
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0">
-          <div className="num truncate text-[22px] font-semibold">{figure}</div>
+          <div className="num truncate text-[22px] font-semibold whitespace-nowrap">{figure}</div>
           {caption && <div className="text-label-2 truncate text-[13px]">{caption}</div>}
         </div>
         <div className="shrink-0">{action}</div>
