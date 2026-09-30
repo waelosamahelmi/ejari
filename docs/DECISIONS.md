@@ -40,3 +40,5 @@
 | 2026-09-30 | Statement print uses A4 landscape; receipts print A5 landscape with a دينار/فلس box like the paper forms. | Matches the office's paper documents. |
 | 2026-09-30 | Cover-summary "Explain" notes live in `cash_reconciliations` (per org, month and optional owner). Org-wide expenses on the cover = Σ posted voucher totals of the month; owner/property-scoped summaries use allocated amounts. | §6.8. |
 | 2026-09-30 | Posted vouchers are immutable (void with reason); drafts are editable/deletable. Recurring templates generate draft vouchers ("Generate this month's vouchers") and remember the last generated month. | Audit-safe expenses. |
+| 2026-09-30 | Dashboard customization uses a "Customize" sheet (move up/down + show/hide toggles, persisted in `user_settings.dashboard_layout`) instead of free drag in the bento grid. | Accessible on touch, keyboard and screen readers; bento keeps a dense, gap-free packing. |
+| 2026-09-30 | Charts in RTL keep time flowing right→left (newest month on the left): recharts X axis is reversed for Arabic. | §18.7. |

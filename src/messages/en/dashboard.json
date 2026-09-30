@@ -1,0 +1,111 @@
+{
+  "title": "Home",
+  "customize": "Customize",
+  "done": "Done",
+  "hide": "Hide",
+  "show": "Show",
+  "hidden": "Hidden widgets",
+  "reset": "Reset layout",
+  "drag": "Drag to reorder",
+  "filters": {
+    "property": "Property",
+    "owner": "Owner",
+    "all": "All"
+  },
+  "hero": {
+    "title": "<b>This month</b> at a glance"
+  },
+  "properties": "Your properties",
+  "today": {
+    "title": "Today",
+    "payments": "{count, plural, =0 {No payments recorded today} one {You recorded # payment today} other {You recorded # payments today}}"
+  },
+  "collection": {
+    "title": "Collected this month",
+    "of": "of {amount}",
+    "delta": "{sign}{pct}% vs last month",
+    "open": "Open collections"
+  },
+  "arrears": {
+    "title": "Overdue",
+    "units": "{count, plural, =0 {No late units} one {# late unit} other {# late units}}",
+    "days": "{count, plural, one {# day} other {# days}}",
+    "none": "Nothing overdue. Nicely done."
+  },
+  "occupancy": {
+    "title": "Occupancy",
+    "occupied": "Occupied",
+    "vacant": "Vacant",
+    "grace": "Grace"
+  },
+  "vacant": {
+    "title": "Vacant units",
+    "days": "Vacant {count} days",
+    "create": "Create contract",
+    "none": "No vacant units."
+  },
+  "cash": {
+    "title": "Cash this month",
+    "collected": "Collected",
+    "expenses": "Expenses",
+    "deposits": "Deposits",
+    "onHand": "Cash on hand",
+    "negative": "Negative balance — check deposits and expenses."
+  },
+  "trend": {
+    "title": "Last 12 months",
+    "collected": "Collected",
+    "expected": "Expected",
+    "occupancy": "Occupancy"
+  },
+  "heatmap": {
+    "title": "Payment heatmap",
+    "legend": "Legend",
+    "tip": "{status} · {paid} of {amount}"
+  },
+  "expiring": {
+    "title": "Expiring & notices",
+    "days": "in {count} days",
+    "autoRenew": "Auto-renew",
+    "notice": "Notice",
+    "notices": "{count, plural, =0 {No notices} one {# notice} other {# notices}}",
+    "none": "No contracts ending within 90 days."
+  },
+  "first": {
+    "title": "First collections coming",
+    "in": "in {count} days",
+    "none": "None within 60 days."
+  },
+  "expenses": {
+    "title": "Expenses this month",
+    "none": "No expenses this month."
+  },
+  "legal": {
+    "title": "Legal",
+    "open": "{count, plural, =0 {No open cases} one {# open case} other {# open cases}}",
+    "next": "Next hearing {date}"
+  },
+  "quick": {
+    "title": "Quick actions",
+    "payment": "Record payment",
+    "voucher": "New voucher",
+    "contract": "New contract",
+    "statement": "Print statement"
+  },
+  "widgets": {
+    "today": "Today",
+    "collection": "Collected this month",
+    "arrears": "Overdue",
+    "occupancy": "Occupancy",
+    "vacant": "Vacant units",
+    "cash": "Cash",
+    "trend": "12-month trend",
+    "heatmap": "Payment heatmap",
+    "expiring": "Expiring contracts",
+    "first": "First collections",
+    "expenses": "Expenses",
+    "legal": "Legal",
+    "quick": "Quick actions",
+    "properties": "Properties"
+  }
+}

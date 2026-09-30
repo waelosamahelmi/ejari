@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Bell, CheckCheck, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -50,6 +50,7 @@ export function NotificationBell({ variant = "plain" }: { variant?: "plain" | "g
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
   const [filter, setFilter] = useState<Filter>("all");
+  const instance = useId().replace(/:/g, "");
 
   const load = useCallback(async () => {
     const supabase = supabaseBrowser();
@@ -66,13 +67,13 @@ export function NotificationBell({ variant = "plain" }: { variant?: "plain" | "g
     void load();
     const supabase = supabaseBrowser();
     const channel = supabase
-      .channel(`notifications:${session.userId}`)
+      .channel(`notifications:${session.userId}:${instance}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${session.userId}` }, () => void load())
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [load, session.userId]);
+  }, [load, session.userId, instance]);
 
   const unread = rows.filter((r) => !r.read_at).length;
   useEffect(() => setBadge(unread), [unread]);
