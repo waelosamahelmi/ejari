@@ -89,6 +89,17 @@ export interface SessionContext {
   ownerIds: string[];
 }
 
+/** The signed-in auth user regardless of org membership (used by the setup wizard/root routing). */
+export const getAuthUser = cache(async () => {
+  const supabase = await supabaseServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+  const meta = (user.user_metadata ?? {}) as { full_name?: string };
+  return { id: user.id, email: user.email ?? "", name: meta.full_name ?? "" };
+});
+
 /** Resolves the signed-in user, their active org membership and preferences (cached per request). */
 export const getSessionContext = cache(async (): Promise<SessionContext | null> => {
   const supabase = await supabaseServer();
