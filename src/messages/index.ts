@@ -7,6 +7,7 @@ export const NAMESPACES = [
   "nav",
   "auth",
   "onboarding",
+  "setup",
   "errors",
   "enums",
   "ui",
@@ -44,6 +45,7 @@ import type common from "./ar/common.json";
 import type nav from "./ar/nav.json";
 import type auth from "./ar/auth.json";
 import type onboarding from "./ar/onboarding.json";
+import type setup from "./ar/setup.json";
 import type errors from "./ar/errors.json";
 import type enums from "./ar/enums.json";
 import type ui from "./ar/ui.json";
@@ -72,6 +74,7 @@ export interface Messages {
   nav: typeof nav;
   auth: typeof auth;
   onboarding: typeof onboarding;
+  setup: typeof setup;
   errors: typeof errors;
   enums: typeof enums;
   ui: typeof ui;

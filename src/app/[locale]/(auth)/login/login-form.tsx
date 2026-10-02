@@ -8,7 +8,7 @@ import { Field, Input } from "@/components/ui/input";
 import { Link } from "@/i18n/navigation";
 import { sendMagicLink, signInWithPassword } from "@/server/actions/auth";
 
-export function LoginForm({ showDemo }: { showDemo: boolean }) {
+export function LoginForm({ showDemo, showSignup }: { showDemo: boolean; showSignup: boolean }) {
   const t = useTranslations("auth.login");
   const tErr = useTranslations("errors");
   const locale = useLocale() as "ar" | "en";
@@ -117,6 +117,14 @@ export function LoginForm({ showDemo }: { showDemo: boolean }) {
         <Mail />
         {t("magicLink")}
       </Button>
+      {showSignup && (
+        <p className="text-label-2 text-center text-[14px]">
+          {t("noAccount")}{" "}
+          <Link href="/signup" className="text-link font-medium">
+            {t("createAccount")}
+          </Link>
+        </p>
+      )}
       {showDemo && (
         <div className="bg-inset/60 rounded-[16px] p-3 text-[13px]">
           <div className="text-label-2 mb-1.5 font-medium">{t("demo")}</div>

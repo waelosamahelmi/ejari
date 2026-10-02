@@ -28,7 +28,10 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
       lockupAlt={tApp("fullName")}
     >
       <Suspense>
-        <LoginForm showDemo={process.env.NEXT_PUBLIC_DEMO_ACCOUNTS !== "0"} />
+        <LoginForm
+          showDemo={process.env.NEXT_PUBLIC_DEMO_ACCOUNTS !== "0"}
+          showSignup={process.env.NEXT_PUBLIC_ALLOW_SIGNUP !== "false"}
+        />
       </Suspense>
     </AuthFrame>
   );

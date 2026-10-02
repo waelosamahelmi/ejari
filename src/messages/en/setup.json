@@ -1,0 +1,62 @@
+{
+  "title": "Office setup",
+  "stepOf": "Step {n} of {total}",
+  "back": "Back",
+  "next": "Next",
+  "skip": "Skip for now",
+  "welcome": {
+    "title": "Welcome, {name}",
+    "text": "Let's set up your office in a few quick steps, then take you on a tour of Ejari.",
+    "point1": "Tell us about your office — name and logo.",
+    "point2": "Pick your language and preferences.",
+    "point3": "Add a first property (or skip it for now)."
+  },
+  "office": {
+    "title": "Office details",
+    "text": "These appear on contracts, statements and vouchers.",
+    "name": "Office name (Arabic)",
+    "nameEn": "Office name (English)",
+    "logo": "Office logo",
+    "logoHint": "Optional — a clear square image (PNG or JPG).",
+    "chooseLogo": "Choose logo",
+    "changeLogo": "Change logo"
+  },
+  "prefs": {
+    "title": "Your preferences",
+    "text": "You can change these later in Settings.",
+    "language": "Interface language",
+    "digits": "Digits",
+    "digitsLatn": "Western 123",
+    "digitsArab": "Arabic ١٢٣",
+    "theme": "Appearance",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "density": "Table density",
+    "densityComfortable": "Comfortable",
+    "densityCompact": "Compact"
+  },
+  "property": {
+    "title": "First property",
+    "text": "We'll create the units automatically — you can edit them later.",
+    "name": "Property name",
+    "area": "Area",
+    "block": "Block",
+    "street": "Street",
+    "units": "Number of units",
+    "rent": "Default monthly rent",
+    "skipToggle": "I'll add the property later",
+    "placeholder": "e.g. Jabriya 157",
+    "areaPlaceholder": "Jabriya",
+    "blockPlaceholder": "157",
+    "streetPlaceholder": "Street 12"
+  },
+  "done": {
+    "title": "Your office is ready",
+    "text": "{org} — taking you to the dashboard with a quick tour.",
+    "start": "Start using Ejari"
+  },
+  "errors": {
+    "nameRequired": "Enter the office name."
+  }
+}

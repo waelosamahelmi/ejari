@@ -17,13 +17,17 @@ export default function WelcomePage() {
     await markOnboarded();
     router.push("/login");
   };
+  const start = async () => {
+    await markOnboarded();
+    router.push(process.env.NEXT_PUBLIC_ALLOW_SIGNUP === "false" ? "/login" : "/signup");
+  };
   return (
     <OnboardingPager
       slides={slides}
       primaryLabel={t("start")}
       secondaryLabel={t("login")}
-      onPrimary={toLogin}
-      onSecondary={toLogin}
+      onPrimary={() => void start()}
+      onSecondary={() => void toLogin()}
       pageLabel={(n, total) => t("page", { n, total })}
       logo={
         <>

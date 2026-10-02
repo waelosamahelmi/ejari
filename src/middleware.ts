@@ -7,9 +7,12 @@ const intl = createIntlMiddleware(routing);
 
 const PUBLIC_PATHS = [
   "/login",
+  "/signup",
   "/forgot-password",
   "/reset-password",
   "/welcome",
+  "/privacy",
+  "/terms",
   "/auth",
   "/offline",
   "/forbidden",

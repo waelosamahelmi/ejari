@@ -50,6 +50,13 @@
     "statement": "كشف {month}",
     "searching": "جارٍ البحث…"
   },
-  "wizard": { "saveDraft": "حفظ كمسودة", "back": "السابق", "next": "التالي", "finish": "إنهاء" },
-  "celebrate": "تحصيل كامل لهذا الشهر!"
+  "wizard": {
+    "saveDraft": "حفظ كمسودة",
+    "back": "السابق",
+    "next": "التالي",
+    "finish": "إنهاء"
+  },
+  "celebrate": "تحصيل كامل لهذا الشهر!",
+  "showPassword": "إظهار كلمة المرور",
+  "hidePassword": "إخفاء كلمة المرور"
 }

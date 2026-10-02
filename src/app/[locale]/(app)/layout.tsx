@@ -17,7 +17,7 @@ export default async function AppLayout({
   if (!ctx) {
     const supabase = await supabaseServer();
     const { data } = await supabase.auth.getUser();
-    redirect(`/${locale}/${data.user ? "no-org" : "login"}`);
+    redirect(`/${locale}/${data.user ? "setup" : "login"}`);
   }
   if (ctx.role === "owner") redirect(`/${locale}/owner`);
   return (

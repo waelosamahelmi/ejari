@@ -86,7 +86,25 @@ export async function signUp(input: z.input<typeof signupSchema>) {
   });
 }
 
-export async function sendMagicLink(input: { email: string; locale: "ar" | "en"; next?: string }) {  return run(async () => {
+/** Re-sends the signup confirmation email (no-op when the address isn't awaiting confirmation). */
+export async function resendConfirmation(input: { email: string; locale: "ar" | "en" }) {
+  return run(async () => {
+    const e = email.parse(input.email);
+    await limit(`resend:${e}`, 3, 10 * 60_000);
+    const supabase = await supabaseServer();
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: e,
+      options: {
+        emailRedirectTo: `${PUBLIC_ENV.appUrl}/${input.locale}/auth/callback?next=${encodeURIComponent(`/${input.locale}/setup`)}`,
+      },
+    });
+    if (error && error.code !== "user_not_found") throw error;
+  });
+}
+
+export async function sendMagicLink(input: { email: string; locale: "ar" | "en"; next?: string }) {
+  return run(async () => {
     const e = email.parse(input.email);
     await limit(`magic:${e}`, 3);
     const supabase = await supabaseServer();

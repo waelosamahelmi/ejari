@@ -50,6 +50,13 @@
     "statement": "{month} statement",
     "searching": "Searching…"
   },
-  "wizard": { "saveDraft": "Save draft", "back": "Back", "next": "Next", "finish": "Finish" },
-  "celebrate": "Fully collected this month!"
+  "wizard": {
+    "saveDraft": "Save draft",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish"
+  },
+  "celebrate": "Fully collected this month!",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password"
 }
