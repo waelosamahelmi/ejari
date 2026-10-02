@@ -48,7 +48,8 @@
     "newContract": "عقد جديد",
     "newVoucher": "سند صرف جديد",
     "statement": "كشف {month}",
-    "searching": "جارٍ البحث…"
+    "searching": "جارٍ البحث…",
+    "tour": "ابدأ الجولة التعريفية"
   },
   "wizard": {
     "saveDraft": "حفظ كمسودة",

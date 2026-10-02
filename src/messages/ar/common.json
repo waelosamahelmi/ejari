@@ -138,5 +138,7 @@
     "justNow": "الآن",
     "minutesAgo": "{count, plural, one {قبل دقيقة} two {قبل دقيقتين} few {قبل # دقائق} many {قبل # دقيقة} other {قبل # دقيقة}}",
     "hoursAgo": "{count, plural, one {قبل ساعة} two {قبل ساعتين} few {قبل # ساعات} many {قبل # ساعة} other {قبل # ساعة}}"
-  }
+  },
+  "guide": "الجولة التعريفية",
+  "shortcuts": "اختصارات لوحة المفاتيح"
 }

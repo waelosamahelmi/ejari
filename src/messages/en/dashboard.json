@@ -107,5 +107,25 @@
     "legal": "Legal",
     "quick": "Quick actions",
     "properties": "Properties"
+  },
+  "checklist": {
+    "title": "Finish setting up your office",
+    "progress": "{done} of {total} done",
+    "dismiss": "Dismiss",
+    "profile": "Complete your office profile and logo",
+    "property": "Add your first property",
+    "units": "Add the property's units",
+    "tenant": "Add a tenant",
+    "contract": "Create a lease contract",
+    "payment": "Record your first payment",
+    "team": "Invite a team member",
+    "tour": "Take the product tour",
+    "install": "Install the app on your device",
+    "newOrg": {
+      "title": "Welcome to Ejari",
+      "text": "Create your first property, add its units — the rest is a few easy steps.",
+      "cta": "Add first property",
+      "secondary": "Explore with the tour"
+    }
   }
 }

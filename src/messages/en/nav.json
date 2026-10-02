@@ -19,10 +19,12 @@
     "work": "Daily work",
     "records": "Records",
     "finance": "Finance",
-    "admin": "Admin"
+    "admin": "Admin",
+    "help": "Help"
   },
   "search": "Search tenants, units, contracts, receipts…",
   "collapse": "Collapse sidebar",
   "expand": "Expand sidebar",
-  "notFound": "Page not found"
+  "notFound": "Page not found",
+  "install": "Install app"
 }

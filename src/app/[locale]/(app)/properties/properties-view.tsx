@@ -161,7 +161,7 @@ export function PropertiesView({
       ) : filtered.length === 0 ? (
         <EmptyState illustration={<NoResultsIllustration />} title={t("noResults")} compact />
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        <ul data-tour="properties-list" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {filtered.map((p, i) => (
             <li key={p.id}>
               <PropertyPhotoCard

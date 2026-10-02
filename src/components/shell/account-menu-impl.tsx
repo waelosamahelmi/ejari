@@ -1,6 +1,6 @@
 "use client";
 import { useTransition } from "react";
-import { Globe, LogOut, Moon, Settings, Sun, SunMoon } from "lucide-react";
+import { Compass, Globe, LogOut, Moon, Settings, Sun, SunMoon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import {
@@ -78,6 +78,12 @@ export function AccountMenuImpl({ defaultOpen }: { defaultOpen?: boolean }) {
           {t("labels.system")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
+        <DropdownMenuItem
+          icon={<Compass />}
+          onSelect={() => router.push(`/${locale}/dashboard?tour=1`)}
+        >
+          {t("guide")}
+        </DropdownMenuItem>
         <DropdownMenuItem icon={<Settings />} onSelect={() => router.push("/settings")}>
           {tNav("settings")}
         </DropdownMenuItem>

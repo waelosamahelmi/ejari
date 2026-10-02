@@ -48,6 +48,9 @@ import type { DashboardData } from "@/server/queries/dashboard";
 import { cn, firstName } from "@/lib/utils";
 import { WIDGETS, type Layout, type WidgetKey } from "./widgets-config";
 import { InstallCard } from "@/components/pwa/install";
+import { SetupChecklist, NewOrgHero } from "@/components/domain/onboarding/setup-checklist";
+import { checklistComplete } from "@/domain/account";
+import type { SetupChecklistData } from "@/server/queries/onboarding";
 
 const TrendChart = dynamic(() => import("@/components/widgets/trend-chart"), {
   ssr: false,
@@ -58,10 +61,12 @@ export function DashboardView({
   d,
   layout: initialLayout,
   filters,
+  checklist,
 }: {
   d: DashboardData;
   layout: Layout;
   filters: { propertyId: string | null; ownerId: string | null };
+  checklist: SetupChecklistData | null;
 }) {
   const t = useTranslations("dashboard");
   const tc = useTranslations("common");
@@ -96,6 +101,15 @@ export function DashboardView({
       const own = p.owner === undefined ? filters.ownerId : p.owner;
       if (prop) q.set("property", prop);
       if (own) q.set("owner", own);
+      router.push(`${pathname}?${q.toString()}`);
+    });
+
+  const startTour = () =>
+    nav(() => {
+      const q = new URLSearchParams({ period: d.period });
+      if (filters.propertyId) q.set("property", filters.propertyId);
+      if (filters.ownerId) q.set("owner", filters.ownerId);
+      q.set("tour", "1");
       router.push(`${pathname}?${q.toString()}`);
     });
 
@@ -143,6 +157,7 @@ export function DashboardView({
           <WidgetCard
             key={w}
             size="lg"
+            tourId="dashboard-ring"
             title={t("collection.title")}
             action={
               <Link href="/collections" className="text-link text-[13px] font-medium">
@@ -675,8 +690,12 @@ export function DashboardView({
       </div>
 
       <InstallCard />
+      {d.properties.length === 0 && <NewOrgHero onStartTour={startTour} />}
+      {checklist && !checklist.dismissed && !checklistComplete(checklist.items) && (
+        <SetupChecklist items={checklist.items} onStartTour={startTour} />
+      )}
 
-      <div className="mt-5 flex flex-wrap items-center gap-2">
+      <div data-tour="dashboard-filters" className="mt-5 flex flex-wrap items-center gap-2">
         <MonthPicker value={d.period} onChange={(p) => go({ period: p })} />
         {d.owners.length > 1 && (
           <div className="w-48">

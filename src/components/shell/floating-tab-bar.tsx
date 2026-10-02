@@ -21,6 +21,7 @@ export function FloatingTabBar({ role }: { role: Role }) {
   ];
   return (
     <nav
+      data-tour="nav"
       aria-label={t("more")}
       className="fixed inset-x-0 bottom-[calc(12px+var(--safe-bottom))] z-40 flex justify-center px-4 lg:hidden print:hidden"
     >

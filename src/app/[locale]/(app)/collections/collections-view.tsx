@@ -324,7 +324,8 @@ export function CollectionsView({
 
   return (
     <>
-      <LargeTitleHeader
+      <span data-tour="collections-header" className="contents">
+        <LargeTitleHeader
         title={t("title")}
         subtitle={formatPeriod(period, locale)}
         actions={
@@ -413,6 +414,7 @@ export function CollectionsView({
           </Chip>
         </ChipScroller>
       </LargeTitleHeader>
+      </span>
 
       <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         {[
@@ -439,6 +441,7 @@ export function CollectionsView({
           />
         )
       ) : (
+        <div data-tour="collections-rows">
         <DataTable
           data={rows}
           columns={columns}
@@ -517,6 +520,7 @@ export function CollectionsView({
             </button>
           )}
         />
+        </div>
       )}
 
       {caps.pay && (

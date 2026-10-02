@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { requireContext } from "@/lib/auth";
 import { pageLocale, type LocaleParams } from "@/lib/i18n";
 import { dashboardData } from "@/server/queries/dashboard";
+import { getSetupChecklist } from "@/server/queries/onboarding";
 import { isValidPeriod, periodOf, todayKuwait } from "@/domain/dates";
 import { DashboardView } from "./dashboard-view";
 import { WIDGETS, type Layout, type WidgetKey } from "./widgets-config";
@@ -30,6 +31,11 @@ export default async function DashboardPage({
   const today = todayKuwait();
   const period = sp.period && isValidPeriod(sp.period) ? sp.period : periodOf(today);
   const filters = { propertyId: sp.property ?? null, ownerId: sp.owner ?? null };
-  const d = await dashboardData(ctx, { period, ...filters }, today);
-  return <DashboardView d={d} layout={parseLayout(ctx.prefs.dashboardLayout)} filters={filters} />;
+  const [d, checklist] = await Promise.all([
+    dashboardData(ctx, { period, ...filters }, today),
+    getSetupChecklist(ctx),
+  ]);
+  return (
+    <DashboardView d={d} layout={parseLayout(ctx.prefs.dashboardLayout)} filters={filters} checklist={checklist} />
+  );
 }

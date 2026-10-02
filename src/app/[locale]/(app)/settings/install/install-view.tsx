@@ -16,7 +16,7 @@ export function InstallView() {
   const [guide, setGuide] = useState(false);
   return (
     <SettingsShell title={ts("install")}>
-      <Card className="flex flex-col items-center p-8 text-center">
+      <Card data-tour="install-card" className="flex flex-col items-center p-8 text-center">
         <Image
           src="/icons/icon-192.png"
           alt=""

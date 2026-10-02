@@ -58,6 +58,7 @@ export function Sidebar({ role, orgName }: { role: Role; orgName: string }) {
         )}
       </div>
       <nav
+        data-tour="nav"
         className="no-scrollbar flex-1 overflow-y-auto px-3 pb-4"
         aria-label={t("sections.work")}
       >

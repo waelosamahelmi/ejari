@@ -5,6 +5,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {
   Building2,
   CalendarDays,
+  Compass,
   DoorOpen,
   FilePlus2,
   FileSignature,
@@ -138,6 +139,9 @@ export function CommandPalette({
                       onSelect={() => go(`/collections?period=${lastMonth}`)}
                     >
                       {t("statement", { month: formatPeriod(lastMonth, locale) })}
+                    </Item>
+                    <Item icon={Compass} onSelect={() => go("/dashboard?tour=1")}>
+                      {t("tour")}
                     </Item>
                   </Command.Group>
                   <Command.Group

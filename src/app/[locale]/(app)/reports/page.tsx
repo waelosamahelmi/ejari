@@ -46,7 +46,7 @@ export default async function ReportsHub({ params }: LocaleParams) {
   return (
     <>
       <LargeTitleHeader title={t("title")} subtitle={t("subtitle")} />
-      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <ul data-tour="reports-grid" className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {types.map((k) => {
           const M = META[k];
           return (

@@ -19,5 +19,59 @@
   "start": "Get started",
   "login": "Login",
   "skip": "Skip",
-  "page": "Page {n} of {total}"
+  "page": "Page {n} of {total}",
+  "tour": {
+    "next": "Next",
+    "back": "Back",
+    "skip": "Skip tour",
+    "done": "Done",
+    "stepOf": "{n} of {total}",
+    "close": "Close tour",
+    "steps": {
+      "ring": {
+        "title": "This month's collection",
+        "body": "Track the collection rate and arrears live. Tap the card to open the collection sheet."
+      },
+      "filters": {
+        "title": "Period and property",
+        "body": "Switch the month or focus a single property to filter the whole board."
+      },
+      "properties": {
+        "title": "Your properties",
+        "body": "Every property with its photo, occupancy and arrears. Open one for details."
+      },
+      "nav": {
+        "title": "Navigation",
+        "body": "Reach collections, properties, tenants, contracts and reports from here."
+      },
+      "collections": {
+        "title": "Collections",
+        "body": "The monthly sheet with exactly the paper columns: rent, receipt, collected, arrears."
+      },
+      "payment": {
+        "title": "Record a payment",
+        "body": "Tap any unit to record cash, KNET or transfer — with an allocation preview."
+      },
+      "contracts": {
+        "title": "New contracts",
+        "body": "Create a residential or investment lease in minutes and print it ready."
+      },
+      "reports": {
+        "title": "Reports",
+        "body": "Property statements, late units, vacancies, accounting and owner reports — exportable to Excel."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "body": "Payment, arrears and contract-expiry alerts land here in real time."
+      },
+      "install": {
+        "title": "Install the app",
+        "body": "Install Ejari on your device and keep collecting even offline."
+      },
+      "finish": {
+        "title": "Tour complete",
+        "body": "You can replay the tour anytime from the More page. Nicely done."
+      }
+    }
+  }
 }

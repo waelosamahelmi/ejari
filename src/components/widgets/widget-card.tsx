@@ -19,6 +19,7 @@ export function WidgetCard({
   className,
   icon,
   shotMask,
+  tourId,
 }: {
   size: WidgetSize;
   title?: ReactNode;
@@ -28,10 +29,13 @@ export function WidgetCard({
   icon?: ReactNode;
   /** Marks widgets whose content depends on today's date, so visual regression can mask them. */
   shotMask?: boolean;
+  /** Guided-tour target id (rendered as data-tour). */
+  tourId?: string;
 }) {
   return (
     <section
       data-shot-mask={shotMask ? "true" : undefined}
+      data-tour={tourId}
       className={cn("card flex min-h-[168px] flex-col p-5", SIZE[size], className)}
     >
       {(title || action) && (

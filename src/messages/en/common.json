@@ -138,5 +138,7 @@
     "justNow": "Just now",
     "minutesAgo": "{count, plural, one {# minute ago} other {# minutes ago}}",
     "hoursAgo": "{count, plural, one {# hour ago} other {# hours ago}}"
-  }
+  },
+  "guide": "Product tour",
+  "shortcuts": "Keyboard shortcuts"
 }

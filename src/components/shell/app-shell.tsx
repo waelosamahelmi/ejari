@@ -1,5 +1,12 @@
 "use client";
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  Suspense,
+  useCallback,
+  useContext,
+  useState,
+  type ReactNode,
+} from "react";
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Sidebar } from "./sidebar";
@@ -12,6 +19,7 @@ import { PullToRefresh } from "./pull-to-refresh";
 import { AccountMenu } from "./account-menu";
 import { NotificationBell } from "./notification-center";
 import { LaunchAnimation } from "./launch-animation";
+import { GuidedTour } from "@/components/domain/onboarding/guided-tour";
 
 // Loaded on first use: cmdk and the shortcuts sheet stay out of every page's initial JS.
 const CommandPalette = dynamic(() => import("./command-palette").then((m) => m.CommandPalette), {
@@ -72,6 +80,9 @@ export function AppShell({
           </div>
           <FloatingTabBar role={session.role} />
           <LaunchAnimation />
+          <Suspense fallback={null}>
+            <GuidedTour />
+          </Suspense>
           {paletteUsed && <CommandPalette open={palette} onOpenChange={setPalette} />}
           {helpUsed && <KeyboardShortcutsSheet open={help} onOpenChange={setHelp} />}
         </ShellCtx.Provider>
@@ -107,7 +118,9 @@ export function HeaderUtilities() {
       >
         <Search className="size-5" />
       </button>
-      <NotificationBell />
+      <span data-tour="notifications" className="contents">
+        <NotificationBell />
+      </span>
       <AccountMenu />
     </div>
   );

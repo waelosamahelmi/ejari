@@ -128,12 +128,14 @@ export function ContractsView({
         title={t("title")}
         actions={
           canCreate ? (
-            <Button asChild>
-              <Link href="/contracts/new">
-                <Plus />
-                {t("new")}
-              </Link>
-            </Button>
+            <span data-tour="contracts-new" className="contents">
+              <Button asChild>
+                <Link href="/contracts/new">
+                  <Plus />
+                  {t("new")}
+                </Link>
+              </Button>
+            </span>
           ) : undefined
         }
       >

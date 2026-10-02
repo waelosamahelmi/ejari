@@ -48,7 +48,8 @@
     "newContract": "New contract",
     "newVoucher": "New voucher",
     "statement": "{month} statement",
-    "searching": "Searching…"
+    "searching": "Searching…",
+    "tour": "Start the product tour"
   },
   "wizard": {
     "saveDraft": "Save draft",
