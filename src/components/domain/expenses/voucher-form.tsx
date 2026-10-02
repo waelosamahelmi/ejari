@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
 import { Camera, Plus, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -11,7 +12,6 @@ import { MoneyInput } from "@/components/ui/money-input";
 import { SegmentedControl } from "@/components/ui/segmented";
 import { Chip, ChipScroller } from "@/components/ui/chip";
 import { DatePicker } from "@/components/ui/date-picker";
-import { BeneficiarySheet } from "@/components/domain/beneficiary-sheet";
 import { useMoney } from "@/components/shell/prefs-context";
 import { useAction } from "@/hooks/use-action";
 import { saveVoucher, type VoucherInput } from "@/server/actions/expenses";
@@ -20,6 +20,12 @@ import { allocateExpenseLine, ALLOCATION_MODES, type AllocationMode } from "@/do
 import { tafqeetKWD, wordsEN } from "@/domain/tafqeet";
 import { todayKuwait } from "@/domain/dates";
 import { cn } from "@/lib/utils";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const BeneficiarySheet = dynamic(
+  () => import("@/components/domain/beneficiary-sheet").then((m) => m.BeneficiarySheet),
+  { ssr: false },
+);
 
 interface PropertyOpt {
   id: string;

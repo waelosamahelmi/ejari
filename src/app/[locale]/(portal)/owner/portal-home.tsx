@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { GroupedSection, ListRow } from "@/components/ui/grouped-list";
 import { EmptyState } from "@/components/ui/empty-state";
 import { NoPropertiesIllustration } from "@/components/illustrations";
-import { useMoney, useNum } from "@/components/shell/prefs-context";
+import { useMoney, usePercent } from "@/components/shell/prefs-context";
 import { PHOTOS } from "@/config/generated-assets";
 import { formatDate, formatPeriod } from "@/domain/dates";
 import type { PropertySummary } from "@/server/queries/properties";
@@ -35,7 +35,7 @@ export function PortalHome({
   const tDep = useTranslations("deposits.summary");
   const locale = useLocale() as "ar" | "en";
   const money = useMoney();
-  const num = useNum();
+  const pctSign = usePercent();
   return (
     <div className="space-y-6 pt-4">
       <Photo
@@ -82,9 +82,10 @@ export function PortalHome({
           <EmptyState illustration={<NoPropertiesIllustration />} title={t("noProperties")} />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {properties.map((p) => (
+            {properties.map((p, i) => (
               <PropertyPhotoCard
                 key={p.id}
+                priority={i === 0}
                 LinkComponent={Link}
                 href={`/owner/properties/${p.id}`}
                 name={p.name}
@@ -93,7 +94,7 @@ export function PortalHome({
                 ctaLabel={t("statements")}
                 pills={
                   <>
-                    <GlassPill>{num(Math.round(p.occupancyRate * 100))}٪</GlassPill>
+                    <GlassPill>{pctSign(Math.round(p.occupancyRate * 100))}</GlassPill>
                     <GlassPill>{money(p.collectedFils)}</GlassPill>
                     {p.arrearsFils > 0 && (
                       <GlassPill tone="danger">{money(p.arrearsFils)}</GlassPill>

@@ -15,8 +15,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { ArrowDown, ArrowUp, Columns3 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "./menu";
-import * as Menu from "@radix-ui/react-dropdown-menu";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "./menu";
 
 declare module "@tanstack/react-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -220,21 +219,14 @@ export function DataTable<T>({
                 .getAllLeafColumns()
                 .filter((c) => c.getCanHide())
                 .map((c) => (
-                  <Menu.CheckboxItem
+                  <DropdownMenuCheckboxItem
                     key={c.id}
                     checked={c.getIsVisible()}
                     onCheckedChange={(v) => c.toggleVisibility(!!v)}
                     onSelect={(e) => e.preventDefault()}
-                    className="flex h-10 cursor-pointer items-center gap-3 rounded-[10px] px-3 text-[15px] outline-none data-[highlighted]:bg-[color-mix(in_srgb,var(--label)_8%,transparent)]"
                   >
-                    <span
-                      className={cn(
-                        "ring-label-3 size-4 rounded-[5px] ring-1",
-                        c.getIsVisible() && "bg-ink ring-ink",
-                      )}
-                    />
                     {typeof c.columnDef.header === "string" ? c.columnDef.header : c.id}
-                  </Menu.CheckboxItem>
+                  </DropdownMenuCheckboxItem>
                 ))}
             </DropdownMenuContent>
           </DropdownMenu>

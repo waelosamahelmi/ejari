@@ -1,61 +1,88 @@
 "use client";
-import type { ComponentProps, ReactNode } from "react";
-import * as Menu from "@radix-ui/react-dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cloneElement, createContext, useContext, useEffect, useState, type ComponentProps, type MouseEvent, type ReactElement, type ReactNode } from "react";
+import { prefetchWhenIdle } from "./sheet";
 
-export const DropdownMenu = Menu.Root;
-export const DropdownMenuTrigger = Menu.Trigger;
+type Impl = typeof import("./menu-impl");
+const load = () => import("./menu-impl");
+const Ctx = createContext<{ impl: Impl | null; requestOpen: () => void }>({ impl: null, requestOpen: () => {} });
 
-export function DropdownMenuContent({
-  className,
-  align = "end",
-  ...props
-}: ComponentProps<typeof Menu.Content>) {
+/**
+ * Dropdown menu with a code-split implementation (Radix menu + floating positioning
+ * load on idle or first open). Same API as before: DropdownMenu / Trigger asChild /
+ * Content / Item / Label / Separator. Items only ever render inside an open Content.
+ */
+export function DropdownMenu({ open, onOpenChange, defaultOpen, children }: { open?: boolean; onOpenChange?: (o: boolean) => void; defaultOpen?: boolean; children: ReactNode }) {
+  const [impl, setImpl] = useState<Impl | null>(null);
+  const [initialOpen, setInitialOpen] = useState(!!defaultOpen);
+  useEffect(() => prefetchWhenIdle(load), []);
+  useEffect(() => {
+    if ((open || defaultOpen) && !impl) void load().then(setImpl);
+  }, [open, defaultOpen, impl]);
+  const requestOpen = () =>
+    void load().then((m) => {
+      setImpl(m);
+      setInitialOpen(true);
+      onOpenChange?.(true);
+    });
+  if (!impl) return <Ctx.Provider value={{ impl: null, requestOpen }}>{children}</Ctx.Provider>;
+  const { Root } = impl;
   return (
-    <Menu.Portal>
-      <Menu.Content
-        align={align}
-        sideOffset={8}
-        collisionPadding={12}
-        className={cn(
-          "material-sidebar z-50 min-w-[220px] overflow-hidden rounded-[16px] p-1.5 shadow-[var(--sh-pop)] ring-1 ring-black/5 dark:ring-white/10",
-          "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-          className,
-        )}
-        {...props}
-      />
-    </Menu.Portal>
+    <Root open={open} onOpenChange={onOpenChange} defaultOpen={open === undefined ? initialOpen : undefined}>
+      <Ctx.Provider value={{ impl, requestOpen }}>{children}</Ctx.Provider>
+    </Root>
   );
 }
 
-export function DropdownMenuItem({
-  className,
-  destructive,
-  icon,
-  children,
-  ...props
-}: ComponentProps<typeof Menu.Item> & { destructive?: boolean; icon?: ReactNode }) {
+type TriggerProps = { asChild?: boolean; children: ReactElement<{ onClick?: (e: MouseEvent) => void }> | ReactNode; className?: string; "aria-label"?: string };
+
+export function DropdownMenuTrigger({ asChild, children, ...rest }: TriggerProps) {
+  const { impl, requestOpen } = useContext(Ctx);
+  if (impl)
+    return (
+      <impl.Trigger asChild={asChild} {...rest}>
+        {children}
+      </impl.Trigger>
+    );
+  const open = () => requestOpen();
+  if (asChild && children && typeof children === "object" && "props" in children) {
+    const el = children as ReactElement<{ onClick?: (e: MouseEvent) => void }>;
+    return cloneElement(el, {
+      "aria-haspopup": "menu",
+      "aria-expanded": false,
+      onClick: (e: MouseEvent) => {
+        el.props.onClick?.(e);
+        open();
+      },
+    } as Partial<typeof el.props>);
+  }
   return (
-    <Menu.Item
-      className={cn(
-        "flex h-10 cursor-pointer items-center gap-3 rounded-[10px] px-3 text-[15px] outline-none select-none data-[disabled]:opacity-40 data-[highlighted]:bg-[color-mix(in_srgb,var(--label)_8%,transparent)] [&_svg]:size-[18px]",
-        destructive ? "text-red-text" : "text-label",
-        className,
-      )}
-      {...props}
-    >
-      {icon}
-      <span className="flex-1">{children}</span>
-    </Menu.Item>
+    <button type="button" aria-haspopup="menu" aria-expanded={false} onClick={open} {...rest}>
+      {children}
+    </button>
   );
+}
+
+export function DropdownMenuContent(props: ComponentProps<Impl["Content"]>) {
+  const { impl } = useContext(Ctx);
+  return impl ? <impl.Content {...props} /> : null;
+}
+
+export function DropdownMenuItem(props: ComponentProps<Impl["Item"]>) {
+  const { impl } = useContext(Ctx);
+  return impl ? <impl.Item {...props} /> : null;
 }
 
 export function DropdownMenuSeparator() {
-  return <Menu.Separator className="bg-separator mx-2 my-1 h-px" />;
+  const { impl } = useContext(Ctx);
+  return impl ? <impl.Separator /> : null;
 }
 
 export function DropdownMenuLabel({ children }: { children: ReactNode }) {
-  return (
-    <Menu.Label className="text-label-2 px-3 py-1.5 text-[12px] font-medium">{children}</Menu.Label>
-  );
+  const { impl } = useContext(Ctx);
+  return impl ? <impl.Label>{children}</impl.Label> : null;
+}
+
+export function DropdownMenuCheckboxItem(props: ComponentProps<Impl["CheckboxItem"]>) {
+  const { impl } = useContext(Ctx);
+  return impl ? <impl.CheckboxItem {...props} /> : null;
 }

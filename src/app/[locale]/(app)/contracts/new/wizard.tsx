@@ -1,6 +1,7 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import {
   AlertTriangle,
   ArrowDown,
@@ -36,7 +37,6 @@ import { Stepper } from "@/components/ui/stepper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LargeTitleHeader } from "@/components/shell/large-title-header";
 import { BuildingStack, type StackTile } from "@/components/domain/properties/building-stack";
-import { TenantFormSheet } from "@/components/domain/tenants/tenant-form";
 import { ContractDocument } from "@/components/print/contract-document";
 import { useMoney } from "@/components/shell/prefs-context";
 import {
@@ -61,6 +61,12 @@ import { normalizeDigits } from "@/domain/money";
 import type { ContractDraftInput } from "@/lib/schemas/contract";
 import { cn } from "@/lib/utils";
 import type { ContractType } from "@/domain/types";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const TenantFormSheet = dynamic(
+  () => import("@/components/domain/tenants/tenant-form").then((m) => m.TenantFormSheet),
+  { ssr: false },
+);
 
 interface PropertyOpt {
   id: string;
@@ -999,7 +1005,7 @@ export function ContractWizard({
           <div className="mx-auto max-w-xl space-y-6 py-4 text-center">
             <AnimatePresence mode="wait">
               {activatedNo ? (
-                <motion.div
+                <m.div
                   key="done"
                   initial={{ opacity: 0, scale: 0.96 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -1053,9 +1059,9 @@ export function ContractWizard({
                       });
                     }}
                   />
-                </motion.div>
+                </m.div>
               ) : (
-                <motion.div key="ready" className="space-y-5">
+                <m.div key="ready" className="space-y-5">
                   <h2 className="text-[26px] font-semibold">{t("finish.title")}</h2>
                   <p className="text-label-2 text-[16px]">{t("finish.text")}</p>
                   {preview?.warnings.includes("overlap") && (
@@ -1084,7 +1090,7 @@ export function ContractWizard({
                       {t("finish.activate")}
                     </Button>
                   </div>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           </div>
@@ -1121,7 +1127,7 @@ export function ContractWizard({
           hideFooter={STEPS[step] === "finish"}
         >
           <AnimatePresence mode="wait">
-            <motion.div
+            <m.div
               key={step}
               initial={{ opacity: 0, x: locale === "ar" ? -16 : 16 }}
               animate={{ opacity: 1, x: 0 }}
@@ -1129,7 +1135,7 @@ export function ContractWizard({
               transition={{ duration: 0.2 }}
             >
               {stepBody()}
-            </motion.div>
+            </m.div>
           </AnimatePresence>
         </Wizard>
         {STEPS[step] === "finish" && !activatedNo && (

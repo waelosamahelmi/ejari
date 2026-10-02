@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { Fragment, useMemo, useState, useTransition } from "react";
 import {
   BellRing,
@@ -35,9 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/menu";
 import { NoLateUnitsIllustration, NoUnitsIllustration } from "@/components/illustrations";
-import { PaymentSheet } from "@/components/domain/payments/payment-sheet";
-import { ReminderSheet } from "@/components/domain/payments/reminder-sheet";
-import { useMoney, useNum } from "@/components/shell/prefs-context";
+import { useMoney, usePercent } from "@/components/shell/prefs-context";
 import { useAction } from "@/hooks/use-action";
 import { bulkMarkPaid, closeMonth, reopenMonth } from "@/server/actions/payments";
 import { formatDate, formatPeriod } from "@/domain/dates";
@@ -46,6 +45,16 @@ import { PAYMENT_METHODS, type PaymentMethod } from "@/domain/types";
 import { cn } from "@/lib/utils";
 import { usePwa } from "@/components/pwa/pwa-provider";
 import type { PaymentContext } from "@/server/actions/payments";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const PaymentSheet = dynamic(
+  () => import("@/components/domain/payments/payment-sheet").then((m) => m.PaymentSheet),
+  { ssr: false },
+);
+const ReminderSheet = dynamic(
+  () => import("@/components/domain/payments/reminder-sheet").then((m) => m.ReminderSheet),
+  { ssr: false },
+);
 
 type Row = StatementRow & {
   propertyId: string;
@@ -83,7 +92,7 @@ export function CollectionsView({
   const tMethod = useTranslations("enums.paymentMethod");
   const locale = useLocale() as "ar" | "en";
   const money = useMoney();
-  const num = useNum();
+  const pctSign = usePercent();
   const router = useRouter();
   const pathname = usePathname();
   const { exec, pending } = useAction();
@@ -207,7 +216,7 @@ export function CollectionsView({
             {c.row.original.legalLabel}
           </Pill>
         ) : (
-          <span className="text-label-3 text-[13px]">{c.row.original.legalLabel}</span>
+          <span className="text-label-2 text-[13px]">{c.row.original.legalLabel}</span>
         ),
     },
     {
@@ -410,7 +419,7 @@ export function CollectionsView({
           [t("totals.expected"), money(totals.rent), ""],
           [t("totals.collected"), money(totals.collected), "text-green-text"],
           [t("totals.arrears"), money(totals.arrears), totals.arrears > 0 ? "text-red-text" : ""],
-          [t("totals.rate"), `${num(rate)}٪`, ""],
+          [t("totals.rate"), pctSign(rate), ""],
         ].map(([l, v, cls]) => (
           <Card key={l} className="p-4">
             <div className="text-label-2 text-[13px]">{l}</div>

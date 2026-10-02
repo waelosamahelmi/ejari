@@ -1,6 +1,7 @@
 "use client";
-import { motion, useReducedMotion } from "motion/react";
-import type { ReactNode } from "react";
+import { useReducedMotion } from "@/hooks/use-media";
+import { useEffect, useState, type ReactNode } from "react";
+import { haptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 
 /** Progress ring (Activity-style). value 0..1. */
@@ -26,6 +27,12 @@ export function ProgressRing({
   celebrate?: boolean;
 }) {
   const reduced = useReducedMotion();
+  // Start empty, then fill: the CSS transition draws the ring on first render.
+  const mounted = useMounted();
+  // One light tap when the ring completes (100% collected), alongside the sand shimmer.
+  useEffect(() => {
+    if (celebrate) haptic([12, 60, 12]);
+  }, [celebrate]);
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const v = Math.max(0, Math.min(1, value));
@@ -33,7 +40,7 @@ export function ProgressRing({
     <div
       className={cn("relative inline-grid place-items-center", className)}
       style={{ width: size, height: size }}
-      role="img"
+      role={label ? "img" : undefined}
       aria-label={label}
     >
       <svg
@@ -43,7 +50,7 @@ export function ProgressRing({
         className="-rotate-90 rtl:scale-y-[-1]"
       >
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track} strokeWidth={stroke} />
-        <motion.circle
+        <circle
           cx={size / 2}
           cy={size / 2}
           r={r}
@@ -52,12 +59,11 @@ export function ProgressRing({
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={c}
-          initial={{ strokeDashoffset: reduced ? c * (1 - v) : c }}
-          animate={{ strokeDashoffset: c * (1 - v) }}
-          transition={{ type: "spring", stiffness: 60, damping: 18 }}
+          style={{ strokeDashoffset: mounted || reduced ? c * (1 - v) : c }}
+          className="transition-[stroke-dashoffset] duration-1000 ease-[var(--ease-spring)] motion-reduce:transition-none"
         />
         {celebrate && !reduced && (
-          <motion.circle
+          <circle
             cx={size / 2}
             cy={size / 2}
             r={r}
@@ -66,14 +72,46 @@ export function ProgressRing({
             strokeWidth={stroke}
             strokeLinecap="round"
             strokeDasharray={`${c * 0.12} ${c}`}
-            initial={{ strokeDashoffset: 0, opacity: 0.95 }}
-            animate={{ strokeDashoffset: -c, opacity: 0 }}
-            transition={{ duration: 1.4, ease: "easeInOut", delay: 0.6 }}
+            style={{ ["--ring-c" as string]: `${c}px` }}
+            className="ring-shimmer"
           />
         )}
       </svg>
       <div className="absolute inset-0 grid place-items-center text-center">{children}</div>
     </div>
+  );
+}
+
+function useMounted() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  return mounted;
+}
+
+/** A bar segment that grows from 0 to its size on first paint (CSS transition, spring easing). */
+function Grow({
+  axis,
+  to,
+  className,
+  color,
+}: {
+  axis: "width" | "height";
+  to: string;
+  className?: string;
+  color: string;
+}) {
+  const mounted = useMounted();
+  return (
+    <div
+      className={cn(
+        "transition-[width,height] duration-700 ease-[var(--ease-spring)] motion-reduce:transition-none",
+        className,
+      )}
+      style={{ background: color, [axis]: mounted ? to : 0 }}
+    />
   );
 }
 
@@ -91,19 +129,19 @@ export function Meter({
 }) {
   return (
     <div
-      role="img"
+      role={label ? "img" : undefined}
       aria-label={label}
+      aria-hidden={label ? undefined : true}
       className={cn("bg-inset flex w-full overflow-hidden rounded-full", className)}
       style={{ height }}
     >
       {segments.map((s, i) => (
-        <motion.div
+        <Grow
           key={i}
+          axis="width"
+          to={`${Math.max(0, Math.min(1, s.value)) * 100}%`}
           className="h-full first:rounded-s-full"
-          style={{ background: s.color }}
-          initial={{ width: 0 }}
-          animate={{ width: `${Math.max(0, Math.min(1, s.value)) * 100}%` }}
-          transition={{ type: "spring", stiffness: 120, damping: 22 }}
+          color={s.color}
         />
       ))}
     </div>
@@ -173,12 +211,11 @@ export function BarMini({
             className="bg-inset relative w-full overflow-hidden rounded-[6px]"
             style={{ height }}
           >
-            <motion.div
+            <Grow
+              axis="height"
+              to={`${(it.value / max) * 100}%`}
               className="absolute inset-x-0 bottom-0 rounded-[6px]"
-              style={{ background: it.color }}
-              initial={{ height: 0 }}
-              animate={{ height: `${(it.value / max) * 100}%` }}
-              transition={{ type: "spring", stiffness: 140, damping: 20 }}
+              color={it.color}
             />
           </div>
           <span className="text-label-2 text-[11px] leading-none whitespace-nowrap">
@@ -212,7 +249,7 @@ export function Donut({
     <div
       className="relative inline-grid place-items-center"
       style={{ width: size, height: size }}
-      role="img"
+      role={label ? "img" : undefined}
       aria-label={label}
     >
       <svg width={size} height={size} className="-rotate-90 rtl:scale-y-[-1]">

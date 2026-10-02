@@ -15,7 +15,6 @@ import {
   Wallet,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { motion } from "motion/react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { WidgetCard } from "@/components/widgets/widget-card";
 import { ProgressRing, BarMini, Donut, Meter } from "@/components/ui/charts";
@@ -31,7 +30,7 @@ import { PropertyPhotoCard } from "@/components/ui/property-photo-card";
 import { GlassPill } from "@/components/ui/glass";
 import { GreetingHeader } from "@/components/ui/greeting-header";
 import { HeaderUtilities, useShell } from "@/components/shell/app-shell";
-import { useMoney, useNum, useSession } from "@/components/shell/prefs-context";
+import { useMoney, useNum, useSession, usePercent } from "@/components/shell/prefs-context";
 import { NoLateUnitsIllustration, NoVacantUnitsIllustration } from "@/components/illustrations";
 import { savePreferences } from "@/server/actions/preferences";
 import {
@@ -47,7 +46,6 @@ import {
 import { PERIOD_STATUS_STYLE } from "@/lib/status";
 import type { DashboardData } from "@/server/queries/dashboard";
 import { cn, firstName } from "@/lib/utils";
-import { gentle } from "@/lib/motion";
 import { WIDGETS, type Layout, type WidgetKey } from "./widgets-config";
 import { InstallCard } from "@/components/pwa/install";
 
@@ -74,6 +72,7 @@ export function DashboardView({
   const locale = useLocale() as "ar" | "en";
   const money = useMoney();
   const num = useNum();
+  const pctSign = usePercent();
   const session = useSession();
   const router = useRouter();
   const pathname = usePathname();
@@ -129,7 +128,7 @@ export function DashboardView({
     switch (w) {
       case "today":
         return (
-          <WidgetCard key={w} size="sm" title={t("today.title")}>
+          <WidgetCard key={w} size="sm" title={t("today.title")} shotMask>
             <div className="text-[20px] font-semibold">
               {locale === "ar" ? dayNameAr(d.today) : dayNameEn(d.today)}
             </div>
@@ -164,7 +163,7 @@ export function DashboardView({
               >
                 <div>
                   <div className="num text-[34px] leading-none font-semibold">
-                    {num(Math.round(rate * 100))}٪
+                    {pctSign(Math.round(rate * 100))}
                   </div>
                   {c.prevExpectedFils > 0 && (
                     <div
@@ -271,7 +270,7 @@ export function DashboardView({
                 ]}
               >
                 <span className="num text-[20px] font-semibold">
-                  {num(Math.round(d.occupancy.rate * 100))}٪
+                  {pctSign(Math.round(d.occupancy.rate * 100))}
                 </span>
               </Donut>
             </div>
@@ -291,6 +290,7 @@ export function DashboardView({
             key={w}
             size="md"
             title={t("vacant.title")}
+            shotMask
             action={
               <Link href="/reports/vacant" className="text-link text-[13px] font-medium">
                 {tc("actions.viewAll")}
@@ -480,6 +480,7 @@ export function DashboardView({
             key={w}
             size="md"
             title={t("expiring.title")}
+            shotMask
             action={
               <Pill className="bg-orange/16 text-orange-text">
                 {t("expiring.notices", { count: d.notices })}
@@ -531,6 +532,7 @@ export function DashboardView({
             size="sm"
             title={t("first.title")}
             icon={<CalendarClock className="size-4" />}
+            shotMask
           >
             {d.firstCollections.length === 0 ? (
               <p className="text-label-2 text-[14px]">{t("first.none")}</p>
@@ -590,7 +592,7 @@ export function DashboardView({
                       <li key={v.id}>
                         <Link
                           href={`/expenses/${v.id}`}
-                          className="text-label-2 flex justify-between gap-2 text-[12px]"
+                          className="text-label-2 flex min-h-6 items-center justify-between gap-2 text-[12px]"
                         >
                           <span className="num">{v.no}</span>
                           <span className="num">{money(v.totalFils)}</span>
@@ -611,6 +613,7 @@ export function DashboardView({
             size="sm"
             title={t("legal.title")}
             icon={<Gavel className="size-4" />}
+            shotMask
           >
             <Link href="/legal" className="flex flex-1 flex-col">
               <div className="num text-[28px] font-semibold">{d.legal.open}</div>
@@ -743,12 +746,13 @@ export function DashboardView({
             </Link>
           </div>
           <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0">
-            {d.properties.map((p) => (
+            {d.properties.map((p, i) => (
               <div
                 key={p.id}
                 className="w-[78vw] max-w-[340px] shrink-0 snap-start lg:w-auto lg:max-w-none"
               >
                 <PropertyPhotoCard
+                  priority={i === 0}
                   LinkComponent={Link}
                   href={`/properties/${p.id}`}
                   name={p.name}
@@ -758,11 +762,13 @@ export function DashboardView({
                   ctaLabel={tc("actions.viewDetails")}
                   pills={
                     <>
-                      <GlassPill>{num(Math.round(p.occupancyRate * 100))}٪</GlassPill>
+                      <GlassPill>{pctSign(Math.round(p.occupancyRate * 100))}</GlassPill>
                       {p.expectedFils > 0 && (
                         <GlassPill>
-                          {num(Math.min(100, Math.round((p.collectedFils / p.expectedFils) * 100)))}
-                          ٪ {t("trend.collected")}
+                          {pctSign(
+                            Math.min(100, Math.round((p.collectedFils / p.expectedFils) * 100)),
+                          )}{" "}
+                          {t("trend.collected")}
                         </GlassPill>
                       )}
                       {p.arrearsFils > 0 && (
@@ -779,10 +785,8 @@ export function DashboardView({
         </section>
       )}
 
-      <motion.div
-        layout
+      <div
         className="mt-6 grid grid-flow-row-dense grid-cols-1 gap-4 min-[400px]:grid-cols-2 lg:grid-cols-4"
-        transition={gentle}
       >
         {visible.map((w) =>
           w === "collection" ? (
@@ -793,7 +797,7 @@ export function DashboardView({
             widget(w)
           ),
         )}
-      </motion.div>
+      </div>
 
       <Sheet
         open={customize}

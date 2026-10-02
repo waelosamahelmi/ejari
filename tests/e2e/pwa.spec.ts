@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import { config } from "dotenv";
+import { periodOf, todayKuwait } from "../../src/domain/dates";
 import { login, supabaseUp } from "./helpers";
 
 config({ path: ".env.local" });
@@ -11,6 +12,12 @@ const admin = () =>
   });
 
 async function waitForServiceWorker(page: Page) {
+  await page.waitForFunction(() => !!navigator.serviceWorker, null, { timeout: 30_000 });
+  // The first visit activates the SW; a second navigation is controlled (clients.claim may
+  // race the first paint), so reload once when the page isn't controlled yet.
+  if (!(await page.evaluate(() => !!navigator.serviceWorker.controller))) {
+    await page.reload({ waitUntil: "domcontentloaded" });
+  }
   await page.waitForFunction(() => !!navigator.serviceWorker?.controller, null, {
     timeout: 30_000,
   });
@@ -69,13 +76,15 @@ test.describe("PWA", () => {
     context,
   }) => {
     const db = admin();
-    // An active contract with September rent still outstanding.
+    // The collections page embeds offline payment contexts only for the current month (§19.3),
+    // so target a contract with rent still outstanding as of today and open that month.
+    const period = periodOf(todayKuwait());
     const { data: open } = await db
       .from("v_charge_balances")
       .select("contract_id, period, outstanding_fils")
-      .eq("period", "2026-09")
       .eq("kind", "rent")
       .gt("outstanding_fils", 0)
+      .lte("period", period)
       .limit(20);
     let target: { contractId: string; propertyId: string; tenant: string } | null = null;
     for (const o of open ?? []) {
@@ -94,7 +103,7 @@ test.describe("PWA", () => {
       }
     }
     expect(target).not.toBeNull();
-    const url = `/ar/collections?period=2026-09&property=${target!.propertyId}`;
+    const url = `/ar/collections?period=${period}&property=${target!.propertyId}`;
 
     await login(page, "collector");
     await waitForServiceWorker(page);

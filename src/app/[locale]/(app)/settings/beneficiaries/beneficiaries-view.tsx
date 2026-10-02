@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { Car, Plus, Store, User, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -9,8 +10,14 @@ import { IconTile } from "@/components/ui/icon-tile";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { NoExpensesIllustration } from "@/components/illustrations";
-import { BeneficiarySheet, type BeneficiaryRow } from "@/components/domain/beneficiary-sheet";
+import { type BeneficiaryRow } from "@/components/domain/beneficiary-sheet";
 import { useMoney } from "@/components/shell/prefs-context";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const BeneficiarySheet = dynamic(
+  () => import("@/components/domain/beneficiary-sheet").then((m) => m.BeneficiarySheet),
+  { ssr: false },
+);
 
 const ICON = { staff: UserRound, vendor: Store, asset: Car, other: User } as const;
 

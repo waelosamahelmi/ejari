@@ -9,7 +9,18 @@ import { formatPeriod, isValidPeriod } from "@/domain/dates";
 import { fromFils } from "@/domain/money";
 import { monthlySummary } from "@/domain/reports";
 
-export const metadata = { title: "الملخص الشهري" };
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}) {
+  const { lang } = await searchParams;
+  const t = await getTranslations({
+    locale: lang === "en" ? "en" : "ar",
+    namespace: "documents.printTitles",
+  });
+  return { title: t("summary") };
+}
 
 /** Monthly cover sheet (§6.8) with per-property breakdown and reconciliation. */
 export default async function PrintSummary({

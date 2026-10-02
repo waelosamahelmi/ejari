@@ -16,7 +16,8 @@ export const buttonVariants = cva(
           "bg-inset text-label hover:bg-[color-mix(in_srgb,var(--bg-inset)_80%,var(--label)_6%)]",
         glass: "glass text-white hover:bg-white/30",
         white: "bg-white text-[#0E0F12] hover:bg-white/90",
-        rose: "bg-rose text-white hover:opacity-90",
+        // Ink text on brand rose: 5.3:1 (white would be 3.4:1).
+        rose: "bg-rose text-[#0E0F12] hover:opacity-90",
         destructive: "bg-red text-white hover:opacity-90",
         plain: "text-link hover:opacity-75",
         ghost: "text-label hover:bg-inset",

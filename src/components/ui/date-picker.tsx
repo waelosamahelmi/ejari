@@ -140,7 +140,6 @@ export function DatePicker({
     <div className={cn("relative", className)}>
       <input
         id={id}
-        dir="ltr"
         inputMode="numeric"
         placeholder={placeholder}
         aria-invalid={invalid || (text !== "" && !parsed) || undefined}

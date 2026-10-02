@@ -59,6 +59,20 @@ export function useMoney() {
 }
 
 /** Number formatter (counts, percents) honoring digit preference. */
+/** Joins names with the locale's list comma ("، " in Arabic, ", " in English). */
+export function useJoin() {
+  const locale = useLocale();
+  return (items: readonly string[]) => items.filter(Boolean).join(locale === "ar" ? "، " : ", ");
+}
+
+/** Percent with the locale's sign (٪ in Arabic, % in English); `n` is already ×100. */
+export function usePercent() {
+  const locale = useLocale();
+  const num = useNum();
+  return (n: number, opts: Intl.NumberFormatOptions = {}) =>
+    `${num(n, opts)}${locale === "ar" ? "٪" : "%"}`;
+}
+
 export function useNum() {
   const locale = useLocale();
   const s = useOptionalSession();

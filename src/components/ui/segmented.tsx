@@ -1,8 +1,6 @@
 "use client";
-import { useId, type ReactNode } from "react";
-import { motion } from "motion/react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { spring } from "@/lib/motion";
 
 export interface SegmentOption<T extends string | number> {
   value: T;
@@ -32,9 +30,32 @@ export function SegmentedControl<T extends string | number>({
   ariaLabel?: string;
   fill?: boolean;
 }) {
-  const id = useId();
+  // The white thumb is measured from the active segment and slides with a CSS spring.
+  const track = useRef<HTMLDivElement>(null);
+  const [thumb, setThumb] = useState<{ x: number; w: number } | null>(null);
+  const [animate, setAnimate] = useState(false);
+  const activeIndex = options.findIndex((o) => o.value === value);
+  useLayoutEffect(() => {
+    const el = track.current;
+    if (!el) return;
+    const measure = () => {
+      const btn = el.querySelectorAll<HTMLButtonElement>("[role=radio]")[activeIndex];
+      setThumb(btn ? { x: btn.offsetLeft, w: btn.offsetWidth } : null);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [activeIndex, options.length]);
+  useLayoutEffect(() => {
+    if (thumb && !animate) {
+      const id = requestAnimationFrame(() => setAnimate(true));
+      return () => cancelAnimationFrame(id);
+    }
+  }, [thumb, animate]);
   return (
     <div
+      ref={track}
       role="radiogroup"
       aria-label={ariaLabel}
       className={cn(
@@ -46,6 +67,18 @@ export function SegmentedControl<T extends string | number>({
         className,
       )}
     >
+      {thumb && (
+        <span
+          aria-hidden
+          className={cn(
+            "bg-paper pointer-events-none absolute top-1 bottom-1 rounded-full shadow-[0_1px_3px_rgba(16,24,40,.12),0_1px_1px_rgba(16,24,40,.04)] dark:bg-[#3a3a3c]",
+            animate &&
+              "transition-[transform,width] duration-300 ease-[var(--ease-spring)] motion-reduce:transition-none",
+          )}
+          // offsetLeft is physical in both directions, so the thumb is anchored physically too.
+          style={{ left: 0, width: thumb.w, transform: `translateX(${thumb.x}px)` }}
+        />
+      )}
       {options.map((o) => {
         const active = o.value === value;
         return (
@@ -70,18 +103,11 @@ export function SegmentedControl<T extends string | number>({
             }}
             tabIndex={active ? 0 : -1}
             className={cn(
-              "relative z-0 flex h-full min-w-11 flex-1 items-center justify-center gap-1.5 rounded-full px-3 font-medium whitespace-nowrap transition-colors disabled:opacity-40",
+              "relative z-[1] flex h-full min-w-11 flex-1 items-center justify-center gap-1.5 rounded-full px-3 font-medium whitespace-nowrap transition-colors disabled:opacity-40",
               size === "sm" ? "text-[13px]" : "text-[15px]",
               active ? "text-label" : "text-label-2 hover:text-label",
             )}
           >
-            {active && (
-              <motion.span
-                layoutId={`seg-${id}`}
-                transition={spring}
-                className="bg-paper absolute inset-0 -z-10 rounded-full shadow-[0_1px_3px_rgba(16,24,40,.12),0_1px_1px_rgba(16,24,40,.04)] dark:bg-[#3a3a3c]"
-              />
-            )}
             {o.icon}
             <span className="num-inherit">{o.label}</span>
           </button>

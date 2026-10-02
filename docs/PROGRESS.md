@@ -14,4 +14,14 @@ Resume rule: read this file first and continue from the first unchecked item.
 - [x] Phase 9 — Reports (10 reports: screen + print + Excel; e2e green)
 - [x] Phase 10 — Legal, owner portal, settings, audit (legal board/list + case timeline, owner portal + magic-link invites, all settings pages incl. versioned template editor, audit log with diff viewer, full Excel data export; RLS: owner sees only own properties, collector blocked from expenses)
 - [x] Phase 11 — PWA, offline & notifications (manifest with icons/shortcuts/screenshots/share target, Serwist SW with offline fallback + runtime caching, install card + iOS guide + Settings → Install, update banner, offline collections from cached pages with embedded payment contexts, IndexedDB outbox + Background Sync + needs-review sheet, connectivity pill, web push with VAPID + pre-permission sheet + Settings → Notifications (per-event channels, quiet hours, digest time, muted properties, test), hourly notifications cron with dedupe, share inbox; e2e: installable, offline payment syncs once with no reload, SW push)
-- [ ] Phase 12 — Polish & QA
+- [x] Phase 12 — Polish & QA (i18n completeness gate + unit test, branded error/not-found/global-error pages, Sentry wiring (opt-in), pull-to-refresh, swipe actions, haptics, rolling counters, bundle work (charts/exceljs/cmdk/sheets/dialogs/menus/popovers/form sheets code-split; worst page 432→243 KB, 44 routes ≤ 180 KB), axe-core suite (0 violations, WCAG 2.2 AA, ar/en × light/dark), visual regression (20 screens × ar/en × light/dark × 390/1440 = 160 baselines), fast-check invariants, RTL/dark/mobile review (fixed date-field RTL collision + bidi aging ranges), Lighthouse (a11y/best-practices/SEO 100, dashboard perf 75 on throttled mobile — LCP is the local image optimizer, see DESIGN_REVIEW), README, `docs/DESIGN_REVIEW.md`)
+- [ ] Post-launch (optional): trim data pages below 180 KB gzip; run Lighthouse against the deployed CDN.
+
+## Final verification (2026-10-02)
+
+- `pnpm typecheck && pnpm lint && pnpm test` green (257 unit tests).
+- `pnpm build` green; `pnpm test:e2e` green (20/20, serial, re-seeded); `pnpm test:rls` green (9/9).
+- August 2026 Jabriya statement: 8,960.000 / 8,890.000 / 70.000 with four خالية rows (e2e + print).
+- Expiring/grace/concession/late/accounting/owner/ledger reports render, print and export (e2e).
+- Offline payment queues and syncs exactly once; push renders in the recipient's language (e2e).
+- Owner portal sees only own properties; collector blocked from expenses (RLS suite).

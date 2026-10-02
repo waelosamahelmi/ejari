@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import withSerwistInit from "@serwist/next";
+import withBundleAnalyzerInit from "@next/bundle-analyzer";
 import { execSync } from "node:child_process";
+
+// `ANALYZE=true pnpm build` writes .next/analyze/{client,nodejs}.html (and .json with ANALYZE_JSON=true).
+const withBundleAnalyzer = withBundleAnalyzerInit({
+  enabled: process.env.ANALYZE === "true",
+  analyzerMode: process.env.ANALYZE_JSON === "true" ? "json" : "static",
+});
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
@@ -42,4 +49,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSerwist(withNextIntl(nextConfig));
+export default withSerwist(withNextIntl(withBundleAnalyzer(nextConfig)));

@@ -91,7 +91,7 @@ export function PaymentsView({
       header: t("columns.amount"),
       meta: { numeric: true },
       cell: (c) => (
-        <span className={cn("font-semibold", c.row.original.voided && "text-label-3 line-through")}>
+        <span className={cn("font-semibold", c.row.original.voided && "text-label-2 line-through")}>
           {money(c.row.original.amountFils)}
         </span>
       ),
@@ -142,7 +142,7 @@ export function PaymentsView({
                 <span
                   className={cn(
                     "num text-[16px] font-semibold",
-                    r.voided && "text-label-3 line-through",
+                    r.voided && "text-label-2 line-through",
                   )}
                 >
                   {money(r.amountFils)}

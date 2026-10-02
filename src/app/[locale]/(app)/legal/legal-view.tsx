@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { Gavel, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -9,10 +10,15 @@ import { SegmentedControl } from "@/components/ui/segmented";
 import { GroupedSection, ListRow } from "@/components/ui/grouped-list";
 import { Pill } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
-import { LegalCaseSheet } from "@/components/domain/legal/case-form";
 import { useMoney } from "@/components/shell/prefs-context";
 import { formatDate, todayKuwait } from "@/domain/dates";
 import type { LegalStatus } from "@/domain/types";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const LegalCaseSheet = dynamic(
+  () => import("@/components/domain/legal/case-form").then((m) => m.LegalCaseSheet),
+  { ssr: false },
+);
 
 interface CaseRow {
   id: string;

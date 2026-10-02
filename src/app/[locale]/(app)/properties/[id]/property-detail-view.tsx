@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useRef, useState, useTransition } from "react";
 import {
   ArrowUpToLine,
@@ -26,16 +27,27 @@ import { GroupedSection, ListRow } from "@/components/ui/grouped-list";
 import { IconTile } from "@/components/ui/icon-tile";
 import { HeaderUtilities } from "@/components/shell/app-shell";
 import { BuildingStack, type StackTile } from "@/components/domain/properties/building-stack";
-import { PropertyFormSheet } from "@/components/domain/properties/property-form";
-import { UnitFormSheet } from "@/components/domain/units/unit-form";
-import { BulkUnitsSheet } from "@/components/domain/units/bulk-units";
 import { Documents } from "@/components/domain/documents";
-import { useMoney, useNum } from "@/components/shell/prefs-context";
+import { useMoney, useNum, usePercent, useJoin } from "@/components/shell/prefs-context";
 import { reorderPhotos, uploadPhoto } from "@/server/actions/files";
 import { setPropertyActive } from "@/server/actions/master";
 import { formatPeriod } from "@/domain/dates";
 import type { PropertySummary } from "@/server/queries/properties";
 import { cn } from "@/lib/utils";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const PropertyFormSheet = dynamic(
+  () => import("@/components/domain/properties/property-form").then((m) => m.PropertyFormSheet),
+  { ssr: false },
+);
+const UnitFormSheet = dynamic(
+  () => import("@/components/domain/units/unit-form").then((m) => m.UnitFormSheet),
+  { ssr: false },
+);
+const BulkUnitsSheet = dynamic(
+  () => import("@/components/domain/units/bulk-units").then((m) => m.BulkUnitsSheet),
+  { ssr: false },
+);
 
 export interface PropertyDetail {
   id: string;
@@ -87,8 +99,10 @@ export function PropertyDetailView({
   const tc = useTranslations("common");
   const tEnum = useTranslations("enums");
   const locale = useLocale() as "ar" | "en";
+  const join = useJoin();
   const money = useMoney();
   const num = useNum();
+  const pctSign = usePercent();
   const router = useRouter();
   const [tab, setTab] = useState(initialTab);
   const [editing, setEditing] = useState(false);
@@ -106,15 +120,15 @@ export function PropertyDetailView({
   const name = locale === "en" && p.nameEn ? p.nameEn : p.name;
   const collectRate = summary.expectedFils > 0 ? summary.collectedFils / summary.expectedFils : 0;
   const pct = (v: number) => num(Math.round(v * 100));
-  const address = [
-    p.area,
-    p.block && `${t("fields.block")} ${p.block}`,
-    p.street && `${t("fields.street")} ${p.street}`,
-    p.avenue && `${t("fields.avenue")} ${p.avenue}`,
-    p.houseOrPlot && `${t("fields.houseOrPlot")} ${p.houseOrPlot}`,
-  ]
-    .filter(Boolean)
-    .join("، ");
+  const address = join(
+    [
+      p.area,
+      p.block && `${t("fields.block")} ${p.block}`,
+      p.street && `${t("fields.street")} ${p.street}`,
+      p.avenue && `${t("fields.avenue")} ${p.avenue}`,
+      p.houseOrPlot && `${t("fields.houseOrPlot")} ${p.houseOrPlot}`,
+    ].filter((x): x is string => !!x),
+  );
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.area ?? ""} ${p.block ? `block ${p.block}` : ""} ${p.street ?? ""} Kuwait`)}`;
 
   const selectTab = (k: string) => {
@@ -212,7 +226,9 @@ export function PropertyDetailView({
                     label={t("pills.collected", { pct: pct(collectRate) })}
                     celebrate={collectRate >= 1 && summary.expectedFils > 0}
                   >
-                    <span className="num text-[24px] font-semibold">{pct(collectRate)}٪</span>
+                    <span className="num text-[24px] font-semibold">
+                      {pctSign(Math.round(collectRate * 100))}
+                    </span>
                   </ProgressRing>
                   <dl className="space-y-2 text-[14px]">
                     <div>
@@ -230,7 +246,9 @@ export function PropertyDetailView({
               </Card>
               <Card className="space-y-4 p-5">
                 <CardHeader className="p-0" title={t("overview.occupancy")} />
-                <div className="num text-[34px] font-semibold">{pct(summary.occupancyRate)}٪</div>
+                <div className="num text-[34px] font-semibold">
+                  {pctSign(Math.round(summary.occupancyRate * 100))}
+                </div>
                 <Meter
                   segments={[{ value: summary.occupancyRate, color: "var(--green)" }]}
                   label={t("overview.occupancy")}
@@ -285,7 +303,7 @@ export function PropertyDetailView({
                     LinkComponent={Link}
                     href={`/owners/${o.ownerId}`}
                     title={o.name}
-                    trailing={<span className="num">{num(o.sharePct)}٪</span>}
+                    trailing={<span className="num">{pctSign(o.sharePct)}</span>}
                     chevron
                   />
                 ))}
@@ -435,7 +453,7 @@ export function PropertyDetailView({
                     p.commission ? (
                       <span className="num">
                         {p.commission.kind === "percent"
-                          ? `${num(p.commission.value)}٪`
+                          ? pctSign(p.commission.value)
                           : money(p.commission.value)}
                       </span>
                     ) : undefined

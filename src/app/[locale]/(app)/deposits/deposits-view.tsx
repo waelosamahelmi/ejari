@@ -18,7 +18,7 @@ import { SegmentedControl } from "@/components/ui/segmented";
 import { DatePicker } from "@/components/ui/date-picker";
 import { EmptyState } from "@/components/ui/empty-state";
 import { NoPaymentsIllustration } from "@/components/illustrations";
-import { useMoney } from "@/components/shell/prefs-context";
+import { useMoney, useJoin } from "@/components/shell/prefs-context";
 import { useAction } from "@/hooks/use-action";
 import { deleteDeposit, saveDeposit, saveReconciliationNote } from "@/server/actions/expenses";
 import { formatDate, formatPeriod, todayKuwait } from "@/domain/dates";
@@ -63,6 +63,7 @@ export function DepositsView({
   const tc = useTranslations("common");
   const tDest = useTranslations("enums.depositDestination");
   const locale = useLocale() as "ar" | "en";
+  const join = useJoin();
   const money = useMoney();
   const router = useRouter();
   const pathname = usePathname();
@@ -179,7 +180,7 @@ export function DepositsView({
       enableSorting: false,
       cell: (c) => (
         <span className="text-label-2 text-[13px]">
-          {c.row.original.properties.map((p) => p.name).join("، ")}
+          {join(c.row.original.properties.map((p) => p.name))}
         </span>
       ),
     },

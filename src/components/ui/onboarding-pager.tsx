@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -38,7 +38,7 @@ export function OnboardingPager({
   return (
     <div className="relative h-dvh overflow-hidden bg-black text-white">
       <AnimatePresence initial={false}>
-        <motion.div
+        <m.div
           key={i}
           className="absolute inset-0"
           initial={{ opacity: 0, scale: 1.04 }}
@@ -56,12 +56,12 @@ export function OnboardingPager({
             blurDataURL={s.photo.blur}
             className="object-cover"
           />
-        </motion.div>
+        </m.div>
       </AnimatePresence>
       <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,.78),rgba(0,0,0,.35)_45%,rgba(0,0,0,0)_70%)]" />
       <div className="scrim-top absolute inset-0" />
       <div className="absolute inset-x-0 top-0 p-6 pt-[calc(20px+var(--safe-top))]">{logo}</div>
-      <motion.div
+      <m.div
         className="absolute inset-x-0 bottom-0 mx-auto max-w-lg px-6 pb-[calc(28px+var(--safe-bottom))]"
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
@@ -74,7 +74,7 @@ export function OnboardingPager({
         }}
       >
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={i}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -85,9 +85,9 @@ export function OnboardingPager({
               {s.title} <strong className="font-semibold">{s.strong}</strong>
             </h1>
             <p className="mt-3 text-[16px] leading-6 text-white/80">{s.subtitle}</p>
-          </motion.div>
+          </m.div>
         </AnimatePresence>
-        <div className="my-7 flex items-center gap-1.5" role="tablist">
+        <div className="my-7 flex items-center" role="tablist">
           {slides.map((_, n) => (
             <button
               key={n}
@@ -96,11 +96,16 @@ export function OnboardingPager({
               aria-selected={n === i}
               aria-label={pageLabel(n + 1, slides.length)}
               onClick={() => setI(n)}
-              className={cn(
-                "h-1.5 rounded-full bg-white transition-all duration-300",
-                n === i ? "w-6" : "w-1.5 opacity-50",
-              )}
-            />
+              className="flex h-6 min-w-6 items-center justify-center"
+            >
+              <span
+                aria-hidden
+                className={cn(
+                  "h-1.5 rounded-full bg-white transition-all duration-300",
+                  n === i ? "w-6" : "w-1.5 opacity-50",
+                )}
+              />
+            </button>
           ))}
         </div>
         <div className="space-y-3">
@@ -119,7 +124,7 @@ export function OnboardingPager({
             {secondaryLabel}
           </button>
         </div>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

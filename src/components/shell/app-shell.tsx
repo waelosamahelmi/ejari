@@ -4,13 +4,23 @@ import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Sidebar } from "./sidebar";
 import { FloatingTabBar } from "./floating-tab-bar";
-import { CommandPalette } from "./command-palette";
-import { KeyboardShortcutsSheet, useGlobalShortcuts } from "./keyboard";
+import dynamic from "next/dynamic";
+import { useGlobalShortcuts } from "./keyboard";
 import { SessionProvider, type ClientSession } from "./prefs-context";
 import { PwaProvider } from "@/components/pwa/pwa-provider";
+import { PullToRefresh } from "./pull-to-refresh";
 import { AccountMenu } from "./account-menu";
 import { NotificationBell } from "./notification-center";
 import { LaunchAnimation } from "./launch-animation";
+
+// Loaded on first use: cmdk and the shortcuts sheet stay out of every page's initial JS.
+const CommandPalette = dynamic(() => import("./command-palette").then((m) => m.CommandPalette), {
+  ssr: false,
+});
+const KeyboardShortcutsSheet = dynamic(
+  () => import("./keyboard-sheet").then((m) => m.KeyboardShortcutsSheet),
+  { ssr: false },
+);
 
 const ShellCtx = createContext<{ openPalette: () => void } | null>(null);
 
@@ -32,6 +42,10 @@ export function AppShell({
   const [palette, setPalette] = useState(false);
   const openPalette = useCallback(() => setPalette(true), []);
   const { help, setHelp } = useGlobalShortcuts(openPalette);
+  const [paletteUsed, setPaletteUsed] = useState(false);
+  const [helpUsed, setHelpUsed] = useState(false);
+  if (palette && !paletteUsed) setPaletteUsed(true);
+  if (help && !helpUsed) setHelpUsed(true);
   return (
     <SessionProvider value={session}>
       <PwaProvider>
@@ -46,18 +60,20 @@ export function AppShell({
             <Sidebar role={session.role} orgName={session.orgName} />
             <div className="min-w-0 flex-1">
               {banner}
-              <main
-                id="main"
-                className="mx-auto w-full max-w-[1440px] overflow-x-clip px-4 pb-[calc(120px+var(--safe-bottom))] lg:px-8 lg:pb-12"
-              >
-                {children}
-              </main>
+              <PullToRefresh>
+                <main
+                  id="main"
+                  className="mx-auto w-full max-w-[1440px] overflow-x-clip px-4 pb-[calc(120px+var(--safe-bottom))] lg:px-8 lg:pb-12"
+                >
+                  {children}
+                </main>
+              </PullToRefresh>
             </div>
           </div>
           <FloatingTabBar role={session.role} />
           <LaunchAnimation />
-          <CommandPalette open={palette} onOpenChange={setPalette} />
-          <KeyboardShortcutsSheet open={help} onOpenChange={setHelp} />
+          {paletteUsed && <CommandPalette open={palette} onOpenChange={setPalette} />}
+          {helpUsed && <KeyboardShortcutsSheet open={help} onOpenChange={setHelp} />}
         </ShellCtx.Provider>
       </PwaProvider>
     </SessionProvider>

@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,7 +14,12 @@ import { MoneyInput } from "@/components/ui/money-input";
 import { propertySchema, type PropertyInput } from "@/lib/schemas/master";
 import { saveProperty } from "@/server/actions/master";
 import { useAction, useFieldError } from "@/hooks/use-action";
-import { OwnerFormSheet } from "@/components/domain/owners/owner-form";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const OwnerFormSheet = dynamic(
+  () => import("@/components/domain/owners/owner-form").then((m) => m.OwnerFormSheet),
+  { ssr: false },
+);
 
 export type PropertyFormValue = PropertyInput & { id: string };
 

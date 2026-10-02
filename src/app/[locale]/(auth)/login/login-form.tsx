@@ -101,7 +101,7 @@ export function LoginForm({ showDemo }: { showDemo: boolean }) {
       <Button type="submit" size="lg" block loading={pending} disabled={!email || !password}>
         {t("submit")}
       </Button>
-      <div className="text-label-3 flex items-center gap-3 text-[13px]">
+      <div className="text-label-2 flex items-center gap-3 text-[13px]">
         <span className="bg-separator h-px flex-1" />
         {t("or")}
         <span className="bg-separator h-px flex-1" />

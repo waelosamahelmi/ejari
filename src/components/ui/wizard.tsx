@@ -1,6 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
@@ -49,7 +49,7 @@ export function Wizard({
         >
           {steps.map((s, i) => (
             <li key={s} aria-current={i === current ? "step" : undefined} title={s}>
-              <motion.span
+              <m.span
                 layout
                 className={cn(
                   "block h-2 rounded-full",

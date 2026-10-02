@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useState, useTransition } from "react";
 import {
   Bath,
@@ -28,7 +29,6 @@ import { StickyActionBar } from "@/components/ui/sticky-action-bar";
 import { Button } from "@/components/ui/button";
 import { AlertDialog } from "@/components/ui/dialog";
 import { Documents } from "@/components/domain/documents";
-import { UnitFormSheet } from "@/components/domain/units/unit-form";
 import { useMoney } from "@/components/shell/prefs-context";
 import { deleteUnit, setUnitMaintenance } from "@/server/actions/master";
 import { formatDate, parsePeriod, monthNameAr, monthNameEn } from "@/domain/dates";
@@ -36,6 +36,12 @@ import { PERIOD_STATUS_STYLE } from "@/lib/status";
 import { whatsappLink } from "@/domain/validation";
 import { cn } from "@/lib/utils";
 import type { ContractStatus, PeriodStatus, UnitStatus, UnitType } from "@/domain/types";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const UnitFormSheet = dynamic(
+  () => import("@/components/domain/units/unit-form").then((m) => m.UnitFormSheet),
+  { ssr: false },
+);
 
 export interface UnitDetail {
   id: string;
@@ -231,6 +237,7 @@ export function UnitDetailView({
                   >
                     <span
                       className={cn("h-9 w-full rounded-[8px]", PERIOD_STATUS_STYLE[c.status].cell)}
+                      role="img"
                       aria-label={`${c.period} ${tPeriod(c.status)}`}
                     />
                     <span className="text-label-2 text-[11px]">

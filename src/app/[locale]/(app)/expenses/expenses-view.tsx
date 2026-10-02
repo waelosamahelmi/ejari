@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { NoExpensesIllustration, NoResultsIllustration } from "@/components/illustrations";
-import { useMoney } from "@/components/shell/prefs-context";
+import { useMoney, useJoin } from "@/components/shell/prefs-context";
 import { formatDate } from "@/domain/dates";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +46,7 @@ export function ExpensesView({
   properties: { id: string; name: string }[];
 }) {
   const t = useTranslations("expenses");
+  const join = useJoin();
   const tStatus = useTranslations("enums.voucherStatus");
   const money = useMoney();
   const router = useRouter();
@@ -91,7 +92,7 @@ export function ExpensesView({
       id: "props",
       header: t("columns.properties"),
       enableSorting: false,
-      cell: (c) => <span className="text-[14px]">{c.row.original.propertyNames.join("، ")}</span>,
+      cell: (c) => <span className="text-[14px]">{join(c.row.original.propertyNames)}</span>,
     },
     {
       accessorKey: "total",
@@ -106,7 +107,7 @@ export function ExpensesView({
         <span
           className={cn(
             "font-semibold",
-            c.row.original.status === "void" && "text-label-3 line-through",
+            c.row.original.status === "void" && "text-label-2 line-through",
           )}
         >
           {money(c.row.original.total)}

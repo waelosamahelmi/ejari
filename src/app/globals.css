@@ -20,10 +20,11 @@
   --bg-inset: #e4e6eb;
   --separator: rgba(60, 60, 67, 0.16);
   --label: #0e0f12;
-  --label-2: rgba(60, 60, 67, 0.64);
+  --label-2: rgba(60, 60, 67, 0.8); /* ≥ 4.5:1 on paper, mist and inset (WCAG AA small text) */
   --label-3: rgba(60, 60, 67, 0.36);
   --accent: var(--brand-ink);
-  --link: var(--brand-gulf);
+  /* Text links use a slightly deeper gulf so they reach 4.5:1 on mist; fills keep --brand-gulf. */
+  --link: #274fe6;
   --focus: var(--brand-gulf);
 
   --green: #34c759;
@@ -33,9 +34,10 @@
   --teal: #30b0c7;
   --gray: #8e8e93;
   /* text-safe variants for small labels on white (≥ 4.5:1) */
-  --green-text: #1e7d36;
-  --orange-text: #b35c00;
-  --red-text: #d70015;
+  --green-text: #176b2d;
+  --orange-text: #974b00;
+  --red-text: #c20012;
+  --rose-text: #b3245a;
   --indigo-text: #4b49c7;
   --teal-text: #0f6f83;
   --gray-text: #636366;
@@ -71,6 +73,7 @@
 }
 
 .dark {
+  --link: var(--brand-gulf);
   --brand-ink: #f5f5f7;
   --brand-paper: #1c1c1e;
   --brand-mist: #0b0b0d;
@@ -97,6 +100,7 @@
   --green-text: #30d158;
   --orange-text: #ffb340;
   --red-text: #ff6961;
+  --rose-text: #ff8fb8;
   --indigo-text: #9a99ff;
   --teal-text: #5ed4ea;
   --gray-text: #aeaeb2;
@@ -115,11 +119,11 @@
 }
 
 /* Accent picker (Apple system colors). Primary buttons stay Ink. */
-[data-accent="blue"] { --accent: #007aff; --link: #007aff; }
+[data-accent="blue"] { --accent: #007aff; --link: #0062cc; }
 [data-accent="indigo"] { --accent: #5856d6; --link: #5856d6; }
 [data-accent="teal"] { --accent: #30b0c7; --link: #0f6f83; }
-[data-accent="green"] { --accent: #34c759; --link: #1e7d36; }
-[data-accent="orange"] { --accent: #ff9500; --link: #b35c00; }
+[data-accent="green"] { --accent: #34c759; --link: #176b2d; }
+[data-accent="orange"] { --accent: #ff9500; --link: #974b00; }
 [data-accent="pink"] { --accent: #f0508c; --link: #c42a66; }
 .dark[data-accent="blue"] { --accent: #0a84ff; --link: #409cff; }
 
@@ -148,6 +152,7 @@
   --color-gray: var(--gray);
   --color-green-text: var(--green-text);
   --color-orange-text: var(--orange-text);
+  --color-rose-text: var(--rose-text);
   --color-red-text: var(--red-text);
   --color-indigo-text: var(--indigo-text);
   --color-teal-text: var(--teal-text);
@@ -348,3 +353,18 @@
     overscroll-behavior: none;
   }
 }
+
+/* Launch animation (§18.6) */
+@keyframes launch-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes launch-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes launch-pop { 0% { transform: scale(0); } 70% { transform: scale(1.2); } 100% { transform: scale(1); } }
+@keyframes launch-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.launch-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: launch-draw 300ms ease-out forwards; }
+.launch-fill { opacity: 0; animation: launch-fade 150ms 250ms ease-out forwards; }
+.launch-dot { transform-box: fill-box; transform-origin: center; transform: scale(0); animation: launch-pop 220ms 350ms ease-out forwards; }
+.launch-word { opacity: 0; animation: launch-rise 200ms 350ms ease-out forwards; }
+
+/* 100%-collected celebration: a sand highlight sweeps the ring once (§18.6). */
+@keyframes ring-shimmer { from { stroke-dashoffset: 0; opacity: 0.95; } to { stroke-dashoffset: calc(-1 * var(--ring-c)); opacity: 0; } }
+.ring-shimmer { opacity: 0; animation: ring-shimmer 1.4s 0.6s ease-in-out forwards; }
+@media (prefers-reduced-motion: reduce) { .ring-shimmer { display: none; } }

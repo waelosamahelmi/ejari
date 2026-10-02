@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useState, useTransition } from "react";
 import { Ban, Mail, MessageCircle, Pencil, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -16,7 +17,6 @@ import { Toggle } from "@/components/ui/toggle";
 import { AlertDialog } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/input";
 import { Documents } from "@/components/domain/documents";
-import { TenantFormSheet } from "@/components/domain/tenants/tenant-form";
 import { NoContractsIllustration } from "@/components/illustrations";
 import { useMoney } from "@/components/shell/prefs-context";
 import { setBlacklist } from "@/server/actions/master";
@@ -25,6 +25,12 @@ import { formatPhone, whatsappLink } from "@/domain/validation";
 import { cn } from "@/lib/utils";
 import { CHARGE_KINDS, type ContractStatus, type LegalStatus } from "@/domain/types";
 import type { LedgerEntry } from "@/domain/ledger";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const TenantFormSheet = dynamic(
+  () => import("@/components/domain/tenants/tenant-form").then((m) => m.TenantFormSheet),
+  { ssr: false },
+);
 
 type LedgerRow = LedgerEntry & { contractNo: string };
 
@@ -113,7 +119,7 @@ export function TenantDetailView({
               : `${(CHARGE_KINDS as readonly string[]).includes(r.description) ? tKind(r.description as "rent") : r.description} ${r.period ?? ""}`;
         return (
           <span className={cn(r.kind === "free" && "text-teal-text")}>
-            {label} <span className="text-label-3 num text-[12px]">{r.contractNo}</span>
+            {label} <span className="text-label-2 num text-[12px]">{r.contractNo}</span>
           </span>
         );
       },

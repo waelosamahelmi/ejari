@@ -8,7 +8,18 @@ import { StatementPrint } from "@/components/print/statement-print";
 import { Letterhead, PoweredBy } from "@/components/print/letterhead";
 import { PrintToolbar } from "@/components/print/print-toolbar";
 
-export const metadata = { title: "بيان بالإيرادات والمصروفات" };
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}) {
+  const { lang } = await searchParams;
+  const t = await getTranslations({
+    locale: lang === "en" ? "en" : "ar",
+    namespace: "documents.printTitles",
+  });
+  return { title: t("statement") };
+}
 
 export default async function PrintStatement({
   params,

@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { Pencil, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -12,12 +13,17 @@ import { Sheet } from "@/components/ui/sheet";
 import { Field, Input, Textarea } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Documents } from "@/components/domain/documents";
-import { LegalCaseSheet } from "@/components/domain/legal/case-form";
 import { useMoney } from "@/components/shell/prefs-context";
 import { useAction } from "@/hooks/use-action";
 import { addLegalEvent, setLegalStatus, type LegalCaseInput } from "@/server/actions/legal";
 import { formatDate, todayKuwait } from "@/domain/dates";
 import { LEGAL_STATUSES } from "@/domain/types";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const LegalCaseSheet = dynamic(
+  () => import("@/components/domain/legal/case-form").then((m) => m.LegalCaseSheet),
+  { ssr: false },
+);
 
 export function CaseView({
   value,

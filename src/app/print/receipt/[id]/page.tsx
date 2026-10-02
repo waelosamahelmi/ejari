@@ -8,7 +8,18 @@ import { formatDate, formatPeriod } from "@/domain/dates";
 import { fromFils, splitDinarFils } from "@/domain/money";
 import { tafqeetKWD, wordsEN } from "@/domain/tafqeet";
 
-export const metadata = { title: "سند قبض" };
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}) {
+  const { lang } = await searchParams;
+  const t = await getTranslations({
+    locale: lang === "en" ? "en" : "ar",
+    namespace: "documents.printTitles",
+  });
+  return { title: t("receipt") };
+}
 
 /** Receipt (A5 / half A4): letterhead, receipt no., tenant, unit, periods, method, amount in words, collector signature. */
 export default async function PrintReceipt({

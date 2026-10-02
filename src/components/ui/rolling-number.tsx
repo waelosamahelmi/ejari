@@ -1,8 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { animate, useReducedMotion } from "motion/react";
+import { useReducedMotion } from "@/hooks/use-media";
 
-/** Animates a number from its previous value to the next (rolling counter). */
+const easeOut = (t: number) => 1 - Math.pow(1 - t, 4);
+
+/** Animates a number from its previous value to the next (rolling counter), rAF-driven. */
 export function RollingNumber({
   value,
   format,
@@ -18,18 +20,21 @@ export function RollingNumber({
   const [shown, setShown] = useState(value);
   const prev = useRef(value);
   useEffect(() => {
-    if (reduced) {
+    const from = prev.current;
+    prev.current = value;
+    if (reduced || from === value) {
       setShown(value);
-      prev.current = value;
       return;
     }
-    const controls = animate(prev.current, value, {
-      duration,
-      ease: [0.2, 0.9, 0.25, 1],
-      onUpdate: (v) => setShown(Math.round(v)),
-    });
-    prev.current = value;
-    return () => controls.stop();
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / (duration * 1000));
+      setShown(Math.round(from + (value - from) * easeOut(t)));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [value, reduced, duration]);
   return <span className={className}>{format(shown)}</span>;
 }

@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { Building2, Landmark, Mail, Pencil, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -7,9 +8,14 @@ import { LargeTitleHeader } from "@/components/shell/large-title-header";
 import { Button } from "@/components/ui/button";
 import { GroupedList, GroupedSection, ListRow } from "@/components/ui/grouped-list";
 import { IconTile } from "@/components/ui/icon-tile";
-import { OwnerFormSheet } from "@/components/domain/owners/owner-form";
 import { Documents } from "@/components/domain/documents";
 import { formatPhone } from "@/domain/validation";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const OwnerFormSheet = dynamic(
+  () => import("@/components/domain/owners/owner-form").then((m) => m.OwnerFormSheet),
+  { ssr: false },
+);
 
 export interface OwnerDetail {
   id: string;

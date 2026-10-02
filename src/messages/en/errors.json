@@ -21,7 +21,8 @@
     "title": "Something went wrong",
     "subtitle": "We couldn't show this page. Your data is safe.",
     "notFoundTitle": "Page not found",
-    "notFoundSubtitle": "It may have been moved or removed."
+    "notFoundSubtitle": "It may have been moved or removed.",
+    "home": "Back to home"
   },
   "field": {
     "required": "This field is required.",

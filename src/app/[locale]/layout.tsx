@@ -8,6 +8,7 @@ import { routing } from "@/i18n/routing";
 import { inter, plexArabic } from "@/lib/fonts";
 import { THEME_SCRIPT } from "@/components/shell/theme";
 import { Toaster } from "@/components/ui/toaster";
+import { MotionProvider } from "@/components/motion-provider";
 import { SPLASH_SCREENS } from "@/config/generated-assets";
 import { PUBLIC_ENV } from "@/lib/env";
 
@@ -76,8 +77,10 @@ export default async function LocaleLayout({
       </head>
       <body className={`${plexArabic.variable} ${inter.variable}`}>
         <NextIntlClientProvider>
-          {children}
-          <Toaster />
+          <MotionProvider>
+            {children}
+            <Toaster />
+          </MotionProvider>
         </NextIntlClientProvider>
       </body>
     </html>

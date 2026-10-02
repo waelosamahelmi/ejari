@@ -19,7 +19,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HistogramRangeSlider } from "@/components/ui/histogram-range-slider";
 import { NoResultsIllustration } from "@/components/illustrations";
-import { useMoney, useNum } from "@/components/shell/prefs-context";
+import { useMoney, useNum, usePercent } from "@/components/shell/prefs-context";
 import { formatDate } from "@/domain/dates";
 import type { Cell, RCol, ReportParams, ReportSpec } from "@/server/reports/build";
 import { cn } from "@/lib/utils";
@@ -52,6 +52,7 @@ export function ReportView({
   const locale = useLocale() as "ar" | "en";
   const money = useMoney();
   const num = useNum();
+  const pctSign = usePercent();
   const router = useRouter();
   const pathname = usePathname();
   const [pending, start] = useTransition();
@@ -76,7 +77,7 @@ export function ReportView({
       case "date":
         return formatDate(String(v));
       case "pct":
-        return `${num(Math.round(Number(v) * 1000) / 10)}٪`;
+        return pctSign(Math.round(Number(v) * 1000) / 10);
       case "int":
         return num(Number(v));
       case "bool":
@@ -90,7 +91,7 @@ export function ReportView({
     k.type === "money"
       ? money(k.value)
       : k.type === "pct"
-        ? `${num(Math.round(k.value * 1000) / 10)}٪`
+        ? pctSign(Math.round(k.value * 1000) / 10)
         : k.type === "days"
           ? tc("labels.days", { count: k.value })
           : num(k.value);
@@ -325,7 +326,7 @@ export function ReportView({
                     <span className="num">
                       {k.delta.pct === null
                         ? "—"
-                        : `${num(Math.round(Math.abs(k.delta.pct) * 1000) / 10)}٪`}
+                        : pctSign(Math.round(Math.abs(k.delta.pct) * 1000) / 10)}
                     </span>
                   </div>
                 )}

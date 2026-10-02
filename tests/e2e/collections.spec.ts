@@ -25,6 +25,8 @@ test.describe("collections", () => {
     const sheet = page.getByRole("dialog");
     await expect(sheet.getByText("المستحق حتى اليوم")).toBeVisible();
     await sheet.getByLabel("رقم الإيصال").fill("77341");
+    // Pin the receipt date so the payment lands in the September statement regardless of "today".
+    await sheet.locator("#p-date").fill("25/09/2026");
     await page.getByRole("button", { name: /حفظ الدفعة/ }).click();
     await expect(page.getByText(/تم تسجيل/)).toBeVisible({ timeout: 15_000 });
     await expect(page.getByRole("row").filter({ hasText: "تسعة" }).first()).toContainText("77341");

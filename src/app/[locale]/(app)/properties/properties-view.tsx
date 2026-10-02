@@ -1,8 +1,8 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useMemo, useState, useTransition } from "react";
 import { Building2, Factory, Home, Layers, Plus, Store } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { motion } from "motion/react";
 import { Link } from "@/i18n/navigation";
 import { LargeTitleHeader } from "@/components/shell/large-title-header";
 import { SearchField } from "@/components/ui/search-field";
@@ -13,11 +13,15 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { NoPropertiesIllustration, NoResultsIllustration } from "@/components/illustrations";
 import { Select } from "@/components/ui/input";
-import { PropertyFormSheet } from "@/components/domain/properties/property-form";
 import { togglePinnedProperty } from "@/server/actions/master";
 import { useMoney, useNum } from "@/components/shell/prefs-context";
 import type { PropertySummary } from "@/server/queries/properties";
-import { gentle } from "@/lib/motion";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const PropertyFormSheet = dynamic(
+  () => import("@/components/domain/properties/property-form").then((m) => m.PropertyFormSheet),
+  { ssr: false },
+);
 
 type Row = PropertySummary & { coverUrl: string | null; blur?: string };
 
@@ -157,9 +161,9 @@ export function PropertiesView({
       ) : filtered.length === 0 ? (
         <EmptyState illustration={<NoResultsIllustration />} title={t("noResults")} compact />
       ) : (
-        <motion.ul layout className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {filtered.map((p, i) => (
-            <motion.li key={p.id} layout transition={gentle}>
+            <li key={p.id}>
               <PropertyPhotoCard
                 LinkComponent={Link}
                 href={`/properties/${p.id}`}
@@ -192,9 +196,9 @@ export function PropertiesView({
                   </>
                 }
               />
-            </motion.li>
+            </li>
           ))}
-        </motion.ul>
+        </ul>
       )}
       {canEdit && (
         <Button

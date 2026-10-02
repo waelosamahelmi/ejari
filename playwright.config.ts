@@ -8,6 +8,8 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000, toHaveScreenshot: { maxDiffPixelRatio: 0.02 } },
   fullyParallel: false,
+  // Specs share one seeded local database and some (visual) re-seed it; run them strictly in order.
+  workers: 1,
   retries: 0,
   reporter: [["list"]],
   snapshotPathTemplate: "tests/e2e/__screenshots__/{testFilePath}/{arg}{ext}",

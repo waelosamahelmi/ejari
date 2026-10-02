@@ -8,5 +8,12 @@
   "deleteConfirm": "Delete document?",
   "deleted": "Deleted",
   "tooLarge": "File is over 15 MB or not a supported type.",
-  "camera": "Take photo"
+  "camera": "Take photo",
+  "printTitles": {
+    "contract": "Lease contract",
+    "statement": "Income & expense statement",
+    "receipt": "Receipt",
+    "voucher": "Payment voucher",
+    "summary": "Monthly summary"
+  }
 }

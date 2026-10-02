@@ -1,10 +1,8 @@
 "use client";
-import { motion } from "motion/react";
 import { Ellipsis } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
-import { spring } from "@/lib/motion";
 import { navFor, TAB_KEYS } from "./nav-config";
 import type { Role } from "@/domain/types";
 
@@ -38,17 +36,10 @@ export function FloatingTabBar({ role }: { role: Role }) {
                 aria-current={active ? "page" : undefined}
                 aria-label={tab.label}
                 className={cn(
-                  "relative flex h-12 items-center justify-center gap-2 rounded-full px-3.5 transition-colors",
-                  active ? "text-[#0E0F12]" : "text-white/80 hover:text-white",
+                  "relative flex h-12 items-center justify-center gap-2 rounded-full px-3.5 transition-[background-color,color] duration-300 ease-[var(--ease-spring)] motion-reduce:transition-none",
+                  active ? "bg-white text-[#0E0F12]" : "text-white/80 hover:text-white",
                 )}
               >
-                {active && (
-                  <motion.span
-                    layoutId="tab-active"
-                    transition={spring}
-                    className="absolute inset-0 rounded-full bg-white"
-                  />
-                )}
                 <Icon className="relative size-[22px]" strokeWidth={active ? 2.2 : 1.8} />
                 {active && (
                   <span className="relative max-w-24 truncate text-[14px] font-semibold">

@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import {
   BadgePercent,
@@ -32,7 +33,6 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { MoneyInput } from "@/components/ui/money-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMoney } from "@/components/shell/prefs-context";
-import { AdjustmentSheet, ManualChargeSheet } from "@/components/domain/payments/adjustment-sheet";
 import { useAction } from "@/hooks/use-action";
 import {
   duplicateContract,
@@ -50,6 +50,16 @@ import { allowedActions, expectedMoveOut } from "@/domain/contracts";
 import { tafqeetDuration, durationEN } from "@/domain/tafqeet";
 import { cn } from "@/lib/utils";
 import type { ChargeKind, ContractStatus, ContractType, PeriodStatus } from "@/domain/types";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const AdjustmentSheet = dynamic(
+  () => import("@/components/domain/payments/adjustment-sheet").then((m) => m.AdjustmentSheet),
+  { ssr: false },
+);
+const ManualChargeSheet = dynamic(
+  () => import("@/components/domain/payments/adjustment-sheet").then((m) => m.ManualChargeSheet),
+  { ssr: false },
+);
 
 interface ScheduleRow {
   period: string;

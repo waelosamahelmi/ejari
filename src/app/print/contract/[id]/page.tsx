@@ -10,7 +10,18 @@ import { PrintToolbar } from "@/components/print/print-toolbar";
 import { PUBLIC_ENV } from "@/lib/env";
 import type { RenderedContract } from "@/domain/templates";
 
-export const metadata = { title: "عقد إيجار" };
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}) {
+  const { lang } = await searchParams;
+  const t = await getTranslations({
+    locale: lang === "en" ? "en" : "ar",
+    namespace: "documents.printTitles",
+  });
+  return { title: t("contract") };
+}
 
 export default async function PrintContract({
   params,

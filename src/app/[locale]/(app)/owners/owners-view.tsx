@@ -1,4 +1,6 @@
 "use client";
+import dynamic from "next/dynamic";
+import { usePercent } from "@/components/shell/prefs-context";
 import { useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -8,8 +10,13 @@ import { SearchField } from "@/components/ui/search-field";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { NoTenantsIllustration } from "@/components/illustrations";
-import { OwnerFormSheet } from "@/components/domain/owners/owner-form";
 import { initials } from "@/lib/utils";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const OwnerFormSheet = dynamic(
+  () => import("@/components/domain/owners/owner-form").then((m) => m.OwnerFormSheet),
+  { ssr: false },
+);
 
 interface Row {
   id: string;
@@ -21,6 +28,7 @@ interface Row {
 }
 
 export function OwnersView({ rows, canEdit }: { rows: Row[]; canEdit: boolean }) {
+  const pctSign = usePercent();
   const t = useTranslations("owners");
   const router = useRouter();
   const [q, setQ] = useState("");
@@ -64,7 +72,7 @@ export function OwnersView({ rows, canEdit }: { rows: Row[]; canEdit: boolean })
           {filtered.map((o) => (
             <li key={o.id}>
               <Link href={`/owners/${o.id}`} className="card press flex items-start gap-4 p-5">
-                <span className="bg-rose/15 text-rose flex size-12 shrink-0 items-center justify-center rounded-full text-[16px] font-semibold">
+                <span className="bg-rose/15 text-rose-text flex size-12 shrink-0 items-center justify-center rounded-full text-[16px] font-semibold">
                   {initials(o.name)}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -82,7 +90,7 @@ export function OwnersView({ rows, canEdit }: { rows: Row[]; canEdit: boolean })
                         className="bg-inset rounded-full px-2.5 py-0.5 text-[12px]"
                       >
                         {p.name}
-                        {p.share < 100 ? ` · ${p.share}٪` : ""}
+                        {p.share < 100 ? ` · ${pctSign(p.share)}` : ""}
                       </span>
                     ))}
                   </div>

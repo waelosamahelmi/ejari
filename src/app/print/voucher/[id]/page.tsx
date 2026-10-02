@@ -8,7 +8,18 @@ import { formatDate } from "@/domain/dates";
 import { splitDinarFils } from "@/domain/money";
 import { tafqeetKWD, wordsEN } from "@/domain/tafqeet";
 
-export const metadata = { title: "سند صرف" };
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}) {
+  const { lang } = await searchParams;
+  const t = await getTranslations({
+    locale: lang === "en" ? "en" : "ar",
+    namespace: "documents.printTitles",
+  });
+  return { title: t("voucher") };
+}
 
 function Money({ fils }: { fils: number }) {
   const { dinars, fils: f } = splitDinarFils(fils);

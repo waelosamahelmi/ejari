@@ -1,6 +1,9 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
-import { Plus, SlidersHorizontal } from "lucide-react";
+import { MessageCircle, Phone, Plus, SlidersHorizontal } from "lucide-react";
+import { SwipeActions } from "@/components/ui/swipe-actions";
+import { whatsappLink } from "@/domain/validation";
 import { useTranslations } from "next-intl";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useRouter, Link } from "@/i18n/navigation";
@@ -13,10 +16,15 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Sheet } from "@/components/ui/sheet";
 import { HistogramRangeSlider } from "@/components/ui/histogram-range-slider";
 import { NoResultsIllustration, NoTenantsIllustration } from "@/components/illustrations";
-import { TenantFormSheet } from "@/components/domain/tenants/tenant-form";
 import { useMoney } from "@/components/shell/prefs-context";
 import { normalizeDigits } from "@/domain/money";
 import { cn } from "@/lib/utils";
+
+// Sheets are code-split: they load after hydration instead of with the page.
+const TenantFormSheet = dynamic(
+  () => import("@/components/domain/tenants/tenant-form").then((m) => m.TenantFormSheet),
+  { ssr: false },
+);
 
 export interface TenantRow {
   id: string;
@@ -211,25 +219,46 @@ export function TenantsView({ rows, canEdit }: { rows: TenantRow[]; canEdit: boo
             <EmptyState compact illustration={<NoResultsIllustration />} title={t("noResults")} />
           }
           renderCard={(r) => (
-            <Link
-              href={`/tenants/${r.id}`}
-              className="bg-paper press flex items-center gap-3 rounded-[20px] p-4 shadow-[var(--sh-card)]"
+            <SwipeActions
+              actions={
+                r.phone
+                  ? [
+                      {
+                        label: tc("actions.call"),
+                        icon: <Phone />,
+                        tone: "green",
+                        href: `tel:+965${r.phone}`,
+                      },
+                      {
+                        label: tc("actions.whatsapp"),
+                        icon: <MessageCircle />,
+                        tone: "ink",
+                        href: whatsappLink(r.phone, ""),
+                      },
+                    ]
+                  : []
+              }
             >
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-[16px] font-semibold">{r.name}</div>
-                <div className="text-label-2 truncate text-[13px]">
-                  {r.units.join(" · ") || r.phone}
+              <Link
+                href={`/tenants/${r.id}`}
+                className="bg-paper press flex items-center gap-3 rounded-[20px] p-4 shadow-[var(--sh-card)]"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[16px] font-semibold">{r.name}</div>
+                  <div className="text-label-2 truncate text-[13px]">
+                    {r.units.join(" · ") || r.phone}
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                {status(r)}
-                {r.arrearsFils > 0 && (
-                  <span className="num text-red-text text-[14px] font-semibold">
-                    {money(r.arrearsFils)}
-                  </span>
-                )}
-              </div>
-            </Link>
+                <div className="flex flex-col items-end gap-1">
+                  {status(r)}
+                  {r.arrearsFils > 0 && (
+                    <span className="num text-red-text text-[14px] font-semibold">
+                      {money(r.arrearsFils)}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            </SwipeActions>
           )}
         />
       )}

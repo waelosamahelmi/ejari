@@ -21,7 +21,8 @@
     "brand:build": "tsx scripts/brand/build-brand.ts",
     "brand:assets": "tsx scripts/brand/build-brand.ts && tsx scripts/generate-brand-assets.ts",
     "vapid": "tsx scripts/generate-vapid.ts",
-    "screenshots": "tsx scripts/capture-screenshots.ts"
+    "screenshots": "tsx scripts/capture-screenshots.ts",
+    "i18n:check": "tsx scripts/check-i18n.ts"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
@@ -67,6 +68,8 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@eslint/eslintrc": "^3.3.7",
+    "@formatjs/icu-messageformat-parser": "3.5.20",
+    "@next/bundle-analyzer": "^16.3.7",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.6.3",

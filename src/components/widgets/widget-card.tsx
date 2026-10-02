@@ -18,6 +18,7 @@ export function WidgetCard({
   children,
   className,
   icon,
+  shotMask,
 }: {
   size: WidgetSize;
   title?: ReactNode;
@@ -25,9 +26,14 @@ export function WidgetCard({
   children: ReactNode;
   className?: string;
   icon?: ReactNode;
+  /** Marks widgets whose content depends on today's date, so visual regression can mask them. */
+  shotMask?: boolean;
 }) {
   return (
-    <section className={cn("card flex min-h-[168px] flex-col p-5", SIZE[size], className)}>
+    <section
+      data-shot-mask={shotMask ? "true" : undefined}
+      className={cn("card flex min-h-[168px] flex-col p-5", SIZE[size], className)}
+    >
       {(title || action) && (
         <header className="mb-3 flex items-center justify-between gap-2">
           <h2 className="text-label-2 flex items-center gap-2 text-[14px] font-semibold">
