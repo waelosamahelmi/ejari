@@ -2,10 +2,12 @@
 
 Rental property management for Kuwait — contracts, monthly collection statements, payment
 vouchers with multi-property allocation, deposits, legal cases, reports and an owner portal.
+New offices can self-register through a first-run setup wizard, then learn the product with a
+guided tour and a live activation checklist.
 
 Arabic-first (RTL) with a full English interface, KWD with 3 decimals, installable PWA with
-offline collections and web push. See `CLAUDE.md` for the full product specification and
-`docs/` for progress, decisions and the domain glossary.
+offline collections and web push. See `CLAUDE.md` for the full product specification, `docs/`
+for progress, decisions and the domain glossary, and `docs/LAUNCH.md` for the go-live runbook.
 
 ## Stack
 
@@ -44,6 +46,19 @@ Demo accounts (password `Demo12345!`): `admin@demo.test`, `accountant@demo.test`
 
 `pnpm seed` regenerates `supabase/seed.sql` from `src/demo/demo-data.ts` and applies it
 (needs `DATABASE_URL`, already set for the local port in `.env.example`).
+
+## First-run experience
+
+- `/{locale}/signup` — self-serve office registration (rate-limited; email confirmation in
+  production, instant session locally when confirmations are off). Set
+  `NEXT_PUBLIC_ALLOW_SIGNUP=false` to close registration.
+- `/{locale}/setup` — five-step wizard for a signed-in account with no office: identity (AR/EN
+  name + logo), preferences, an optional first property with auto-numbered units, then done.
+- Guided tour (`?tour=1`) — eleven steps across dashboard, properties, collections, contracts,
+  reports and install; runs once after setup, replayable from More, the account menu and ⌘K.
+- Activation checklist — live on the dashboard until complete or dismissed; every row deep-links
+  to the exact flow (property → units → tenant → contract → payment → team → install).
+- Public legal pages `/privacy` and `/terms` (contact via `NEXT_PUBLIC_SUPPORT_EMAIL`).
 
 ## Scripts
 
@@ -86,33 +101,32 @@ Demo accounts (password `Demo12345!`): `admin@demo.test`, `accountant@demo.test`
 
 ## Deploy to Vercel
 
-1. Create a Supabase project, then `npx supabase link` and `npx supabase db push` (or apply the
-   migrations in the dashboard SQL editor in order). Run the demo seed only for staging.
-2. Import the repo in Vercel; set the env vars from `.env.example` (production keys, real
-   `CRON_SECRET`, VAPID keys, `NEXT_PUBLIC_APP_URL=https://ejarikw.com`). `SENTRY_DSN` is
-   optional — monitoring stays off when unset.
-3. Deploy. `vercel.json` registers the cron jobs; Vercel sends `Authorization: Bearer
-   $CRON_SECRET`.
-4. In Supabase Auth, set the site URL and redirect URLs to the production domain and upload the
-   branded email templates.
+The full go-live runbook is `docs/LAUNCH.md`. Summary: create and link the Supabase project,
+`npx supabase db push`, import the repo in Vercel with the env vars from `.env.example`
+(`NEXT_PUBLIC_APP_URL=https://ejarikw.com`, `NEXT_PUBLIC_DEMO_ACCOUNTS=0`, real `CRON_SECRET`
+and VAPID keys; `SENTRY_DSN` optional), deploy, then set the Supabase Auth site URL, redirect
+URLs and branded email templates.
 
 ## Tests
 
 - **Unit** (`tests/unit`): money, tafqeet (40+ cases), dates/day names, validation, schedule,
-  allocation, ledger, expenses, contracts, templates, reports, i18n completeness — including the
-  Jabriya 157 August 2026 validation dataset (8,960.000 / 8,890.000 / 70.000).
+  allocation, ledger, expenses, contracts, templates, reports, account/checklist, i18n
+  completeness — including the Jabriya 157 August 2026 validation dataset
+  (8,960.000 / 8,890.000 / 70.000).
 - **RLS** (`tests/rls`): cross-org isolation and role limits (owner sees only own properties,
   collector cannot open expenses).
-- **E2E** (`tests/e2e`): login, collections statement, record payment, contract wizard → activate
-  → print, voucher split across properties, reports, PWA/offline sync, push payload, axe-core
-  accessibility (WCAG 2.2 AA, light/dark, ar/en), and visual regression baselines
-  (`tests/e2e/__screenshots__`, 20 screens × ar/en × light/dark × 390/1440).
+- **E2E** (`tests/e2e`): signup → first-run wizard → guided tour → activation checklist, login,
+  collections statement, record payment, contract wizard → activate → print, voucher split across
+  properties, reports, PWA/offline sync, push payload, axe-core accessibility (WCAG 2.2 AA,
+  light/dark, ar/en), and visual regression baselines (`tests/e2e/__screenshots__`,
+  24 screens × ar/en × light/dark × 390/1440).
 - E2E specs skip themselves when local Supabase is not running. The run re-seeds the local
   database for determinism (never against a remote project).
 
 ## Docs
 
 - `docs/PROGRESS.md` — phase checklist and current state
+- `docs/LAUNCH.md` — go-live runbook and pre-flight checks
 - `docs/DECISIONS.md` — product/technical decisions and assumptions
 - `docs/DOMAIN.md` — glossary and business rules
 - `docs/BRAND.md` · `docs/CREDITS.md` — brand system and photo credits

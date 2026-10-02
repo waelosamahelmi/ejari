@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -139,6 +139,13 @@ export function GuidedTour() {
   useEffect(() => {
     if (open) cardRef.current?.focus();
   }, [open, index, rect]);
+
+  // Keep the measured card height in sync so the position clamp never pushes it off-screen.
+  useLayoutEffect(() => {
+    if (!open) return;
+    const h = cardRef.current?.offsetHeight;
+    if (h && Math.abs(h - cardH) > 1) setCardH(h);
+  }, [open, index, rect, cardH]);
 
   useEffect(() => {
     if (!open) return;

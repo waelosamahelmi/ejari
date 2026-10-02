@@ -1,0 +1,5 @@
+/* Tour baselines: hide date-dependent dashboard widgets instead of masking them (the pink
+   mask overlay would otherwise paint on top of the tour card). */
+[data-shot-mask] {
+  visibility: hidden !important;
+}

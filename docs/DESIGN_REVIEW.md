@@ -53,3 +53,19 @@ compared side by side with the reference boards in `docs/design/references/`.
 The UI matches the photo-led glass direction and behaves like a precise finance tool: photos on
 overview and detail screens, calm white cards and dense tables on data screens. Nothing in scope
 looks translated, mirrored, or inverted; no console errors in the e2e suite.
+
+## Addendum — Phase 13 (launch readiness)
+
+New surfaces reviewed the same way (baselines `signup`, `setup`, `dashboard-new`, `tour`,
+ar/en × light/dark × 390/1440; axe on signup, setup and the tour):
+
+- **Signup / setup wizard** keep the photo-led glass language: hero frame on signup, dusk +
+  arch pattern card for the wizard, segmented preference controls, progress bar.
+- **Empty-office dashboard** replaces zeroed widgets with a welcome hero (CTAs to the first
+  property and the tour) plus the activation checklist — checked and dismissed states verified.
+- **Guided tour** spotlight/overlay card on the seeded dashboard; the card is fully visible at
+  both sizes (the baseline hides date-dependent widgets with CSS so the pink mask overlay never
+  covers the card). Fixed during review: route steps dropped `?tour=1` and closed the tour; the
+  card could be clamped off-screen before its height was measured.
+- **Checklist** rows are 44px targets with leading state circles, deep links and a progress bar;
+  the axe pass stays clean.

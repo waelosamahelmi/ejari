@@ -83,11 +83,12 @@ test.describe("signup, first-run wizard, tour & checklist", () => {
       .limit(1);
     expect(prefs).toHaveLength(1);
     await page.goto("/ar/dashboard");
+    await page.waitForLoadState("networkidle");
     await expect(page.getByRole("dialog")).not.toBeVisible();
 
     // 5) The activation checklist reflects the real data (property + units done).
-    await expect(page.getByText("لنكمل إعداد مكتبك")).toBeVisible();
-    await expect(page.getByText(/3 من 7/)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "لنكمل إعداد مكتبك" }).first()).toBeVisible();
+    await expect(page.getByText(/3 من 7/).first()).toBeVisible();
 
     // 6) Sign out and back in with the new credentials.
     await page.context().clearCookies();

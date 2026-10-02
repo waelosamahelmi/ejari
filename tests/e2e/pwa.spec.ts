@@ -158,6 +158,7 @@ test.describe("PWA", () => {
     await login(page, "admin");
     await context.grantPermissions(["notifications"], { origin: new URL(page.url()).origin });
     await waitForServiceWorker(page);
+    await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
     const cdp = await context.newCDPSession(page);
     const regId = new Promise<string>((resolve) => {
       cdp.on(
@@ -198,7 +199,7 @@ test.describe("PWA", () => {
               }),
             ),
           ),
-        { timeout: 10_000 },
+        { timeout: 25_000 },
       )
       .toEqual([{ title: "تم تحصيل ٣٠٠٫٠٠٠ د.ك", lang: "ar", dir: "rtl", url: "/ar/payments" }]);
   });

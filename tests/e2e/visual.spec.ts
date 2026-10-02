@@ -91,14 +91,25 @@ async function reseed() {
   ]);
   if (error) throw new Error(`seed notifications: ${error.message}`);
 
-  const [{ data: unit }, { data: res }, { data: inv }, { data: voucher }] = await Promise.all([
-    sb.from("contract_units").select("unit_id, contracts!inner(status)").eq("contracts.status", "active").limit(1).single(),
-    sb.from("contracts").select("id").eq("type", "residential").limit(1).single(),
-    sb.from("contracts").select("id").eq("type", "investment").limit(1).single(),
-    sb.from("expense_vouchers").select("id").limit(1).single(),
-  ]);
-  if (!unit || !res || !inv || !voucher) throw new Error("seed ids missing");
-  ids = { unit: unit.unit_id, residential: res.id, investment: inv.id, voucher: voucher.id };
+  let unitId: string | null = null;
+  let resId: string | null = null;
+  let invId: string | null = null;
+  let voucherId: string | null = null;
+  for (let i = 0; i < 30 && !(unitId && resId && invId && voucherId); i++) {
+    const [u, r0, r1, v] = await Promise.all([
+      sb.from("contract_units").select("unit_id, contracts!inner(status)").eq("contracts.status", "active").limit(1).maybeSingle(),
+      sb.from("contracts").select("id").eq("type", "residential").limit(1).maybeSingle(),
+      sb.from("contracts").select("id").eq("type", "investment").limit(1).maybeSingle(),
+      sb.from("expense_vouchers").select("id").limit(1).maybeSingle(),
+    ]);
+    unitId = u.data?.unit_id ?? null;
+    resId = r0.data?.id ?? null;
+    invId = r1.data?.id ?? null;
+    voucherId = v.data?.id ?? null;
+    if (!(unitId && resId && invId && voucherId)) await new Promise((r) => setTimeout(r, 1000));
+  }
+  if (!unitId || !resId || !invId || !voucherId) throw new Error("seed ids missing");
+  ids = { unit: unitId, residential: resId, investment: invId, voucher: voucherId };
 
   // Extra users for the signup/setup/new-office screens: one without an org, one with an empty org.
   const { data: setupUser, error: setupErr } = await sb.auth.admin.createUser({
@@ -187,13 +198,19 @@ async function newContext(
   return ctx;
 }
 
-async function shot(page: Page, name: string, opts: { fullPage?: boolean; extraMask?: Locator[] } = {}) {
+async function shot(
+  page: Page,
+  name: string,
+  opts: { fullPage?: boolean; extraMask?: Locator[]; stylePath?: string } = {},
+) {
   await page.waitForLoadState("networkidle").catch(() => {});
   await page.evaluate(() => document.fonts.ready.then(() => undefined)).catch(() => {});
   await page.waitForTimeout(250);
   await expect(page).toHaveScreenshot(`${name}.png`, {
     fullPage: opts.fullPage ?? false,
-    mask: [page.locator("[data-shot-mask]"), ...(opts.extraMask ?? [])],
+    // stylePath shots hide the dynamic widgets with CSS instead of the pink mask overlay.
+    mask: opts.stylePath ? (opts.extraMask ?? []) : [page.locator("[data-shot-mask]"), ...(opts.extraMask ?? [])],
+    stylePath: opts.stylePath,
   });
 }
 
@@ -217,7 +234,7 @@ async function captureAll(
   await page.goto(`/${locale}/dashboard?period=2026-08&tour=1`);
   await expect(page.getByRole("dialog")).toBeVisible({ timeout: 15_000 });
   await page.waitForTimeout(600);
-  await shot(page, `${pre}-tour`);
+  await shot(page, `${pre}-tour`, { stylePath: "tests/e2e/tour-shot.css" });
   await page.keyboard.press("Escape");
   await page.waitForTimeout(500);
   await page.goto(`/${locale}/dashboard?period=2026-08`);
