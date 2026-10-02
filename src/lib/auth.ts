@@ -70,6 +70,8 @@ export interface UserPrefs {
   sessionsCount: number;
   installPromptDismissedAt: string | null;
   mutedPropertyIds: string[];
+  tourDoneAt: string | null;
+  checklistDismissedAt: string | null;
 }
 
 export interface SessionContext {
@@ -144,6 +146,8 @@ export const getSessionContext = cache(async (): Promise<SessionContext | null> 
       sessionsCount: s?.sessions_count ?? 0,
       installPromptDismissedAt: s?.install_prompt_dismissed_at ?? null,
       mutedPropertyIds: s?.muted_property_ids ?? [],
+      tourDoneAt: s?.tour_done_at ?? null,
+      checklistDismissedAt: s?.checklist_dismissed_at ?? null,
     },
     ownerIds,
   };

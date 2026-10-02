@@ -1057,13 +1057,13 @@ isOneToOne: false
                   ]
                 },"user_settings": {
                   Row: {
-                    "accent": string,"created_at": string,"dashboard_layout": Json | null,"density": string,"digest_time": string,"digits": string,"install_prompt_dismissed_at": string | null,"locale": string,"muted_property_ids": (string)[],"onboarding_done": boolean,"org_id": string | null,"pinned_property_ids": (string)[],"quiet_end": string,"quiet_start": string,"sessions_count": number,"theme": string,"updated_at": string,"user_id": string
+                    "accent": string,"checklist_dismissed_at": string | null,"created_at": string,"dashboard_layout": Json | null,"density": string,"digest_time": string,"digits": string,"install_prompt_dismissed_at": string | null,"locale": string,"muted_property_ids": (string)[],"onboarding_done": boolean,"org_id": string | null,"pinned_property_ids": (string)[],"quiet_end": string,"quiet_start": string,"sessions_count": number,"theme": string,"tour_done_at": string | null,"updated_at": string,"user_id": string
                   }
                   Insert: {
-                    "accent"?: string,"created_at"?: string,"dashboard_layout"?: Json | null,"density"?: string,"digest_time"?: string,"digits"?: string,"install_prompt_dismissed_at"?: string | null,"locale"?: string,"muted_property_ids"?: (string)[],"onboarding_done"?: boolean,"org_id"?: string | null,"pinned_property_ids"?: (string)[],"quiet_end"?: string,"quiet_start"?: string,"sessions_count"?: number,"theme"?: string,"updated_at"?: string,"user_id": string
+                    "accent"?: string,"checklist_dismissed_at"?: string | null,"created_at"?: string,"dashboard_layout"?: Json | null,"density"?: string,"digest_time"?: string,"digits"?: string,"install_prompt_dismissed_at"?: string | null,"locale"?: string,"muted_property_ids"?: (string)[],"onboarding_done"?: boolean,"org_id"?: string | null,"pinned_property_ids"?: (string)[],"quiet_end"?: string,"quiet_start"?: string,"sessions_count"?: number,"theme"?: string,"tour_done_at"?: string | null,"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "accent"?: string,"created_at"?: string,"dashboard_layout"?: Json | null,"density"?: string,"digest_time"?: string,"digits"?: string,"install_prompt_dismissed_at"?: string | null,"locale"?: string,"muted_property_ids"?: (string)[],"onboarding_done"?: boolean,"org_id"?: string | null,"pinned_property_ids"?: (string)[],"quiet_end"?: string,"quiet_start"?: string,"sessions_count"?: number,"theme"?: string,"updated_at"?: string,"user_id"?: string
+                    "accent"?: string,"checklist_dismissed_at"?: string | null,"created_at"?: string,"dashboard_layout"?: Json | null,"density"?: string,"digest_time"?: string,"digits"?: string,"install_prompt_dismissed_at"?: string | null,"locale"?: string,"muted_property_ids"?: (string)[],"onboarding_done"?: boolean,"org_id"?: string | null,"pinned_property_ids"?: (string)[],"quiet_end"?: string,"quiet_start"?: string,"sessions_count"?: number,"theme"?: string,"tour_done_at"?: string | null,"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {

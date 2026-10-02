@@ -1,5 +1,6 @@
 "use server";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireActionContext } from "@/lib/auth";
@@ -58,6 +59,34 @@ export async function savePreferences(input: z.input<typeof prefSchema>) {
 
 export async function markOnboarded() {
   (await cookies()).set("ijari-onboarded", "1", { path: "/", maxAge: ONE_YEAR, sameSite: "lax" });
+}
+
+/** Marks the guided product tour as seen (finished or skipped) so it never auto-starts again. */
+export async function markTourDone() {
+  return run(async () => {
+    const ctx = await requireActionContext();
+    const db = await supabaseServer();
+    const { error } = await db
+      .from("user_settings")
+      .upsert({ user_id: ctx.userId, org_id: ctx.orgId, tour_done_at: new Date().toISOString() });
+    if (error) throw error;
+    revalidatePath("/[locale]", "layout");
+  });
+}
+
+/** Hides the dashboard activation checklist for this user. */
+export async function dismissChecklist() {
+  return run(async () => {
+    const ctx = await requireActionContext();
+    const db = await supabaseServer();
+    const { error } = await db.from("user_settings").upsert({
+      user_id: ctx.userId,
+      org_id: ctx.orgId,
+      checklist_dismissed_at: new Date().toISOString(),
+    });
+    if (error) throw error;
+    revalidatePath("/[locale]", "layout");
+  });
 }
 
 export async function signOut() {
