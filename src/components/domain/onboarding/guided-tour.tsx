@@ -84,9 +84,11 @@ export function GuidedTour() {
     void markTourDone();
   }, [params, pathname, router]);
 
-  // Navigate to the step's route when needed.
+  // Navigate to the step's route when needed (keeping the tour flag so it stays open).
   useEffect(() => {
-    if (open && step?.route && pathname !== step.route) router.push(step.route);
+    if (open && step?.route && pathname !== step.route) {
+      router.push(`${step.route}?tour=1`);
+    }
   }, [open, step, pathname, router]);
 
   // Find and measure the target (poll briefly right after a navigation).

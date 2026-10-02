@@ -752,7 +752,7 @@ export function DashboardView({
           {tNav("search")}
         </button>
       </div>
-      {visible.includes("collection") && (
+      {d.properties.length > 0 && visible.includes("collection") && (
         <div className="mt-5 grid grid-cols-1 lg:hidden">{widget("collection")}</div>
       )}
 
@@ -804,19 +804,21 @@ export function DashboardView({
         </section>
       )}
 
-      <div
-        className="mt-6 grid grid-flow-row-dense grid-cols-1 gap-4 min-[400px]:grid-cols-2 lg:grid-cols-4"
-      >
-        {visible.map((w) =>
-          w === "collection" ? (
-            <div key={w} className="contents max-lg:hidden">
-              {widget(w)}
-            </div>
-          ) : (
-            widget(w)
-          ),
-        )}
-      </div>
+      {d.properties.length > 0 && (
+        <div
+          className="mt-6 grid grid-flow-row-dense grid-cols-1 gap-4 min-[400px]:grid-cols-2 lg:grid-cols-4"
+        >
+          {visible.map((w) =>
+            w === "collection" ? (
+              <div key={w} className="contents max-lg:hidden">
+                {widget(w)}
+              </div>
+            ) : (
+              widget(w)
+            ),
+          )}
+        </div>
+      )}
 
       <Sheet
         open={customize}
