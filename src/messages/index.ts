@@ -30,6 +30,7 @@ export const NAMESPACES = [
   "audit",
   "portal",
   "pwa",
+  "policy",
 ] as const;
 
 export type Locale = "ar" | "en";
@@ -68,6 +69,7 @@ import type settings from "./ar/settings.json";
 import type audit from "./ar/audit.json";
 import type portal from "./ar/portal.json";
 import type pwa from "./ar/pwa.json";
+import type policy from "./ar/policy.json";
 
 export interface Messages {
   common: typeof common;
@@ -97,4 +99,5 @@ export interface Messages {
   audit: typeof audit;
   portal: typeof portal;
   pwa: typeof pwa;
+  policy: typeof policy;
 }

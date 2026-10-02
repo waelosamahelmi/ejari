@@ -1,0 +1,64 @@
+{
+  "back": "Back to home",
+  "updated": "Last updated: {date}",
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro": "This policy explains how Ejari (ejarikw.com) handles the data an office enters into the system. Ejari is property-management software: the subscribing office is the data owner and we act as its processor.",
+    "sections": [
+      {
+        "title": "What we store",
+        "body": "Office data: office name, logo and settings. Operation data: owner and tenant names, civil IDs, phones and property addresses, plus contracts, payments, expenses and documents uploaded by the office. Usage data: audit history and user notifications."
+      },
+      {
+        "title": "Why we store it",
+        "body": "Only to run the system: drafting contracts, issuing statements and vouchers, calculating arrears, sending reminders and notifications, and meeting the office's accounting obligations."
+      },
+      {
+        "title": "Who can access it",
+        "body": "Office members only, according to their roles (admin, accountant, collector, viewer, owner) under database-level row policies. We never sell data or share it for marketing. Data is hosted with infrastructure providers (database and application hosting) under processor agreements."
+      },
+      {
+        "title": "Retention and rights",
+        "body": "Data stays while the office account is active. An office admin can export everything from Settings, and can request deletion by contacting us. Individuals can request access or correction through the office that owns the account."
+      },
+      {
+        "title": "Security",
+        "body": "Encryption in transit, row-level security, private file storage with short-lived signed links, and an audit trail for financial operations."
+      }
+    ],
+    "contactTitle": "Contact",
+    "contact": "Privacy questions: {email}"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "intro": "By using Ejari you accept these terms on behalf of the office you represent.",
+    "sections": [
+      {
+        "title": "The service",
+        "body": "Ejari is cloud software for property and rent management: contracts, collections, expenses, deposits, reports and documents. The service is provided as-is; we may improve it, add features or change its interfaces."
+      },
+      {
+        "title": "Account and responsibilities",
+        "body": "The office is responsible for the accuracy of the data it enters, for keeping sign-in credentials safe, and for the members it invites. You may not use the system for unlawful purposes or to store data you have no right to process."
+      },
+      {
+        "title": "Data and ownership",
+        "body": "Office data belongs to the office. We grant you a licence to use the system and use your data only to run and support the service. You can export your data at any time."
+      },
+      {
+        "title": "Limitation of liability",
+        "body": "We make reasonable efforts to keep the service available, but we do not warrant it will be error-free or uninterrupted. We are not liable for business or legal decisions taken from system output; the office remains responsible for reviewing contracts and statements before approving them."
+      },
+      {
+        "title": "Governing law",
+        "body": "These terms are governed by the laws of the State of Kuwait, and its courts have jurisdiction over any dispute."
+      },
+      {
+        "title": "Changes",
+        "body": "We may update these terms and will publish the new version here. Continued use after an update means you accept it."
+      }
+    ],
+    "contactTitle": "Contact",
+    "contact": "Terms questions: {email}"
+  }
+}

@@ -51,7 +51,7 @@ test.describe("accessibility (axe, WCAG 2.2 AA)", () => {
 
   test("public and portal screens have no violations", async ({ page }) => {
     const problems: string[] = [];
-    for (const r of ["/ar/welcome", "/en/login", "/ar/login", "/ar/forgot-password", "/ar/offline", "/en/offline"]) problems.push(...(await scan(page, r)));
+    for (const r of ["/ar/welcome", "/en/login", "/ar/login", "/ar/forgot-password", "/ar/offline", "/en/offline", "/ar/signup", "/en/signup", "/ar/privacy", "/ar/terms"]) problems.push(...(await scan(page, r)));
     await login(page, "owner");
     for (const r of ["/ar/owner", `/ar/owner/properties/${IDS.jabriya}`, "/en/owner"]) problems.push(...(await scan(page, r)));
     expect(problems, problems.join("\n")).toEqual([]);

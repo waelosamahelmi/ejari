@@ -140,5 +140,7 @@
     "hoursAgo": "{count, plural, one {# hour ago} other {# hours ago}}"
   },
   "guide": "Product tour",
-  "shortcuts": "Keyboard shortcuts"
+  "shortcuts": "Keyboard shortcuts",
+  "privacy": "Privacy Policy",
+  "terms": "Terms of Service"
 }

@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Compass, Download } from "lucide-react";
+import { Compass, Download, FileText, ShieldCheck } from "lucide-react";
 import { LargeTitleHeader } from "@/components/shell/large-title-header";
 import { GroupedList, GroupedSection, ListRow } from "@/components/ui/grouped-list";
 import { IconTile } from "@/components/ui/icon-tile";
@@ -63,6 +63,28 @@ export default async function MorePage({ params }: LocaleParams) {
               </IconTile>
             }
             title={t("install")}
+            chevron
+          />
+          <ListRow
+            LinkComponent={Link}
+            href="/privacy"
+            leading={
+              <IconTile tone="gray">
+                <ShieldCheck />
+              </IconTile>
+            }
+            title={tc("privacy")}
+            chevron
+          />
+          <ListRow
+            LinkComponent={Link}
+            href="/terms"
+            leading={
+              <IconTile tone="gray">
+                <FileText />
+              </IconTile>
+            }
+            title={tc("terms")}
             chevron
           />
         </GroupedSection>
