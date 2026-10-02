@@ -117,7 +117,14 @@ export function SetupWizard({ userName, defaultLocale }: { userName: string; def
       <Card className="relative w-full max-w-[560px] rounded-[32px] p-6 shadow-[var(--sh-float)] sm:p-8">
         <div className="mb-5 flex items-center justify-between">
           <Image src="/brand/mark.svg" alt="" width={36} height={36} className="dark:invert" priority />
-          <div className="flex items-center gap-1.5" aria-label={t("stepOf", { n: step + 1, total: TOTAL })}>
+          <div
+            role="progressbar"
+            aria-valuemin={1}
+            aria-valuemax={TOTAL}
+            aria-valuenow={step + 1}
+            aria-label={t("stepOf", { n: step + 1, total: TOTAL })}
+            className="flex items-center gap-1.5"
+          >
             {Array.from({ length: TOTAL }, (_, i) => (
               <span
                 key={i}

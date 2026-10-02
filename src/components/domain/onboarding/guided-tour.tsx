@@ -206,7 +206,7 @@ export function GuidedTour() {
         </div>
         <p className="text-label-2 mt-1.5 text-[14px] leading-6">{body}</p>
         <div className="mt-4 flex items-center justify-between gap-2">
-          <span className="text-label-3 num text-[12px]">
+          <span className="text-label-2 num text-[12px]">
             {t("tour.stepOf", { n: index + 1, total: TOUR_STEPS.length })}
           </span>
           <div className="flex items-center gap-2">

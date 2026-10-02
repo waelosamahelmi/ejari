@@ -38,7 +38,7 @@ export interface ChecklistItem {
 /** Dashboard activation checklist. The tour row is always actionable and never blocks completion. */
 export function setupChecklist(c: SetupCounts): ChecklistItem[] {
   return [
-    { key: "profile", done: c.orgNamed && c.hasLogo, href: "/settings/org" },
+    { key: "profile", done: c.orgNamed, href: "/settings/org" },
     { key: "property", done: c.properties > 0, href: "/properties?new=1" },
     { key: "units", done: c.units > 0, href: "/properties" },
     { key: "tenant", done: c.tenants > 0, href: "/tenants?new=1" },

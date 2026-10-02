@@ -64,8 +64,8 @@ describe("setupChecklist", () => {
     expect(by.tour).toBe(false);
   });
 
-  it("profile requires both the name and the logo", () => {
-    expect(setupChecklist(counts({ hasLogo: false }))[0]!.done).toBe(false);
+  it("profile requires the office name (logo is optional)", () => {
+    expect(setupChecklist(counts({ hasLogo: false }))[0]!.done).toBe(true);
     expect(setupChecklist(counts({ orgNamed: false }))[0]!.done).toBe(false);
   });
 });

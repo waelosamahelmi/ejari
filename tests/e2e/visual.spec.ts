@@ -17,6 +17,8 @@ config({ path: ".env.local" });
 const PORT = Number(process.env.PORT ?? 3100);
 const BASE = `http://localhost:${PORT}`;
 const ADMIN_STATE = "tests/e2e/.auth/admin.json";
+const SETUP_STATE = "tests/e2e/.auth/visual-setup.json";
+const NEW_STATE = "tests/e2e/.auth/visual-new.json";
 
 const VIEWPORTS = [
   { name: "m", viewport: { width: 390, height: 844 }, isMobile: true },
@@ -25,6 +27,8 @@ const VIEWPORTS = [
 
 type ViewportSpec = (typeof VIEWPORTS)[number];
 type Ids = { unit: string; residential: string; investment: string; voucher: string };
+
+const tNext = (locale: "ar" | "en") => (locale === "ar" ? "التالي" : "Next");
 
 let ids: Ids;
 
@@ -95,6 +99,59 @@ async function reseed() {
   ]);
   if (!unit || !res || !inv || !voucher) throw new Error("seed ids missing");
   ids = { unit: unit.unit_id, residential: res.id, investment: inv.id, voucher: voucher.id };
+
+  // Extra users for the signup/setup/new-office screens: one without an org, one with an empty org.
+  const { data: setupUser, error: setupErr } = await sb.auth.admin.createUser({
+    email: "visual-setup@demo.test",
+    password: "Demo12345!",
+    email_confirm: true,
+    user_metadata: { full_name: "مكتب الأمل" },
+  });
+  if (setupErr) throw setupErr;
+  const { data: newUser, error: newErr } = await sb.auth.admin.createUser({
+    email: "visual-new@demo.test",
+    password: "Demo12345!",
+    email_confirm: true,
+    user_metadata: { full_name: "مدير المكتب" },
+  });
+  if (newErr) throw newErr;
+  const { data: org, error: orgErr } = await sb
+    .from("orgs")
+    .insert({ name: "مكتب الصفوة", name_en: "Al Safwa Office" })
+    .select("id")
+    .single();
+  if (orgErr) throw orgErr;
+  const { error: memberErr } = await sb.from("org_members").insert({
+    org_id: org.id,
+    user_id: newUser.user.id,
+    role: "admin",
+    display_name: "مدير المكتب",
+    email: "visual-new@demo.test",
+  });
+  if (memberErr) throw memberErr;
+  await sb.from("user_settings").insert({
+    user_id: newUser.user.id,
+    org_id: org.id,
+    locale: "ar",
+    onboarding_done: true,
+  });
+  void setupUser;
+}
+
+/** Signs an arbitrary demo-style email in and saves the session for later contexts. */
+async function saveSession(browser: Browser, email: string, path: string) {
+  const ctx = await browser.newContext({ baseURL: BASE });
+  await ctx.addCookies([{ name: "ijari-onboarded", value: "1", url: BASE }]);
+  const page = await ctx.newPage();
+  await page.goto("/ar/login");
+  await page.fill("#email", email);
+  await page.fill("#password", "Demo12345!");
+  await Promise.all([
+    page.waitForURL((u) => !u.pathname.endsWith("/login"), { timeout: 60_000 }),
+    page.click('button[type="submit"]'),
+  ]);
+  await ctx.storageState({ path });
+  await ctx.close();
 }
 
 async function freshSessions(browser: Browser) {
@@ -110,7 +167,7 @@ async function newContext(
   scheme: "light" | "dark",
   locale: "ar" | "en",
   vp: ViewportSpec,
-  opts: { auth?: boolean; userAgent?: string } = {},
+  opts: { auth?: boolean; userAgent?: string; state?: string } = {},
 ): Promise<BrowserContext> {
   const ctx = await browser.newContext({
     baseURL: BASE,
@@ -120,7 +177,7 @@ async function newContext(
     colorScheme: scheme,
     reducedMotion: "reduce",
     locale: locale === "ar" ? "ar-KW" : "en-GB",
-    storageState: opts.auth ? ADMIN_STATE : undefined,
+    storageState: opts.state ?? (opts.auth ? ADMIN_STATE : undefined),
     userAgent: opts.userAgent,
   });
   await ctx.addCookies([
@@ -155,6 +212,15 @@ async function captureAll(
   // Dashboard (period pinned to the seeded August) → notifications → connectivity pill.
   await page.goto(`/${locale}/dashboard?period=2026-08`);
   await shot(page, `${pre}-dashboard`);
+
+  // Guided tour overlay (first step) on the seeded dashboard.
+  await page.goto(`/${locale}/dashboard?period=2026-08&tour=1`);
+  await expect(page.getByRole("dialog")).toBeVisible({ timeout: 15_000 });
+  await page.waitForTimeout(600);
+  await shot(page, `${pre}-tour`);
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(500);
+  await page.goto(`/${locale}/dashboard?period=2026-08`);
 
   await page.getByRole("button", { name: new RegExp(t("الإشعارات", "Notifications")) }).first().click();
   await expect(page.getByRole("dialog")).toBeVisible();
@@ -246,6 +312,8 @@ test.describe("visual regression (§20)", () => {
     test.skip(!(await supabaseUp()), "Supabase is not running (supabase start) — e2e skipped");
     await reseed();
     await freshSessions(browser);
+    await saveSession(browser, "visual-setup@demo.test", SETUP_STATE);
+    await saveSession(browser, "visual-new@demo.test", NEW_STATE);
   });
 
   for (const locale of ["ar", "en"] as const) {
@@ -259,9 +327,30 @@ test.describe("visual regression (§20)", () => {
           const page = await ctx.newPage();
           await page.goto(`/${locale}/welcome`);
           await shot(page, `${pre}-onboarding`);
+          await page.goto(`/${locale}/signup`);
+          await shot(page, `${pre}-signup`);
           await page.goto(`/${locale}/login`);
           await shot(page, `${pre}-login`);
           await ctx.close();
+
+          // First-run setup wizard (user without an org).
+          const setupCtx = await newContext(browser, scheme, locale, vp, {
+            auth: false,
+            state: SETUP_STATE,
+          });
+          const setup = await setupCtx.newPage();
+          await setup.goto(`/${locale}/setup`);
+          await setup.getByRole("button", { name: tNext(locale) }).click();
+          await setup.fill("#s-name", locale === "ar" ? "مكتب الأمل العقاري" : "Al Amal Real Estate");
+          await shot(setup, `${pre}-setup`);
+          await setupCtx.close();
+
+          // Brand-new office dashboard (hero + checklist, no widgets).
+          const newCtx = await newContext(browser, scheme, locale, vp, { auth: false, state: NEW_STATE });
+          const fresh = await newCtx.newPage();
+          await fresh.goto(`/${locale}/dashboard`);
+          await shot(fresh, `${pre}-dashboard-new`);
+          await newCtx.close();
 
           const appCtx = await newContext(browser, scheme, locale, vp, { auth: true });
           const app = await appCtx.newPage();
