@@ -4,7 +4,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { AuthCard } from "@/components/domain/auth-card";
 import { Button } from "@/components/ui/button";
-import { Field, Input } from "@/components/ui/input";
+import { Field } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { updatePassword } from "@/server/actions/auth";
 
 export default function ResetPasswordPage() {
@@ -32,25 +33,10 @@ export default function ResetPasswordPage() {
         }}
       >
         <Field label={t("password")} htmlFor="pw">
-          <Input
-            id="pw"
-            type="password"
-            dir="ltr"
-            autoComplete="new-password"
-            autoFocus
-            value={pw}
-            onChange={(e) => setPw(e.target.value)}
-          />
+          <PasswordInput id="pw" autoFocus value={pw} onChange={setPw} />
         </Field>
         <Field label={t("confirm")} htmlFor="pw2" error={error}>
-          <Input
-            id="pw2"
-            type="password"
-            dir="ltr"
-            autoComplete="new-password"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-          />
+          <PasswordInput id="pw2" value={confirm} onChange={setConfirm} />
         </Field>
         <Button type="submit" size="lg" block loading={pending}>
           {t("submit")}

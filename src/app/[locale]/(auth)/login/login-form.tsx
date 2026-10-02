@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Link } from "@/i18n/navigation";
 import { sendMagicLink, signInWithPassword } from "@/server/actions/auth";
 
@@ -75,14 +76,11 @@ export function LoginForm({ showDemo, showSignup }: { showDemo: boolean; showSig
           </Link>
         }
       >
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           autoComplete="current-password"
-          dir="ltr"
-          required
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={setPassword}
         />
       </Field>
       {error && (
