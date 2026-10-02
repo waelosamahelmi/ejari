@@ -20,7 +20,10 @@ Everything in the repo is ready for a Vercel + Supabase deployment. This is the 
   `NEXT_PUBLIC_ALLOW_SIGNUP=true`, `NEXT_PUBLIC_DEMO_ACCOUNTS=0`,
   `NEXT_PUBLIC_SUPPORT_EMAIL`, optional `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`.
 - [ ] Deploy; confirm `vercel.json` registered both crons (`/api/cron/charges` nightly UTC 21:00,
-      `/api/cron/notifications` hourly) and that `CRON_SECRET` is sent.
+      `/api/cron/notifications`) and that `CRON_SECRET` is sent.
+      **Cron plan limits:** Vercel Hobby rejects sub-daily expressions at deploy time, so the repo
+      ships a daily notifications run (`0 6 * * *` = 09:00 Kuwait). On Pro, change it to hourly
+      (`0 * * * *`) before launch.
 - [ ] Domain `ejarikw.com` connected (A/CNAME per Vercel), HTTPS ready.
 
 ## 3. Supabase Auth
