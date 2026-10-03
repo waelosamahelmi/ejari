@@ -168,7 +168,7 @@ const setupSchema = z.object({
     .optional(),
 });
 
-const DEFAULT_CATEGORIES: [string, string, "operating" | "payroll"][] = [
+const DEFAULT_CATEGORIES: [string, string, "operating" | "payroll" | "capital"][] = [
   ["راتب شهري", "Monthly salary", "payroll"],
   ["مصاريف صيانة", "Maintenance", "operating"],
   ["وقود وسيارات", "Fuel & vehicles", "operating"],
@@ -178,6 +178,7 @@ const DEFAULT_CATEGORIES: [string, string, "operating" | "payroll"][] = [
   ["قرطاسية وتصوير", "Stationery & copies", "operating"],
   ["عمولات", "Commissions", "operating"],
   ["تأمين", "Insurance", "operating"],
+  ["شراء", "Purchase", "capital"],
   ["أخرى", "Other", "operating"],
 ];
 
