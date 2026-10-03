@@ -70,6 +70,7 @@ export interface UserPrefs {
   sessionsCount: number;
   installPromptDismissedAt: string | null;
   mutedPropertyIds: string[];
+  pinnedPropertyIds: string[];
   tourDoneAt: string | null;
   checklistDismissedAt: string | null;
 }
@@ -92,26 +93,59 @@ export interface SessionContext {
 /** The signed-in auth user regardless of org membership (used by the setup wizard/root routing). */
 export const getAuthUser = cache(async () => {
   const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await verifiedUser(supabase);
   if (!user) return null;
-  const meta = (user.user_metadata ?? {}) as { full_name?: string };
-  return { id: user.id, email: user.email ?? "", name: meta.full_name ?? "" };
+  return { id: user.id, email: user.email, name: user.name };
 });
+
+interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+}
+
+function userFromClaims(claims: Record<string, unknown> | null | undefined): AuthUser | null {
+  const id = typeof claims?.sub === "string" ? claims.sub : null;
+  if (!id) return null;
+  const email = typeof claims?.email === "string" ? claims.email : "";
+  const meta = (claims?.user_metadata ?? {}) as { full_name?: string };
+  return { id, email, name: meta.full_name ?? "" };
+}
+
+/**
+ * Verifies the JWT locally against the project's JWKS (`getClaims`, cached per
+ * isolate) instead of calling the Auth server on every request. Falls back to
+ * `getUser()` for projects still on legacy (HS256) signing keys.
+ */
+async function verifiedUser(
+  supabase: Awaited<ReturnType<typeof supabaseServer>>,
+): Promise<AuthUser | null> {
+  try {
+    const { data, error } = await supabase.auth.getClaims();
+    if (!error) return userFromClaims(data?.claims as Record<string, unknown> | undefined);
+  } catch {
+    // fall through to the Auth server
+  }
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) return null;
+  const meta = (data.user.user_metadata ?? {}) as { full_name?: string };
+  return { id: data.user.id, email: data.user.email ?? "", name: meta.full_name ?? "" };
+}
 
 /** Resolves the signed-in user, their active org membership and preferences (cached per request). */
 export const getSessionContext = cache(async (): Promise<SessionContext | null> => {
   const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await verifiedUser(supabase);
   if (!user) return null;
-  const { data: members } = await supabase
-    .from("org_members")
-    .select("org_id, role, display_name, orgs(name, name_en, logo_path, settings)")
-    .eq("user_id", user.id)
-    .eq("active", true);
+  const [membersResult, settingsResult] = await Promise.all([
+    supabase
+      .from("org_members")
+      .select("org_id, role, display_name, orgs(name, name_en, logo_path, settings)")
+      .eq("user_id", user.id)
+      .eq("active", true),
+    supabase.from("user_settings").select("*").eq("user_id", user.id).maybeSingle(),
+  ]);
+  const members = membersResult.data;
   if (!members || members.length === 0) return null;
   const preferred = (await cookies()).get("ijari-org")?.value;
   const m = members.find((x) => x.org_id === preferred) ?? members[0]!;
@@ -121,11 +155,7 @@ export const getSessionContext = cache(async (): Promise<SessionContext | null> 
     logo_path: string | null;
     settings: Json;
   } | null;
-  const { data: s } = await supabase
-    .from("user_settings")
-    .select("*")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const s = settingsResult.data;
   let ownerIds: string[] = [];
   if (m.role === "owner") {
     const { data: owners } = await supabase
@@ -136,8 +166,8 @@ export const getSessionContext = cache(async (): Promise<SessionContext | null> 
   }
   return {
     userId: user.id,
-    email: user.email ?? "",
-    displayName: m.display_name ?? (user.email ?? "").split("@")[0] ?? "",
+    email: user.email,
+    displayName: m.display_name ?? user.email.split("@")[0] ?? "",
     role: m.role,
     orgId: m.org_id,
     orgName: org?.name ?? "",
@@ -157,6 +187,7 @@ export const getSessionContext = cache(async (): Promise<SessionContext | null> 
       sessionsCount: s?.sessions_count ?? 0,
       installPromptDismissedAt: s?.install_prompt_dismissed_at ?? null,
       mutedPropertyIds: s?.muted_property_ids ?? [],
+      pinnedPropertyIds: s?.pinned_property_ids ?? [],
       tourDoneAt: s?.tour_done_at ?? null,
       checklistDismissedAt: s?.checklist_dismissed_at ?? null,
     },

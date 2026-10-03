@@ -4,7 +4,6 @@ import { pageLocale, type LocaleParams } from "@/lib/i18n";
 import { loadOrgData } from "@/server/queries/dataset";
 import { propertySummaries } from "@/server/queries/properties";
 import { signPaths } from "@/server/storage";
-import { supabaseServer } from "@/lib/supabase/server";
 import { periodOf, todayKuwait } from "@/domain/dates";
 import { can } from "@/lib/permissions";
 import { PropertiesView } from "./properties-view";
@@ -25,12 +24,6 @@ export default async function PropertiesPage({ params }: LocaleParams) {
     "media",
     list.map((p) => p.cover),
   );
-  const db = await supabaseServer();
-  const { data: settings } = await db
-    .from("user_settings")
-    .select("pinned_property_ids")
-    .eq("user_id", ctx.userId)
-    .maybeSingle();
   const owners = [...data.owners.values()].sort((a, b) =>
     a.fullName.localeCompare(b.fullName, "ar"),
   );
@@ -45,7 +38,7 @@ export default async function PropertiesPage({ params }: LocaleParams) {
         blur: blurs.get(p.id),
       }))}
       owners={owners}
-      pinned={settings?.pinned_property_ids ?? []}
+      pinned={ctx.prefs.pinnedPropertyIds}
       canEdit={can(ctx.role, "manage_master_data")}
     />
   );

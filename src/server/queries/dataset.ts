@@ -105,6 +105,9 @@ export async function fetchOrgData(
     owners,
     propertyOwners,
     commissions,
+    expenseAllocs,
+    vouchers,
+    deposits,
   ] = await Promise.all([
     fetchAll((f, t) =>
       db
@@ -199,10 +202,9 @@ export async function fetchOrgData(
         .order("effective_from")
         .range(f, t),
     ),
-  ]);
-  const [expenseAllocs, vouchers, deposits] = finance
-    ? await Promise.all([
-        fetchAll((f, t) =>
+    // Finance tables load in the same batch (they don't depend on the queries above).
+    finance
+      ? fetchAll((f, t) =>
           db
             .from("expense_allocations")
             .select(
@@ -211,15 +213,19 @@ export async function fetchOrgData(
             .eq("org_id", orgId)
             .eq("expense_lines.expense_vouchers.status", "posted")
             .range(f, t),
-        ),
-        fetchAll((f, t) =>
+        )
+      : Promise.resolve([]),
+    finance
+      ? fetchAll((f, t) =>
           db
             .from("expense_vouchers")
             .select("id, voucher_no, voucher_date, status, expense_lines(amount_fils)")
             .eq("org_id", orgId)
             .range(f, t),
-        ),
-        fetchAll((f, t) =>
+        )
+      : Promise.resolve([]),
+    finance
+      ? fetchAll((f, t) =>
           db
             .from("deposits")
             .select(
@@ -227,9 +233,9 @@ export async function fetchOrgData(
             )
             .eq("org_id", orgId)
             .range(f, t),
-        ),
-      ])
-    : [[], [], []];
+        )
+      : Promise.resolve([]),
+  ]);
 
   const tenantMap = new Map(
     tenants.map((t) => [

@@ -42,6 +42,8 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   experimental: {
     serverActions: { bodySizeLimit: "10mb" },
+    // Keep client-side router cache between navigations so moving back/forward is instant.
+    staleTimes: { dynamic: 30, static: 300 },
   },
   images: {
     formats: ["image/avif", "image/webp"],
