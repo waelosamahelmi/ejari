@@ -241,17 +241,21 @@ export function PropertyFormSheet({
             )}
           />
         </Field>
-        <Field label={t("fields.block")} htmlFor="p-block">
-          <Input id="p-block" inputMode="numeric" {...register("block")} />
+        <Field label={t("fields.block")} htmlFor="p-block" error={fe(errors.block?.message)}>
+          <Input id="p-block" inputMode="numeric" {...register("block")} aria-invalid={!!errors.block} />
         </Field>
-        <Field label={t("fields.street")} htmlFor="p-street">
-          <Input id="p-street" {...register("street")} />
+        <Field label={t("fields.street")} htmlFor="p-street" error={fe(errors.street?.message)}>
+          <Input id="p-street" {...register("street")} aria-invalid={!!errors.street} />
         </Field>
         <Field label={t("fields.avenue")} htmlFor="p-avenue">
           <Input id="p-avenue" {...register("avenue")} />
         </Field>
-        <Field label={t("fields.houseOrPlot")} htmlFor="p-house">
-          <Input id="p-house" {...register("houseOrPlot")} />
+        <Field
+          label={t("fields.houseOrPlot")}
+          htmlFor="p-house"
+          error={fe(errors.houseOrPlot?.message)}
+        >
+          <Input id="p-house" {...register("houseOrPlot")} aria-invalid={!!errors.houseOrPlot} />
         </Field>
         <Field label={t("fields.paciNo")} htmlFor="p-paci" error={fe(errors.paciNo?.message)}>
           <Input

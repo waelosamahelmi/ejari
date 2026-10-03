@@ -159,9 +159,12 @@ const setupSchema = z.object({
   firstProperty: z
     .object({
       name: z.string().trim().min(1).max(120),
-      area: z.string().trim().max(80).optional(),
-      block: z.string().trim().max(40).optional(),
-      street: z.string().trim().max(80).optional(),
+      governorate: z.string().trim().min(1).max(80),
+      area: z.string().trim().min(1).max(120),
+      block: z.string().trim().min(1).max(40),
+      street: z.string().trim().min(1).max(120),
+      houseOrPlot: z.string().trim().min(1).max(40),
+      paciNo: z.string().trim().regex(/^\d{8}$/, "invalidPaci"),
       count: z.number().int().min(1).max(200),
       askingRentFils: z.number().int().min(0).max(100_000_000_000),
     })
@@ -238,9 +241,12 @@ export async function completeSetup(input: z.input<typeof setupSchema>) {
         .insert({
           org_id: orgId,
           name: p.name,
-          area: p.area || null,
-          block: p.block || null,
-          street: p.street || null,
+          governorate: p.governorate,
+          area: p.area,
+          block: p.block,
+          street: p.street,
+          house_or_plot: p.houseOrPlot,
+          paci_no: p.paciNo,
           property_type: "residential",
         })
         .select("id")

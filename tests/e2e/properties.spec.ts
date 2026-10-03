@@ -78,6 +78,10 @@ test.describe("property creation: Kuwait address + unit planner", () => {
     await page.locator("#p-name").fill("مبنى الإضافة لاحقًا");
     await page.locator("#p-governorate").selectOption("مبارك الكبير");
     await page.locator("#p-area").selectOption("العدان");
+    await page.locator("#p-block").fill("5");
+    await page.locator("#p-street").fill("2");
+    await page.locator("#p-house").fill("9");
+    await page.locator("#p-paci").fill("11112222");
     await page.getByRole("button", { name: "التالي" }).click();
     await page.getByRole("radio", { name: "إضافة الوحدات لاحقًا" }).click();
     await page.getByRole("button", { name: "إنشاء العقار" }).click();

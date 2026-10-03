@@ -5,10 +5,12 @@ import { ArrowLeft, ArrowRight, Building2, Check, ImagePlus, Settings2, Sparkles
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Field, Input } from "@/components/ui/input";
+import { Field, Input, Select } from "@/components/ui/input";
 import { MoneyInput } from "@/components/ui/money-input";
 import { SegmentedControl } from "@/components/ui/segmented";
 import { Stepper } from "@/components/ui/stepper";
+import { KUWAIT_GOVERNORATES, OTHER_AREA } from "@/data/kuwait-addresses";
+import { digitsOnly } from "@/domain/validation";
 import { completeSetup } from "@/server/actions/auth";
 import { savePreferences } from "@/server/actions/preferences";
 import { uploadOrgLogo } from "@/server/actions/settings";
@@ -24,9 +26,12 @@ type Prefs = {
 type FirstProperty = {
   enabled: boolean;
   name: string;
+  governorate: string;
   area: string;
   block: string;
   street: string;
+  houseOrPlot: string;
+  paciNo: string;
   count: number;
   rentFils: number | null;
 };
@@ -51,9 +56,12 @@ export function SetupWizard({ userName, defaultLocale }: { userName: string; def
   const [property, setProperty] = useState<FirstProperty>({
     enabled: true,
     name: "",
+    governorate: "",
     area: "",
     block: "",
     street: "",
+    houseOrPlot: "",
+    paciNo: "",
     count: 8,
     rentFils: null,
   });
@@ -68,7 +76,17 @@ export function SetupWizard({ userName, defaultLocale }: { userName: string; def
 
   const canNext = () => {
     if (step === 1) return name.trim().length >= 2;
-    if (step === 3) return !property.enabled || property.name.trim().length >= 1;
+    if (step === 3)
+      return (
+        !property.enabled ||
+        (property.name.trim().length >= 1 &&
+          property.governorate.trim().length > 0 &&
+          property.area.trim().length > 0 &&
+          property.block.trim().length > 0 &&
+          property.street.trim().length > 0 &&
+          property.houseOrPlot.trim().length > 0 &&
+          /^\d{8}$/.test(digitsOnly(property.paciNo)))
+      );
     return true;
   };
 
@@ -89,9 +107,12 @@ export function SetupWizard({ userName, defaultLocale }: { userName: string; def
           property.enabled && property.name.trim()
             ? {
                 name: property.name.trim(),
-                area: property.area.trim() || undefined,
-                block: property.block.trim() || undefined,
-                street: property.street.trim() || undefined,
+                governorate: property.governorate.trim(),
+                area: property.area.trim(),
+                block: property.block.trim(),
+                street: property.street.trim(),
+                houseOrPlot: property.houseOrPlot.trim(),
+                paciNo: digitsOnly(property.paciNo),
                 count: property.count,
                 askingRentFils: property.rentFils ?? 0,
               }
@@ -315,31 +336,85 @@ export function SetupWizard({ userName, defaultLocale }: { userName: string; def
                   />
                 </Field>
                 <div className="grid grid-cols-2 gap-3">
+                  <Field label={t("property.governorate")} htmlFor="p-governorate">
+                    <Select
+                      id="p-governorate"
+                      value={property.governorate}
+                      onChange={(e) =>
+                        setProperty((p) => ({ ...p, governorate: e.target.value, area: "" }))
+                      }
+                    >
+                      <option value="">{t("property.selectGovernorate")}</option>
+                      {KUWAIT_GOVERNORATES.map((g) => (
+                        <option key={g.value} value={g.value}>
+                          {prefs.locale === "en" ? g.en : g.ar}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
                   <Field label={t("property.area")} htmlFor="p-area">
-                    <Input
+                    <Select
                       id="p-area"
-                      placeholder={t("property.areaPlaceholder")}
                       value={property.area}
+                      disabled={!property.governorate}
                       onChange={(e) => setProperty((p) => ({ ...p, area: e.target.value }))}
-                    />
+                    >
+                      <option value="">{t("property.selectArea")}</option>
+                      {(
+                        KUWAIT_GOVERNORATES.find((g) => g.value === property.governorate)?.areas ??
+                        []
+                      ).map((a) => (
+                        <option key={a.value} value={a.value}>
+                          {prefs.locale === "en" ? a.en : a.ar}
+                        </option>
+                      ))}
+                      <option value={OTHER_AREA.value}>
+                        {prefs.locale === "en" ? OTHER_AREA.en : OTHER_AREA.ar}
+                      </option>
+                    </Select>
                   </Field>
                   <Field label={t("property.block")} htmlFor="p-block">
                     <Input
                       id="p-block"
+                      inputMode="numeric"
                       placeholder={t("property.blockPlaceholder")}
                       value={property.block}
                       onChange={(e) => setProperty((p) => ({ ...p, block: e.target.value }))}
                     />
                   </Field>
+                  <Field label={t("property.street")} htmlFor="p-street">
+                    <Input
+                      id="p-street"
+                      placeholder={t("property.streetPlaceholder")}
+                      value={property.street}
+                      onChange={(e) => setProperty((p) => ({ ...p, street: e.target.value }))}
+                    />
+                  </Field>
+                  <Field label={t("property.houseOrPlot")} htmlFor="p-house">
+                    <Input
+                      id="p-house"
+                      inputMode="numeric"
+                      placeholder={t("property.houseOrPlotPlaceholder")}
+                      value={property.houseOrPlot}
+                      onChange={(e) => setProperty((p) => ({ ...p, houseOrPlot: e.target.value }))}
+                    />
+                  </Field>
+                  <Field label={t("property.paci")} htmlFor="p-paci">
+                    <Input
+                      id="p-paci"
+                      dir="ltr"
+                      inputMode="numeric"
+                      maxLength={8}
+                      className="num"
+                      placeholder={t("property.paciPlaceholder")}
+                      value={property.paciNo}
+                      onChange={(e) =>
+                        setProperty((p) => ({ ...p, paciNo: digitsOnly(e.target.value) }))
+                      }
+                    />
+                  </Field>
                 </div>
-                <Field label={t("property.street")} htmlFor="p-street">
-                  <Input
-                    id="p-street"
-                    placeholder={t("property.streetPlaceholder")}
-                    value={property.street}
-                    onChange={(e) => setProperty((p) => ({ ...p, street: e.target.value }))}
-                  />
-                </Field>
+                <p className="text-label-2 text-[13px] leading-5">{t("property.requiredHint")}</p>
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-[15px] font-medium">{t("property.units")}</span>
                   <Stepper

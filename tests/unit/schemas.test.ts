@@ -41,11 +41,21 @@ describe("master data schemas", () => {
       name: "الجابرية 157",
       governorate: "حولي",
       area: "الجابرية",
+      block: "1",
+      street: "7",
+      houseOrPlot: "157",
+      paciNo: "12045781",
       propertyType: "mixed" as const,
       owners: [{ ownerId: "0c000000-0000-4000-8000-000000000001", sharePct: 100 }],
     };
-    expect(propertySchema.parse({ ...base, paciNo: "12045781" }).paciNo).toBe("12045781");
+    expect(propertySchema.parse(base).paciNo).toBe("12045781");
+    // Avenue stays optional.
+    expect(propertySchema.parse({ ...base, avenue: "" }).avenue).toBe(null);
     expect(() => propertySchema.parse({ ...base, paciNo: "123" })).toThrow();
+    expect(() => propertySchema.parse({ ...base, paciNo: "" })).toThrow();
+    expect(() => propertySchema.parse({ ...base, block: "" })).toThrow();
+    expect(() => propertySchema.parse({ ...base, street: "" })).toThrow();
+    expect(() => propertySchema.parse({ ...base, houseOrPlot: "" })).toThrow();
     expect(() => propertySchema.parse({ ...base, governorate: undefined })).toThrow();
     expect(() => propertySchema.parse({ ...base, area: "" })).toThrow();
     expect(() =>

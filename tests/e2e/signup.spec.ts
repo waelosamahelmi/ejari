@@ -55,7 +55,12 @@ test.describe("signup, first-run wizard, tour & checklist", () => {
     await page.getByRole("button", { name: "التالي" }).click();
     await page.getByRole("button", { name: "التالي" }).click();
     await page.fill("#p-name", "الجابرية 157");
-    await page.fill("#p-area", "الجابرية");
+    await page.locator("#p-governorate").selectOption("حولي");
+    await page.locator("#p-area").selectOption("الجابرية");
+    await page.fill("#p-block", "1");
+    await page.fill("#p-street", "7");
+    await page.fill("#p-house", "157");
+    await page.fill("#p-paci", "12045781");
     await page.fill("#p-rent", "300");
     await axe(page, "/ar/setup step 4");
     await page.getByRole("button", { name: "التالي" }).click();

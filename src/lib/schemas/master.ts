@@ -2,7 +2,7 @@ import { z } from "zod";
 import { UNIT_TYPES } from "@/domain/types";
 import { EXPENSE_CATEGORY_TYPES } from "@/domain/expenses";
 import { FLOOR_MAX, FLOOR_MIN, MAX_PLANNED_UNITS } from "@/domain/unit-plan";
-import { civilId, email, fils, iban, optText, paci, phones, req } from "./common";
+import { civilId, email, fils, iban, optText, paci, phones, req, requiredPaci } from "./common";
 
 export const ownerSchema = z.object({
   fullName: req(z.string().max(160, "tooLong")),
@@ -22,11 +22,11 @@ export const propertySchema = z
     nameEn: optText(160),
     governorate: req(z.string().max(80, "tooLong")),
     area: req(z.string().max(120, "tooLong")),
-    block: optText(40),
-    street: optText(120),
+    block: req(z.string().max(40, "tooLong")),
+    street: req(z.string().max(120, "tooLong")),
     avenue: optText(40),
-    houseOrPlot: optText(40),
-    paciNo: paci,
+    houseOrPlot: req(z.string().max(40, "tooLong")),
+    paciNo: requiredPaci,
     propertyType: z.enum(["residential", "investment", "mixed", "industrial"]),
     floors: z.number().int().min(0).max(200).nullable().optional(),
     notes: optText(2000),

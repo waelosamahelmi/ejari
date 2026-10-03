@@ -30,6 +30,12 @@ export const paci = z
   .nullable()
   .transform((v) => (v ? digitsOnly(v) : null))
   .refine((v) => v === null || isValidPaci(v), "invalidPaci");
+/** PACI address number, mandatory (8 digits). */
+export const requiredPaci = z
+  .string()
+  .trim()
+  .transform((v) => digitsOnly(v))
+  .refine((v) => isValidPaci(v), "invalidPaci");
 export const civilId = z
   .string()
   .trim()
