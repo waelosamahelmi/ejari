@@ -26,6 +26,7 @@ export type PropertyFormValue = PropertyInput & { id: string };
 const EMPTY: PropertyInput = {
   name: "",
   nameEn: "",
+  governorate: "",
   area: "",
   block: "",
   street: "",

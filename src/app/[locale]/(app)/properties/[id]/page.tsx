@@ -62,6 +62,7 @@ export default async function PropertyPage({
         id: property.id,
         name: property.name,
         nameEn: property.name_en,
+        governorate: property.governorate,
         area: property.area,
         block: property.block,
         street: property.street,

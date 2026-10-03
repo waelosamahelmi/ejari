@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { UNIT_TYPES } from "@/domain/types";
 import { EXPENSE_CATEGORY_TYPES } from "@/domain/expenses";
+import { FLOOR_MAX, FLOOR_MIN, MAX_PLANNED_UNITS } from "@/domain/unit-plan";
 import { civilId, email, fils, iban, optText, paci, phones, req } from "./common";
 
 export const ownerSchema = z.object({
@@ -19,7 +20,8 @@ export const propertySchema = z
   .object({
     name: req(z.string().max(160, "tooLong")),
     nameEn: optText(160),
-    area: optText(120),
+    governorate: req(z.string().max(80, "tooLong")),
+    area: req(z.string().max(120, "tooLong")),
     block: optText(40),
     street: optText(120),
     avenue: optText(40),
@@ -73,6 +75,60 @@ export const bulkUnitsSchema = z.object({
   bedrooms: z.number().int().min(0).max(50).nullable().optional(),
 });
 export type BulkUnitsInput = z.input<typeof bulkUnitsSchema>;
+
+export const plannedUnitSchema = z.object({
+  label: req(z.string().max(60, "tooLong")),
+  type: z.enum(UNIT_TYPES),
+  floor: z
+    .number()
+    .int()
+    .min(FLOOR_MIN)
+    .max(FLOOR_MAX)
+    .nullable()
+    .optional()
+    .transform((v) => v ?? null),
+  areaM2: z
+    .number()
+    .nonnegative()
+    .nullable()
+    .optional()
+    .transform((v) => v ?? null),
+  bedrooms: z
+    .number()
+    .int()
+    .min(0)
+    .max(50)
+    .nullable()
+    .optional()
+    .transform((v) => v ?? null),
+  bathrooms: z
+    .number()
+    .int()
+    .min(0)
+    .max(50)
+    .nullable()
+    .optional()
+    .transform((v) => v ?? null),
+  askingRentFils: fils,
+});
+export type PlannedUnitInput = z.input<typeof plannedUnitSchema>;
+
+export const createPlannedUnitsSchema = z
+  .object({
+    propertyId: z.string().uuid(),
+    units: z.array(plannedUnitSchema).min(1, "required").max(MAX_PLANNED_UNITS),
+  })
+  .refine(
+    (v) => new Set(v.units.map((u) => u.label.trim().toLowerCase())).size === v.units.length,
+    { message: "duplicate", path: ["units"] },
+  );
+export type CreatePlannedUnitsInput = z.input<typeof createPlannedUnitsSchema>;
+
+export const createPropertyWithPlanSchema = z.object({
+  property: propertySchema,
+  units: z.array(plannedUnitSchema).max(MAX_PLANNED_UNITS),
+});
+export type CreatePropertyWithPlanInput = z.input<typeof createPropertyWithPlanSchema>;
 
 export const tenantSchema = z.object({
   fullName: req(z.string().max(160, "tooLong")),

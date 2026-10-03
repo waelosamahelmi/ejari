@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   bulkUnitsSchema,
+  createPlannedUnitsSchema,
   ownerSchema,
   propertySchema,
   tenantSchema,
@@ -36,14 +37,18 @@ describe("master data schemas", () => {
     expect(() => ownerSchema.parse({ fullName: "م", phones: [], iban: "KW00" })).toThrow();
     expect(() => ownerSchema.parse({ fullName: "م", phones: [], email: "bad" })).toThrow();
   });
-  it("property: owner shares must total 100 and PACI is 8 digits", () => {
+  it("property: owner shares must total 100, PACI is 8 digits, address is required", () => {
     const base = {
       name: "الجابرية 157",
+      governorate: "حولي",
+      area: "الجابرية",
       propertyType: "mixed" as const,
       owners: [{ ownerId: "0c000000-0000-4000-8000-000000000001", sharePct: 100 }],
     };
     expect(propertySchema.parse({ ...base, paciNo: "12045781" }).paciNo).toBe("12045781");
     expect(() => propertySchema.parse({ ...base, paciNo: "123" })).toThrow();
+    expect(() => propertySchema.parse({ ...base, governorate: undefined })).toThrow();
+    expect(() => propertySchema.parse({ ...base, area: "" })).toThrow();
     expect(() =>
       propertySchema.parse({
         ...base,
@@ -51,6 +56,20 @@ describe("master data schemas", () => {
       }),
     ).toThrow();
     expect(() => propertySchema.parse({ ...base, owners: [] })).toThrow();
+  });
+  it("planned units: bounds, duplicates and max count", () => {
+    const pid = "0d000000-0000-4000-8000-000000000001";
+    const unit = { label: "101", type: "apartment" as const, floor: 1, askingRentFils: 300000 };
+    expect(createPlannedUnitsSchema.parse({ propertyId: pid, units: [unit] }).units).toHaveLength(1);
+    expect(() => createPlannedUnitsSchema.parse({ propertyId: pid, units: [] })).toThrow();
+    expect(() => createPlannedUnitsSchema.parse({ propertyId: pid, units: [unit, unit] })).toThrow();
+    expect(() => createPlannedUnitsSchema.parse({ propertyId: "x", units: [unit] })).toThrow();
+    expect(() =>
+      createPlannedUnitsSchema.parse({
+        propertyId: pid,
+        units: Array.from({ length: 301 }, (_, i) => ({ ...unit, label: `u${i}` })),
+      }),
+    ).toThrow();
   });
   it("unit & bulk", () => {
     expect(

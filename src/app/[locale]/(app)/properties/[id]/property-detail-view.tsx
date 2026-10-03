@@ -53,6 +53,7 @@ export interface PropertyDetail {
   id: string;
   name: string;
   nameEn: string | null;
+  governorate: string | null;
   area: string | null;
   block: string | null;
   street: string | null;
@@ -511,6 +512,7 @@ export function PropertyDetailView({
           id: p.id,
           name: p.name,
           nameEn: p.nameEn ?? "",
+          governorate: p.governorate ?? "",
           area: p.area ?? "",
           block: p.block ?? "",
           street: p.street ?? "",
