@@ -8,11 +8,16 @@ import {
   beneficiarySchema,
   bulkUnitsSchema,
   categorySchema,
+  createPlannedUnitsSchema,
+  createPropertyWithPlanSchema,
   ownerSchema,
+  plannedUnitSchema,
   propertySchema,
   tenantSchema,
   unitSchema,
   type BulkUnitsInput,
+  type CreatePlannedUnitsInput,
+  type CreatePropertyWithPlanInput,
   type OwnerInput,
   type PropertyInput,
   type TenantInput,
@@ -58,6 +63,65 @@ export async function deleteOwner(id: string) {
 }
 
 // ---------------------------------------------------------------- properties
+type Supa = Awaited<ReturnType<typeof supabaseServer>>;
+
+async function writePropertyRelations(
+  db: Supa,
+  ctx: { orgId: string },
+  pid: string,
+  d: z.output<typeof propertySchema>,
+) {
+  // Replace owner shares.
+  const del = await db.from("property_owners").delete().eq("property_id", pid);
+  if (del.error) throw del.error;
+  const ins = await db
+    .from("property_owners")
+    .insert(
+      d.owners.map((o) => ({
+        org_id: ctx.orgId,
+        property_id: pid,
+        owner_id: o.ownerId,
+        share_pct: o.sharePct,
+      })),
+    );
+  if (ins.error) throw ins.error;
+  if (d.commission !== undefined) {
+    await db.from("property_commissions").delete().eq("property_id", pid);
+    if (d.commission) {
+      const c = await db
+        .from("property_commissions")
+        .insert({
+          org_id: ctx.orgId,
+          property_id: pid,
+          kind: d.commission.kind,
+          value: d.commission.value,
+        });
+      if (c.error) throw c.error;
+    }
+  }
+}
+
+function plannedUnitRows(
+  orgId: string,
+  propertyId: string,
+  units: z.output<typeof plannedUnitSchema>[],
+  startSort: number,
+) {
+  let sort = startSort;
+  return units.map((u) => ({
+    org_id: orgId,
+    property_id: propertyId,
+    label: u.label,
+    sort_order: ++sort,
+    type: u.type,
+    floor: u.floor,
+    area_m2: u.areaM2,
+    bedrooms: u.bedrooms,
+    bathrooms: u.bathrooms,
+    asking_rent_fils: u.askingRentFils,
+  }));
+}
+
 export async function saveProperty(id: string | null, input: PropertyInput) {
   return run(async () => {
     const ctx = await requireActionContext("manage_master_data");
@@ -67,6 +131,7 @@ export async function saveProperty(id: string | null, input: PropertyInput) {
       org_id: ctx.orgId,
       name: d.name,
       name_en: d.nameEn,
+      governorate: d.governorate,
       area: d.area,
       block: d.block,
       street: d.street,
@@ -81,34 +146,49 @@ export async function saveProperty(id: string | null, input: PropertyInput) {
       ? await db.from("properties").update(row).eq("id", id).select("id").single()
       : await db.from("properties").insert(row).select("id").single();
     if (res.error) throw res.error;
+    await writePropertyRelations(db, ctx, res.data.id, d);
+    reval();
+    return res.data.id;
+  });
+}
+
+/**
+ * Creates a property and (optionally) its planned units. If the units insert fails the
+ * property row is deleted, so a "property saved" toast never hides a lost unit plan.
+ */
+export async function createPropertyWithPlan(input: CreatePropertyWithPlanInput) {
+  return run(async () => {
+    const ctx = await requireActionContext("manage_master_data");
+    const d = createPropertyWithPlanSchema.parse(input);
+    const db = await supabaseServer();
+    const row = {
+      org_id: ctx.orgId,
+      name: d.property.name,
+      name_en: d.property.nameEn,
+      governorate: d.property.governorate,
+      area: d.property.area,
+      block: d.property.block,
+      street: d.property.street,
+      avenue: d.property.avenue,
+      house_or_plot: d.property.houseOrPlot,
+      paci_no: d.property.paciNo,
+      property_type: d.property.propertyType,
+      floors: d.property.floors ?? null,
+      notes: d.property.notes,
+    };
+    const res = await db.from("properties").insert(row).select("id").single();
+    if (res.error) throw res.error;
     const pid = res.data.id;
-    // Replace owner shares.
-    const del = await db.from("property_owners").delete().eq("property_id", pid);
-    if (del.error) throw del.error;
-    const ins = await db
-      .from("property_owners")
-      .insert(
-        d.owners.map((o) => ({
-          org_id: ctx.orgId,
-          property_id: pid,
-          owner_id: o.ownerId,
-          share_pct: o.sharePct,
-        })),
-      );
-    if (ins.error) throw ins.error;
-    if (d.commission !== undefined) {
-      await db.from("property_commissions").delete().eq("property_id", pid);
-      if (d.commission) {
-        const c = await db
-          .from("property_commissions")
-          .insert({
-            org_id: ctx.orgId,
-            property_id: pid,
-            kind: d.commission.kind,
-            value: d.commission.value,
-          });
-        if (c.error) throw c.error;
+    try {
+      await writePropertyRelations(db, ctx, pid, d.property);
+      if (d.units.length > 0) {
+        const rows = plannedUnitRows(ctx.orgId, pid, d.units, 0);
+        const insUnits = await db.from("units").insert(rows);
+        if (insUnits.error) throw insUnits.error;
       }
+    } catch (e) {
+      await db.from("properties").delete().eq("id", pid);
+      throw e;
     }
     reval();
     return pid;
@@ -222,6 +302,35 @@ export async function bulkCreateUnits(input: BulkUnitsInput) {
         bedrooms: d.bedrooms ?? null,
       });
     }
+    const { error } = await db.from("units").insert(rows);
+    if (error) throw error;
+    reval();
+    return rows.length;
+  });
+}
+
+/** Creates the units of a property detail planner. One insert; labels unique per property. */
+export async function createPlannedUnits(input: CreatePlannedUnitsInput) {
+  return run(async () => {
+    const ctx = await requireActionContext("manage_master_data");
+    const d = createPlannedUnitsSchema.parse(input);
+    const db = await supabaseServer();
+    const { data: property } = await db
+      .from("properties")
+      .select("id")
+      .eq("id", d.propertyId)
+      .maybeSingle();
+    if (!property) throw new ActionError("notFound");
+    const { data: existing } = await db
+      .from("units")
+      .select("label, sort_order")
+      .eq("property_id", d.propertyId);
+    const existingLabels = new Set((existing ?? []).map((u) => u.label.trim().toLowerCase()));
+    for (const u of d.units) {
+      if (existingLabels.has(u.label.trim().toLowerCase())) throw new ActionError("duplicate");
+    }
+    const startSort = Math.max(0, ...(existing ?? []).map((u) => u.sort_order));
+    const rows = plannedUnitRows(ctx.orgId, d.propertyId, d.units, startSort);
     const { error } = await db.from("units").insert(rows);
     if (error) throw error;
     reval();
