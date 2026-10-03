@@ -26,3 +26,13 @@ Resume rule: read this file first and continue from the first unchecked item.
 - Expiring/grace/concession/late/accounting/owner/ledger reports render, print and export (e2e).
 - Offline payment queues and syncs exactly once; push renders in the recipient's language (e2e).
 - Owner portal sees only own properties; collector blocked from expenses (RLS suite).
+
+## Client change set (2026-10-03): Kuwait address + unit planner
+
+- [x] Additive migration `20261003000001_property_governorate.sql`; generated types updated; seed properties carry governorates; شراء (capital) added to seed/new-office categories.
+- [x] Kuwait governorate/area dataset (`src/data/kuwait-addresses.ts`, 6 governorates / 140 areas, PACI-sourced) with English labels and legacy fallback.
+- [x] Pure unit plan generator (`src/domain/unit-plan.ts`) + schemas + server actions (`createPlannedUnits`, `createPropertyWithPlan` with cleanup).
+- [x] UnitPlanner reused by the bulk-add sheet and the new 2-step create-property flow (details → units / add later); even-spread bulk action removed.
+- [x] Governorate in property list/search/detail (localized `governorate · area`), maps query and edit form; legacy rows preserved.
+- [x] Tests: unit-plan, kuwait-addresses, schemas, e2e `properties.spec.ts`; visual baselines refreshed for property/building-stack screens only.
+- Verification: `pnpm typecheck && pnpm lint && pnpm test && pnpm build` green; `pnpm db:reset` + `pnpm db:types` green (types unchanged by regeneration); e2e `properties.spec.ts` 3/3 (uneven 14-unit building, governorate→area filtering, add-units-later via the bulk planner); full e2e suite 22/23 green — the login visual baselines only pass with `NEXT_PUBLIC_DEMO_ACCOUNTS=1` (the `.env.example` default), because the local gitignored `.env` sets it to `0`; all other visual baselines green.

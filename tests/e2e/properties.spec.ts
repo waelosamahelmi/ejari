@@ -71,4 +71,27 @@ test.describe("property creation: Kuwait address + unit planner", () => {
     await expect(page.locator('#p-area option[value="السالمية"]')).toHaveCount(0);
     await expect(page.locator('#p-area option[value="الجهراء"]')).toHaveCount(1);
   });
+
+  test("add units later, then plan them from the Units tab", async ({ page }) => {
+    await page.goto("/ar/properties");
+    await page.getByRole("button", { name: "عقار جديد" }).first().click();
+    await page.locator("#p-name").fill("مبنى الإضافة لاحقًا");
+    await page.locator("#p-governorate").selectOption("مبارك الكبير");
+    await page.locator("#p-area").selectOption("العدان");
+    await page.getByRole("button", { name: "التالي" }).click();
+    await page.getByRole("radio", { name: "إضافة الوحدات لاحقًا" }).click();
+    await page.getByRole("button", { name: "إنشاء العقار" }).click();
+    await expect(page.getByText("مبنى الإضافة لاحقًا")).toBeVisible({ timeout: 15_000 });
+
+    await page.getByRole("link", { name: /مبنى الإضافة لاحقًا/ }).first().click();
+    await page.getByRole("button", { name: "الوحدات" }).click();
+    await page.getByRole("button", { name: "إضافة وحدات" }).click();
+    await page.locator("#plan-count-0").fill("2");
+    await page.locator("#plan-type-0").selectOption("shop");
+    await page.locator("#plan-prefix-0").fill("M");
+    await page.locator("#plan-start-0").fill("1");
+    await page.getByRole("button", { name: "تمت إضافة 2 وحدة" }).click();
+    await expect(page.getByText("M1", { exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText("M2", { exact: true })).toBeVisible();
+  });
 });
