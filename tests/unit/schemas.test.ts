@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  bulkUnitsSchema,
   createPlannedUnitsSchema,
   ownerSchema,
   propertySchema,
@@ -71,7 +70,7 @@ describe("master data schemas", () => {
       }),
     ).toThrow();
   });
-  it("unit & bulk", () => {
+  it("unit & planned units", () => {
     expect(
       unitSchema.parse({
         propertyId: "0d000000-0000-4000-8000-000000000001",
@@ -82,17 +81,6 @@ describe("master data schemas", () => {
     ).toBe(true);
     expect(() =>
       unitSchema.parse({ propertyId: "x", label: "8", type: "shop", askingRentFils: 1 }),
-    ).toThrow();
-    expect(() =>
-      bulkUnitsSchema.parse({
-        propertyId: "0d000000-0000-4000-8000-000000000001",
-        type: "apartment",
-        count: 0,
-        startNumber: 1,
-        floorFrom: 1,
-        floorTo: 5,
-        askingRentFils: 300000,
-      }),
     ).toThrow();
   });
 });

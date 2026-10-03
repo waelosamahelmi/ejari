@@ -527,7 +527,12 @@ export function PropertyDetailView({
         }}
       />
       <UnitFormSheet open={unitSheet} onOpenChange={setUnitSheet} propertyId={p.id} />
-      <BulkUnitsSheet open={bulk} onOpenChange={setBulk} propertyId={p.id} />
+      <BulkUnitsSheet
+        open={bulk}
+        onOpenChange={setBulk}
+        propertyId={p.id}
+        existingLabels={stack.map((s) => s.label)}
+      />
     </div>
   );
 }

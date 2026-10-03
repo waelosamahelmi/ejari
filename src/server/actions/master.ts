@@ -6,7 +6,6 @@ import { requireActionContext, ActionError } from "@/lib/auth";
 import { run } from "@/server/action";
 import {
   beneficiarySchema,
-  bulkUnitsSchema,
   categorySchema,
   createPlannedUnitsSchema,
   createPropertyWithPlanSchema,
@@ -15,7 +14,6 @@ import {
   propertySchema,
   tenantSchema,
   unitSchema,
-  type BulkUnitsInput,
   type CreatePlannedUnitsInput,
   type CreatePropertyWithPlanInput,
   type OwnerInput,
@@ -269,43 +267,6 @@ export async function saveUnit(id: string | null, input: UnitInput) {
     if (res.error) throw res.error;
     reval();
     return res.data.id;
-  });
-}
-
-/** "Add 20 apartments numbered 1–20, floors 1–5, asking rent 300" — spread evenly over floors. */
-export async function bulkCreateUnits(input: BulkUnitsInput) {
-  return run(async () => {
-    const ctx = await requireActionContext("manage_master_data");
-    const d = bulkUnitsSchema.parse(input);
-    const db = await supabaseServer();
-    const { data: existing } = await db
-      .from("units")
-      .select("label, sort_order")
-      .eq("property_id", d.propertyId);
-    const labels = new Set((existing ?? []).map((u) => u.label));
-    let sort = Math.max(0, ...(existing ?? []).map((u) => u.sort_order));
-    const floors = Math.max(1, Math.abs(d.floorTo - d.floorFrom) + 1);
-    const perFloor = Math.ceil(d.count / floors);
-    const step = d.floorTo >= d.floorFrom ? 1 : -1;
-    const rows = [];
-    for (let i = 0; i < d.count; i++) {
-      const label = `${d.prefix ?? ""}${d.startNumber + i}`;
-      if (labels.has(label)) throw new ActionError("duplicate");
-      rows.push({
-        org_id: ctx.orgId,
-        property_id: d.propertyId,
-        label,
-        sort_order: ++sort,
-        type: d.type,
-        floor: d.floorFrom + Math.floor(i / perFloor) * step,
-        asking_rent_fils: d.askingRentFils,
-        bedrooms: d.bedrooms ?? null,
-      });
-    }
-    const { error } = await db.from("units").insert(rows);
-    if (error) throw error;
-    reval();
-    return rows.length;
   });
 }
 

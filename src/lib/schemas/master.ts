@@ -63,19 +63,6 @@ export const unitSchema = z.object({
 });
 export type UnitInput = z.input<typeof unitSchema>;
 
-export const bulkUnitsSchema = z.object({
-  propertyId: z.string().uuid(),
-  type: z.enum(UNIT_TYPES),
-  count: z.number().int().min(1).max(300),
-  startNumber: z.number().int().min(0).max(100000),
-  prefix: optText(20),
-  floorFrom: z.number().int().min(-5).max(200),
-  floorTo: z.number().int().min(-5).max(200),
-  askingRentFils: fils,
-  bedrooms: z.number().int().min(0).max(50).nullable().optional(),
-});
-export type BulkUnitsInput = z.input<typeof bulkUnitsSchema>;
-
 export const plannedUnitSchema = z.object({
   label: req(z.string().max(60, "tooLong")),
   type: z.enum(UNIT_TYPES),
