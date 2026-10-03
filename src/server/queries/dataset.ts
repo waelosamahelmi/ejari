@@ -42,6 +42,7 @@ export interface OrgData {
       name: string;
       nameEn: string | null;
       area: string | null;
+      governorate: string | null;
       propertyType: string;
       coverImagePath: string | null;
       photos: { path: string; blur?: string }[];
@@ -108,7 +109,9 @@ export async function fetchOrgData(
     fetchAll((f, t) =>
       db
         .from("properties")
-        .select("id, name, name_en, area, property_type, cover_image_path, photos, floors, active")
+        .select(
+          "id, name, name_en, area, governorate, property_type, cover_image_path, photos, floors, active",
+        )
         .eq("org_id", orgId)
         .order("name")
         .range(f, t),
@@ -408,6 +411,7 @@ export async function fetchOrgData(
           name: p.name,
           nameEn: p.name_en,
           area: p.area,
+          governorate: p.governorate,
           propertyType: p.property_type,
           coverImagePath: p.cover_image_path,
           photos: (p.photos as { path: string; blur?: string }[] | null) ?? [],

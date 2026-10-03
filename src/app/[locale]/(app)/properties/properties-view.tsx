@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { NoPropertiesIllustration, NoResultsIllustration } from "@/components/illustrations";
 import { Select } from "@/components/ui/input";
+import { areaLabel, governorateLabel, locationLabel } from "@/data/kuwait-addresses";
 import { togglePinnedProperty } from "@/server/actions/master";
 import { useMoney, useNum } from "@/components/shell/prefs-context";
 import type { PropertySummary } from "@/server/queries/properties";
@@ -46,7 +47,7 @@ export function PropertiesView({
   const t = useTranslations("properties");
   const tEnum = useTranslations("enums.propertyType");
   const tA11y = useTranslations("common.a11y");
-  const locale = useLocale();
+  const locale = useLocale() as "ar" | "en";
   const money = useMoney();
   const num = useNum();
   const [q, setQ] = useState("");
@@ -62,18 +63,24 @@ export function PropertiesView({
       .filter((p) => p.active)
       .filter((p) => type === "all" || p.propertyType === type)
       .filter((p) => owner === "all" || p.ownerIds.includes(owner))
-      .filter(
-        (p) =>
-          !s ||
-          [p.name, p.nameEn ?? "", p.area ?? "", ...p.ownerNames].some((x) =>
-            x.toLowerCase().includes(s),
-          ),
-      )
+      .filter((p) => {
+        if (!s) return true;
+        const hay = [
+          p.name,
+          p.nameEn ?? "",
+          p.governorate ?? "",
+          p.area ?? "",
+          governorateLabel(p.governorate, locale),
+          areaLabel(p.area, locale, p.governorate),
+          ...p.ownerNames,
+        ];
+        return hay.some((x) => x.toLowerCase().includes(s));
+      })
       .sort(
         (a, b) =>
           Number(pinned.has(b.id)) - Number(pinned.has(a.id)) || a.name.localeCompare(b.name, "ar"),
       );
-  }, [properties, q, type, owner, pinned]);
+  }, [properties, q, type, owner, pinned, locale]);
 
   const togglePin = (id: string) => {
     setPinned((prev) => {
@@ -168,7 +175,7 @@ export function PropertiesView({
                 LinkComponent={Link}
                 href={`/properties/${p.id}`}
                 name={locale === "en" && p.nameEn ? p.nameEn : p.name}
-                location={p.area ?? undefined}
+                location={locationLabel(p.governorate, p.area, locale) || undefined}
                 photo={p.coverUrl}
                 priority={i < 3}
                 ctaLabel={t("details")}

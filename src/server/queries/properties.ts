@@ -11,6 +11,7 @@ export interface PropertySummary {
   name: string;
   nameEn: string | null;
   area: string | null;
+  governorate: string | null;
   propertyType: string;
   cover: string | null;
   ownerNames: string[];
@@ -38,6 +39,7 @@ export function propertySummaries(d: OrgData, period: Period, today: ISODate): P
       name: p.name,
       nameEn: meta.nameEn,
       area: meta.area,
+      governorate: meta.governorate,
       propertyType: meta.propertyType,
       cover: meta.coverImagePath,
       ownerNames: [...p.ownerNames],

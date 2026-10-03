@@ -28,6 +28,7 @@ import { IconTile } from "@/components/ui/icon-tile";
 import { HeaderUtilities } from "@/components/shell/app-shell";
 import { BuildingStack, type StackTile } from "@/components/domain/properties/building-stack";
 import { Documents } from "@/components/domain/documents";
+import { areaLabel, governorateLabel, locationLabel } from "@/data/kuwait-addresses";
 import { useMoney, useNum, usePercent, useJoin } from "@/components/shell/prefs-context";
 import { reorderPhotos, uploadPhoto } from "@/server/actions/files";
 import { setPropertyActive } from "@/server/actions/master";
@@ -121,16 +122,23 @@ export function PropertyDetailView({
   const name = locale === "en" && p.nameEn ? p.nameEn : p.name;
   const collectRate = summary.expectedFils > 0 ? summary.collectedFils / summary.expectedFils : 0;
   const pct = (v: number) => num(Math.round(v * 100));
+  const govLabel = governorateLabel(p.governorate, locale);
+  const areaText = areaLabel(p.area, locale, p.governorate);
   const address = join(
     [
-      p.area,
+      govLabel,
+      areaText,
       p.block && `${t("fields.block")} ${p.block}`,
       p.street && `${t("fields.street")} ${p.street}`,
       p.avenue && `${t("fields.avenue")} ${p.avenue}`,
       p.houseOrPlot && `${t("fields.houseOrPlot")} ${p.houseOrPlot}`,
     ].filter((x): x is string => !!x),
   );
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.area ?? ""} ${p.block ? `block ${p.block}` : ""} ${p.street ?? ""} Kuwait`)}`;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    [govLabel, areaText, p.block ? `block ${p.block}` : "", p.street ?? "", "Kuwait"]
+      .filter(Boolean)
+      .join(" "),
+  )}`;
 
   const selectTab = (k: string) => {
     setTab(k);
@@ -159,7 +167,7 @@ export function PropertyDetailView({
           src={p.cover}
           name={p.name}
           alt={name}
-          location={p.area ?? undefined}
+          location={locationLabel(p.governorate, p.area, locale) || undefined}
           title={name}
           topStart={
             <Link href="/properties" aria-label={tc("actions.back")} className={glassButtonClass}>
