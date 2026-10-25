@@ -939,7 +939,6 @@ export function ContractWizard({
                   >
                     <ContractDocument
                       rendered={preview.rendered}
-                      contractNo="—"
                       ownerName={owners.find((o) => o.id === v.ownerId)?.name ?? ""}
                       tenantName={tenant.name}
                     />

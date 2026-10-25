@@ -239,23 +239,39 @@ function parseText(src: string): Node[] {
   return root;
 }
 
-function renderNodes(nodes: Node[], vars: Vars, refs: Record<string, number>): string {
+export interface ContractTextPart {
+  text: string;
+  variable?: string;
+}
+
+function renderNodes(
+  nodes: Node[],
+  vars: Vars,
+  refs: Record<string, number>,
+  parts?: ContractTextPart[],
+): string {
   let out = "";
   for (const n of nodes) {
     switch (n.k) {
       case "text":
         out += n.v;
+        parts?.push({ text: n.v });
         break;
       case "var": {
         const v = vars[n.name];
-        out += v === null || v === undefined || v === false ? "" : String(v);
+        const text = v === null || v === undefined || v === false ? "" : String(v);
+        out += text;
+        parts?.push({ text, variable: n.name });
         break;
       }
-      case "ref":
-        out += refs[n.key] !== undefined ? String(refs[n.key]) : "—";
+      case "ref": {
+        const text = refs[n.key] !== undefined ? String(refs[n.key]) : "—";
+        out += text;
+        parts?.push({ text });
         break;
+      }
       case "section":
-        if (truthy(vars[n.name]) !== n.inverted) out += renderNodes(n.children, vars, refs);
+        if (truthy(vars[n.name]) !== n.inverted) out += renderNodes(n.children, vars, refs, parts);
         break;
     }
   }
@@ -330,12 +346,15 @@ export interface RenderedClause {
   key: string;
   text: string;
   custom?: boolean;
+  parts?: ContractTextPart[];
 }
 
 export interface RenderedContract {
   preamble: string[];
   clauses: RenderedClause[];
   closing: string[];
+  preambleParts?: ContractTextPart[][];
+  closingParts?: ContractTextPart[][];
 }
 
 function lines(s: string): string[] {
@@ -365,6 +384,42 @@ export function includedClauses(
     });
 }
 
+/** Keeps variable boundaries as structured text, never HTML, for legal-document emphasis. */
+function textParts(
+  src: string,
+  vars: Vars,
+  refs: Record<string, number>,
+  collapse = false,
+): ContractTextPart[] {
+  const parts: ContractTextPart[] = [];
+  renderNodes(parseText(src), vars, refs, parts);
+  if (collapse) {
+    let previousSpace = false;
+    for (const part of parts) {
+      part.text = part.text.replace(/\s+/g, " ");
+      if (previousSpace) part.text = part.text.replace(/^ /, "");
+      if (part.text) previousSpace = part.text.endsWith(" ");
+    }
+  }
+  const nonempty = parts.filter((p) => p.text.length > 0 || p.variable);
+  if (nonempty[0]) nonempty[0].text = nonempty[0].text.trimStart();
+  const last = nonempty.at(-1);
+  if (last) last.text = last.text.trimEnd();
+  return nonempty;
+}
+
+function lineParts(src: string, vars: Vars, refs: Record<string, number>): ContractTextPart[][] {
+  const parts = textParts(src, vars, refs);
+  const result: ContractTextPart[][] = [[]];
+  for (const part of parts) {
+    part.text.split("\n").forEach((text, index) => {
+      if (index) result.push([]);
+      result.at(-1)!.push({ ...part, text });
+    });
+  }
+  return result.filter((line) => line.some((p) => p.text.trim()));
+}
+
 /** Renders a full contract: auto-numbered clauses with resolved clause references. */
 export function renderContract(
   tpl: ContractTemplate,
@@ -383,13 +438,16 @@ export function renderContract(
   included.forEach((c, i) => (refs[c.key] = i + 1));
   return {
     preamble: lines(renderText(tpl.preamble, vars, refs)),
+    preambleParts: lineParts(tpl.preamble, vars, refs),
     clauses: included.map((c, i) => ({
       number: i + 1,
       key: c.key,
       text: renderText(c.body, vars, refs).replace(/\s+/g, " ").trim(),
+      parts: textParts(c.body, vars, refs, true),
       ...(c.custom ? { custom: true } : {}),
     })),
     closing: lines(renderText(tpl.closing ?? "", vars, refs)),
+    closingParts: lineParts(tpl.closing ?? "", vars, refs),
   };
 }
 

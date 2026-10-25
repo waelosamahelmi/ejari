@@ -215,7 +215,7 @@ describe("residential seed contract", () => {
       ],
     );
     expect(rr.clauses.at(-2)!.text).toBe("حرر من ثلاث نسخ.");
-    expect(rr.clauses.at(-1)).toEqual({
+    expect(rr.clauses.at(-1)).toMatchObject({
       number: 12,
       key: "c1",
       text: "بند إضافي خالد فهد الحربي",

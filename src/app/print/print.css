@@ -72,3 +72,9 @@ body {
     display: none !important;
   }
 }
+
+.contract-field {
+  color: #c62828;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}

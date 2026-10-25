@@ -1,5 +1,4 @@
-import Image from "next/image";
-import type { RenderedContract } from "@/domain/templates";
+import type { ContractTextPart, RenderedContract } from "@/domain/templates";
 import { cn } from "@/lib/utils";
 
 /** Contract documents are Arabic legal text; their fixed labels belong to the document, not the UI locale. */
@@ -18,20 +17,14 @@ export const DOC_LABELS_AR = {
  */
 export function ContractDocument({
   rendered,
-  contractNo,
   ownerName,
   tenantName,
-  qr,
-  letterhead,
   className,
   labels,
 }: {
   rendered: RenderedContract;
-  contractNo: string;
   ownerName: string;
   tenantName: string;
-  qr?: string | null;
-  letterhead?: React.ReactNode;
   className?: string;
   labels?: { party1: string; party2: string; name: string; signature: string; contractNo: string };
 }) {
@@ -45,21 +38,14 @@ export function ContractDocument({
       lang="ar"
       className={cn("contract-doc text-[12.5pt] leading-[1.9] text-black", className)}
     >
-      <header className="relative mb-4">
-        {letterhead}
-        <div className="absolute end-0 top-0 flex items-start gap-2 text-[8.5pt] leading-tight text-neutral-600">
-          {qr && <Image src={qr} alt="" width={64} height={64} unoptimized className="size-16" />}
-          <div className="num pt-1" dir="ltr">
-            {l.contractNo}
-            <br />
-            <strong className="text-[10pt] text-black">{contractNo}</strong>
-          </div>
-        </div>
-        <h1 className="pt-2 text-center text-[26pt] leading-tight font-bold">{title}</h1>
+      <header className="mb-4">
+        <h1 className="text-center text-[26pt] leading-tight font-bold">{title}</h1>
       </header>
       <div className="space-y-0.5">
         {preamble.map((l, i) => (
-          <p key={i}>{l}</p>
+          <p key={i}>
+            <ContractText text={l} parts={rendered.preambleParts?.[i + 1]} />
+          </p>
         ))}
       </div>
       <ol className="mt-3 space-y-1.5">
@@ -72,13 +58,15 @@ export function ContractDocument({
             )}
           >
             <span className="num font-semibold">{c.number}-</span>
-            <span>{c.text}</span>
+            <span>
+              <ContractText text={c.text} parts={c.parts} />
+            </span>
           </li>
         ))}
       </ol>
       {rendered.closing.map((l, i) => (
         <p key={i} className="mt-2">
-          {l}
+          <ContractText text={l} parts={rendered.closingParts?.[i]} />
         </p>
       ))}
       <section className="signature mt-10 grid break-inside-avoid grid-cols-2 gap-10">
@@ -99,5 +87,26 @@ export function ContractDocument({
         ))}
       </section>
     </article>
+  );
+}
+
+/** Black boilerplate with red contract-specific fields, matching the client's paper lease. */
+function ContractText({ text, parts }: { text: string; parts?: ContractTextPart[] }) {
+  if (
+    !parts ||
+    parts
+      .map((p) => p.text)
+      .join("")
+      .trim() !== text
+  )
+    return <>{text}</>;
+  return (
+    <>
+      {parts.map((part, index) => (
+        <span key={index} className={part.variable ? "contract-field text-[#c62828]" : undefined}>
+          {part.text}
+        </span>
+      ))}
+    </>
   );
 }

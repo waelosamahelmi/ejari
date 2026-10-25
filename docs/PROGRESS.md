@@ -36,3 +36,12 @@ Resume rule: read this file first and continue from the first unchecked item.
 - [x] Governorate in property list/search/detail (localized `governorate · area`), maps query and edit form; legacy rows preserved.
 - [x] Tests: unit-plan, kuwait-addresses, schemas, e2e `properties.spec.ts`; visual baselines refreshed for property/building-stack screens only.
 - Verification: `pnpm typecheck && pnpm lint && pnpm test && pnpm build` green; `pnpm db:reset` + `pnpm db:types` green (types unchanged by regeneration); e2e `properties.spec.ts` 3/3 (uneven 14-unit building, governorate→area filtering, add-units-later via the bulk planner); full e2e suite 22/23 green — the login visual baselines only pass with `NEXT_PUBLIC_DEMO_ACCOUNTS=1` (the `.env.example` default), because the local gitignored `.env` sets it to `0`; all other visual baselines green.
+
+## Client change set (2026-10-25): contracts
+
+- [x] Explain the required termination reason, show settlement loading/failure with retry, and retain paid-contract termination.
+- [x] Recover missing printed owner details in legacy snapshots without rewriting saved clauses.
+- [x] Remove contract branding/QR/system-number header and powered-by footer.
+- [x] Highlight contract fields in red on screen and in print, retaining structured snapshot metadata.
+- [x] Quality gate: `pnpm typecheck`, `pnpm lint`, `pnpm test` (283 passed; 9 opt-in RLS tests skipped), `pnpm build` green. Contract browser regression (legacy blank-owner snapshot + fully paid termination) and focused visual suite (4 tests / 24 captures) green; 16 print baselines refreshed.
+- [x] Commit and push client changes to `origin/master`.

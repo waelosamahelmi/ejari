@@ -202,7 +202,7 @@
   "terminate": {
     "title": "Terminate contract",
     "moveOut": "Move-out date",
-    "reason": "Reason",
+    "reason": "Reason (required)",
     "arrears": "Overdue up to move-out",
     "penalty": "Early-exit penalty",
     "penaltyHint": "Value of the free months — editable",
@@ -212,7 +212,13 @@
     "remaining": "Still owed by tenant",
     "confirm": "Confirm termination",
     "done": "Contract terminated",
-    "futureVoided": "Charges after the move-out month will be voided."
+    "futureVoided": "Charges after the move-out month will be voided.",
+    "reasonHint": "Enter a reason to enable confirmation. A fully paid contract can also be terminated.",
+    "reasonRequired": "Enter the termination reason.",
+    "reasonPlaceholder": "For example: tenant requested to vacate",
+    "quoteError": "Unable to load the settlement. Please retry.",
+    "retry": "Retry settlement",
+    "loading": "Calculating settlement…"
   },
   "end": {
     "confirm": "End this contract?",

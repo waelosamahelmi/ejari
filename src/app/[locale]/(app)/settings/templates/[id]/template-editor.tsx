@@ -301,7 +301,6 @@ export function TemplateEditor({ template }: { template: LoadedTemplate }) {
               <div className="mx-auto w-[210mm] [zoom:0.5] bg-white p-[18mm] text-black shadow-sm">
                 <ContractDocument
                   rendered={preview}
-                  contractNo={String(vars.contract_no)}
                   ownerName="المالك"
                   tenantName="المستأجر"
                 />

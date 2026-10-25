@@ -1,14 +1,11 @@
 import { notFound } from "next/navigation";
-import QRCode from "qrcode";
 import { getTranslations } from "next-intl/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requirePrintContext } from "@/server/print";
 import { loadParties, loadTemplate, renderWith, varsInput } from "@/server/queries/contracts";
 import { ContractDocument } from "@/components/print/contract-document";
-import { Letterhead, PoweredBy } from "@/components/print/letterhead";
 import { PrintToolbar } from "@/components/print/print-toolbar";
-import { PUBLIC_ENV } from "@/lib/env";
-import type { RenderedContract } from "@/domain/templates";
+import { restoreContractPresentation, type RenderedContract } from "@/domain/contract-presentation";
 
 export async function generateMetadata({
   searchParams,
@@ -32,7 +29,7 @@ export default async function PrintContract({
 }) {
   const { id } = await params;
   const sp = await searchParams;
-  const { ctx, logoUrl, lang } = await requirePrintContext(sp.lang);
+  const { lang } = await requirePrintContext(sp.lang);
   const t = await getTranslations({ locale: lang, namespace: "common.actions" });
   const db = await supabaseServer();
   const { data: c } = await db
@@ -48,9 +45,9 @@ export default async function PrintContract({
     unitIds: (c.contract_units ?? []).map((u) => u.unit_id),
   });
   let rendered = c.rendered_clauses as unknown as RenderedContract | null;
-  if (!rendered || c.status === "draft") {
+  {
     const tpl = await loadTemplate(db, c.type, c.template_id);
-    rendered = renderWith(
+    const current = renderWith(
       tpl,
       varsInput(
         {
@@ -78,12 +75,9 @@ export default async function PrintContract({
       },
       (c.custom_clauses ?? []) as { key: string; text: string }[],
     );
+    rendered =
+      !rendered || c.status === "draft" ? current : restoreContractPresentation(rendered, current);
   }
-  const qr = await QRCode.toDataURL(`${PUBLIC_ENV.appUrl}/ar/contracts/${c.id}`, {
-    margin: 0,
-    width: 128,
-    errorCorrectionLevel: "M",
-  });
   return (
     <>
       <PrintToolbar
@@ -94,20 +88,9 @@ export default async function PrintContract({
       <div className="print-page">
         <ContractDocument
           rendered={rendered}
-          contractNo={c.status === "draft" ? "—" : c.contract_no}
           ownerName={parties.owner.name}
           tenantName={parties.tenant.name}
-          qr={qr}
-          letterhead={
-            <Letterhead
-              show={ctx.settings.letterhead}
-              orgName={ctx.orgName}
-              orgNameEn={ctx.orgNameEn}
-              logoUrl={logoUrl}
-            />
-          }
         />
-        <PoweredBy show={ctx.settings.poweredBy} />
       </div>
     </>
   );

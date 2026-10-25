@@ -6,7 +6,15 @@
  * "today" are masked via [data-shot-mask]. Create/refresh baselines with:
  *   pnpm test:e2e tests/e2e/visual.spec.ts --update-snapshots
  */
-import { test, expect, devices, type Browser, type BrowserContext, type Locator, type Page } from "@playwright/test";
+import {
+  test,
+  expect,
+  devices,
+  type Browser,
+  type BrowserContext,
+  type Locator,
+  type Page,
+} from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import { config } from "dotenv";
 import { execSync } from "node:child_process";
@@ -33,9 +41,13 @@ const tNext = (locale: "ar" | "en") => (locale === "ar" ? "التالي" : "Next
 let ids: Ids;
 
 function svc() {
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
-    auth: { persistSession: false },
-  });
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: { persistSession: false },
+    },
+  );
 }
 
 async function reseed() {
@@ -45,7 +57,12 @@ async function reseed() {
   // PostgREST may still be reloading its schema cache right after the reset.
   let member: { org_id: string; user_id: string } | null = null;
   for (let i = 0; i < 30 && !member; i++) {
-    const { data } = await sb.from("org_members").select("org_id, user_id").eq("role", "admin").limit(1).maybeSingle();
+    const { data } = await sb
+      .from("org_members")
+      .select("org_id, user_id")
+      .eq("role", "admin")
+      .limit(1)
+      .maybeSingle();
     member = data;
     if (!member) await new Promise((r) => setTimeout(r, 1000));
   }
@@ -97,7 +114,12 @@ async function reseed() {
   let voucherId: string | null = null;
   for (let i = 0; i < 30 && !(unitId && resId && invId && voucherId); i++) {
     const [u, r0, r1, v] = await Promise.all([
-      sb.from("contract_units").select("unit_id, contracts!inner(status)").eq("contracts.status", "active").limit(1).maybeSingle(),
+      sb
+        .from("contract_units")
+        .select("unit_id, contracts!inner(status)")
+        .eq("contracts.status", "active")
+        .limit(1)
+        .maybeSingle(),
       sb.from("contracts").select("id").eq("type", "residential").limit(1).maybeSingle(),
       sb.from("contracts").select("id").eq("type", "investment").limit(1).maybeSingle(),
       sb.from("expense_vouchers").select("id").limit(1).maybeSingle(),
@@ -209,7 +231,9 @@ async function shot(
   await expect(page).toHaveScreenshot(`${name}.png`, {
     fullPage: opts.fullPage ?? false,
     // stylePath shots hide the dynamic widgets with CSS instead of the pink mask overlay.
-    mask: opts.stylePath ? (opts.extraMask ?? []) : [page.locator("[data-shot-mask]"), ...(opts.extraMask ?? [])],
+    mask: opts.stylePath
+      ? (opts.extraMask ?? [])
+      : [page.locator("[data-shot-mask]"), ...(opts.extraMask ?? [])],
     stylePath: opts.stylePath,
   });
 }
@@ -239,7 +263,10 @@ async function captureAll(
   await page.waitForTimeout(500);
   await page.goto(`/${locale}/dashboard?period=2026-08`);
 
-  await page.getByRole("button", { name: new RegExp(t("الإشعارات", "Notifications")) }).first().click();
+  await page
+    .getByRole("button", { name: new RegExp(t("الإشعارات", "Notifications")) })
+    .first()
+    .click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await shot(page, `${pre}-notifications`);
   await page.keyboard.press("Escape");
@@ -340,6 +367,38 @@ test.describe("visual regression (§20)", () => {
         // Logged-out screens first, then the app with the admin session.
         for (const vp of VIEWPORTS) {
           const pre = `${vp.name}-${locale}-${scheme}`;
+          // Focused refresh for contract document changes; reuse the established baselines.
+          if (process.env.E2E_CONTRACT_VISUALS_ONLY === "1") {
+            const ctx = await newContext(browser, scheme, locale, vp, { auth: true });
+            const page = await ctx.newPage();
+            const t = (ar: string, en: string) => (locale === "ar" ? ar : en);
+            const next = page.getByRole("button", { name: tNext(locale) });
+            // Contract wizard: type → … → terms (4) → … → review (6).
+            await page.goto(`/${locale}/contracts/new`);
+            await page.getByRole("button", { name: t("استثماري", "Investment") }).click();
+            await next.click();
+            await page.getByRole("searchbox").fill("الشمري");
+            await page.locator("ul li button").first().click();
+            await next.click();
+            await page.getByRole("button", { name: /الري قسيمة 1674|Al-Rai Plot 1674/ }).click();
+            await page.getByRole("button", { name: /^1 — / }).click();
+            await next.click();
+            await page.locator("#w-cdate").fill("01/10/2026");
+            await page.locator("#w-start").fill("01/10/2026");
+            await page.locator("#w-first").fill("01/12/2026");
+            await expect(page.locator("#w-first")).toHaveValue("01/12/2026");
+            await next.click();
+            await next.click();
+            await expect(page.getByText(t("أول الاستحقاقات", "First charges"))).toBeVisible();
+            await shot(page, `${pre}-wizard-6`);
+
+            await page.goto(`/print/contract/${ids.residential}?lang=${locale}`);
+            await shot(page, `${pre}-contract-print-residential`, { fullPage: true });
+            await page.goto(`/print/contract/${ids.investment}?lang=${locale}`);
+            await shot(page, `${pre}-contract-print-investment`, { fullPage: true });
+            await ctx.close();
+            continue;
+          }
           const ctx = await newContext(browser, scheme, locale, vp);
           const page = await ctx.newPage();
           await page.goto(`/${locale}/welcome`);
@@ -358,12 +417,18 @@ test.describe("visual regression (§20)", () => {
           const setup = await setupCtx.newPage();
           await setup.goto(`/${locale}/setup`);
           await setup.getByRole("button", { name: tNext(locale) }).click();
-          await setup.fill("#s-name", locale === "ar" ? "مكتب الأمل العقاري" : "Al Amal Real Estate");
+          await setup.fill(
+            "#s-name",
+            locale === "ar" ? "مكتب الأمل العقاري" : "Al Amal Real Estate",
+          );
           await shot(setup, `${pre}-setup`);
           await setupCtx.close();
 
           // Brand-new office dashboard (hero + checklist, no widgets).
-          const newCtx = await newContext(browser, scheme, locale, vp, { auth: false, state: NEW_STATE });
+          const newCtx = await newContext(browser, scheme, locale, vp, {
+            auth: false,
+            state: NEW_STATE,
+          });
           const fresh = await newCtx.newPage();
           await fresh.goto(`/${locale}/dashboard`);
           await shot(fresh, `${pre}-dashboard-new`);

@@ -158,22 +158,33 @@ export function ContractDetailView({
   const [moveOut, setMoveOut] = useState(c.expectedMoveOut ?? today);
   const [reason, setReason] = useState("");
   const [penalty, setPenalty] = useState<number | null>(null);
+  const [quoteError, setQuoteError] = useState(false);
+  const [quoteAttempt, setQuoteAttempt] = useState(0);
+  const [reasonTouched, setReasonTouched] = useState(false);
   const [quote, setQuote] = useState<TerminationQuote | null>(null);
 
   useEffect(() => {
     if (sheet !== "terminate") return;
     let cancelled = false;
     setQuote(null);
-    void quoteTermination(c.id, moveOut, penalty ?? undefined).then((r) => {
-      if (!cancelled && r.ok) {
-        setQuote(r.data);
-        setPenalty((p) => (p === null ? r.data.penaltyFils : p));
-      }
-    });
+    setQuoteError(false);
+    void quoteTermination(c.id, moveOut, penalty ?? undefined)
+      .then((r) => {
+        if (cancelled) return;
+        if (r.ok) {
+          setQuote(r.data);
+          setPenalty((p) => (p === null ? r.data.penaltyFils : p));
+        } else {
+          setQuoteError(true);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setQuoteError(true);
+      });
     return () => {
       cancelled = true;
     };
-  }, [sheet, moveOut, penalty, c.id]);
+  }, [sheet, moveOut, penalty, c.id, quoteAttempt]);
 
   const dur = (m: number) => (locale === "ar" ? tafqeetDuration(m) : durationEN(m));
 
@@ -769,8 +780,23 @@ export function ContractDetailView({
               }}
             />
           </Field>
-          <Field label={t("terminate.reason")} htmlFor="t-reason">
-            <Textarea id="t-reason" value={reason} onChange={(e) => setReason(e.target.value)} />
+          <Field
+            label={t("terminate.reason")}
+            htmlFor="t-reason"
+            hint={<span id="t-reason-hint">{t("terminate.reasonHint")}</span>}
+            error={reasonTouched && !reason.trim() ? t("terminate.reasonRequired") : undefined}
+          >
+            <Textarea
+              id="t-reason"
+              value={reason}
+              required
+              maxLength={500}
+              aria-describedby="t-reason-hint"
+              aria-invalid={reasonTouched && !reason.trim()}
+              placeholder={t("terminate.reasonPlaceholder")}
+              onBlur={() => setReasonTouched(true)}
+              onChange={(e) => setReason(e.target.value)}
+            />
           </Field>
           {c.freeMonths > 0 && (
             <Field label={t("terminate.penalty")} hint={t("terminate.penaltyHint")} htmlFor="t-pen">
@@ -821,8 +847,16 @@ export function ContractDetailView({
                 }
               />
             </GroupedSection>
+          ) : quoteError ? (
+            <div role="alert" className="space-y-3">
+              <p className="text-red-text">{t("terminate.quoteError")}</p>
+              <Button onClick={() => setQuoteAttempt((n) => n + 1)}>{t("terminate.retry")}</Button>
+            </div>
           ) : (
-            <Skeleton className="h-40" />
+            <div role="status">
+              <span className="sr-only">{t("terminate.loading")}</span>
+              <Skeleton className="h-40" />
+            </div>
           )}
           <p className="text-label-2 flex items-center gap-2 text-[13px]">
             <CalendarClock className="size-4" />

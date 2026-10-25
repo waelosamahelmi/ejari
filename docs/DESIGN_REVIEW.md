@@ -69,3 +69,11 @@ ar/en × light/dark × 390/1440; axe on signup, setup and the tour):
   card could be clamped off-screen before its height was measured.
 - **Checklist** rows are 44px targets with leading state circles, deep links and a progress bar;
   the axe pass stays clean.
+
+## 2026-10-25 — Client contract print and termination feedback
+
+Reviewed residential and investment print output with the client's plain lease reference:
+- Plain centered Arabic title; office branding, QR and system-number header removed.
+- Owner identity appears in the preamble and signature block; contract-specific fields are red and boilerplate remains black. Browser print-media assertions verify the color survives printing.
+- Contract preview and print captures pass at 390px and 1440px in ar/en and light/dark (24 captures; 16 print baselines refreshed). Signature blocks remain legible and together.
+- Termination keeps the required reason visible and explains why confirmation is disabled, with a loading state and a retry action for failed settlement quotes. The paid-contract browser flow confirms successful termination.
