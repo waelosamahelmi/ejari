@@ -47,5 +47,10 @@
   "already_setup": "Your office is already set up.",
   "password_short": "Password must be at least 8 characters.",
   "password_weak": "Add at least one letter and one number to the password.",
-  "signup_disabled": "Self-serve signup is currently unavailable."
+  "signup_disabled": "Self-serve signup is currently unavailable.",
+  "tenant_has_live_contract": "End live and draft leases before removing this tenant.",
+  "units_have_live_contracts": "Resolve the unit leases before merging or splitting.",
+  "discount_exceeds_rent": "The discount exceeds the remaining rent charge.",
+  "overlapping_discount": "A discount already covers part of this range.",
+  "discount_period_outside_contract": "The discount range must be within the lease billing period."
 }

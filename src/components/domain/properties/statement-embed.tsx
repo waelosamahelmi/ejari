@@ -66,6 +66,13 @@ export function StatementEmbed({
       cell: (c) => (c.row.original.vacant ? "" : f(c.row.original.rentFils)),
     },
     {
+      accessorKey: "discountFils",
+      header: t("columns.discount"),
+      meta: { numeric: true, footer: s ? f(s.totals.discountFils) : "" },
+      cell: (c) =>
+        c.row.original.vacant ? "" : money(c.row.original.discountFils, { showCurrency: false }),
+    },
+    {
       id: "r",
       header: t("columns.receipts"),
       enableSorting: false,

@@ -10,13 +10,19 @@ export default async function UsersPage({ params }: LocaleParams) {
   const db = await supabaseServer();
   const { data } = await db
     .from("org_members")
-    .select("id, user_id, role, display_name, email, active")
+    .select("id, user_id, role, display_name, email, active, property_ids")
     .order("created_at");
+  const { data: properties } = await db
+    .from("properties")
+    .select("id,name")
+    .eq("org_id", ctx.orgId)
+    .order("name");
   const t = await getTranslations("settings.items");
   return (
     <UsersView
       title={t("users")}
       me={ctx.userId}
+      properties={properties ?? []}
       rows={(data ?? []).map((m) => ({
         id: m.id,
         userId: m.user_id,
@@ -24,6 +30,7 @@ export default async function UsersPage({ params }: LocaleParams) {
         name: m.display_name ?? "",
         email: m.email ?? "",
         active: m.active,
+        propertyIds: m.property_ids,
       }))}
     />
   );

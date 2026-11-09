@@ -19,12 +19,14 @@ export function ContractDocument({
   rendered,
   ownerName,
   tenantName,
+  coTenantNames = [],
   className,
   labels,
 }: {
   rendered: RenderedContract;
   ownerName: string;
   tenantName: string;
+  coTenantNames?: string[];
   className?: string;
   labels?: { party1: string; party2: string; name: string; signature: string; contractNo: string };
 }) {
@@ -69,12 +71,18 @@ export function ContractDocument({
           <ContractText text={l} parts={rendered.closingParts?.[i]} />
         </p>
       ))}
-      <section className="signature mt-10 grid break-inside-avoid grid-cols-2 gap-10">
+      <section
+        className={cn(
+          "signature mt-10 grid grid-cols-2 gap-10",
+          coTenantNames.length === 0 && "break-inside-avoid",
+        )}
+      >
         {[
           [l.party1, ownerName],
           [l.party2, tenantName],
+          ...coTenantNames.map((name, index) => [`${l.party2} (${index + 2})`, name]),
         ].map(([p, n]) => (
-          <div key={p} className="space-y-3">
+          <div key={p} className="break-inside-avoid space-y-3">
             <div className="text-[13pt] font-bold">{p}</div>
             <div>
               {l.name}: <span className="font-semibold">{n}</span>

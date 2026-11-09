@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
     { header: t("columns.tenant"), key: "tenant", width: 28 },
     { header: t("columns.legal"), key: "legal", width: 12 },
     { header: t("columns.rent"), key: "rent", type: "money" as const },
+    { header: t("columns.discount"), key: "discount", type: "money" as const },
     { header: t("columns.receipts"), key: "receipts", width: 18 },
     { header: t("columns.collected"), key: "collected", type: "money" as const },
     { header: `${t("columns.prevNext")} (${t("prev")})`, key: "prev", type: "money" as const },
@@ -47,6 +48,7 @@ export async function GET(req: NextRequest) {
         tenant: r.vacant ? t("vacant") : r.tenantName,
         legal: r.vacant ? "" : r.legalLabel,
         rent: r.vacant ? null : r.rentFils,
+        discount: r.vacant ? null : r.discountFils,
         receipts: r.receiptNos.join(", "),
         collected: r.vacant ? null : r.collectedFils,
         prev: r.previousFils || null,
@@ -60,6 +62,7 @@ export async function GET(req: NextRequest) {
       totals: {
         unit: t("totals.total"),
         rent: s.totals.rentFils,
+        discount: s.totals.discountFils,
         collected: s.totals.collectedFils,
         prev: s.totals.previousFils,
         next: s.totals.nextFils,

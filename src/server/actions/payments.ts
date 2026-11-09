@@ -229,7 +229,7 @@ export async function recordPayment(input: RecordPaymentInput) {
         receipt_no: d.receiptNo || null,
         system_no: systemNo,
         reference: d.reference || null,
-        collected_by: d.collectedBy ?? ctx.userId,
+        collected_by: ctx.role === "collector" ? ctx.userId : (d.collectedBy ?? ctx.userId),
         notes: d.notes || null,
         client_id: d.clientId ?? null,
       })
@@ -252,16 +252,14 @@ export async function recordPayment(input: RecordPaymentInput) {
       throw error;
     }
     if (result.allocations.length) {
-      const al = await db
-        .from("payment_allocations")
-        .insert(
-          result.allocations.map((a) => ({
-            org_id: ctx.orgId,
-            payment_id: pay.id,
-            charge_id: a.chargeId,
-            amount_fils: a.amountFils,
-          })),
-        );
+      const al = await db.from("payment_allocations").insert(
+        result.allocations.map((a) => ({
+          org_id: ctx.orgId,
+          payment_id: pay.id,
+          charge_id: a.chargeId,
+          amount_fils: a.amountFils,
+        })),
+      );
       if (al.error) {
         await db.from("payments").delete().eq("id", pay.id);
         throw al.error;
@@ -359,18 +357,16 @@ export async function addAdjustment(input: z.input<typeof adjustmentSchema>) {
       if (!b || d.amountFils > (b.outstanding_fils ?? 0))
         throw new ActionError("exceeds_outstanding");
     }
-    const { error } = await db
-      .from("adjustments")
-      .insert({
-        org_id: ctx.orgId,
-        contract_id: d.contractId,
-        charge_id: d.chargeId,
-        kind: d.kind,
-        amount_fils: d.amountFils,
-        adjustment_date: d.date,
-        reason: d.reason,
-        approved_by: ctx.userId,
-      });
+    const { error } = await db.from("adjustments").insert({
+      org_id: ctx.orgId,
+      contract_id: d.contractId,
+      charge_id: d.chargeId,
+      kind: d.kind,
+      amount_fils: d.amountFils,
+      adjustment_date: d.date,
+      reason: d.reason,
+      approved_by: ctx.userId,
+    });
     if (error) throw error;
     reval();
   });
@@ -396,17 +392,15 @@ export async function addManualCharge(input: {
       })
       .parse(input);
     const db = await supabaseServer();
-    const { error } = await db
-      .from("charges")
-      .insert({
-        org_id: ctx.orgId,
-        contract_id: d.contractId,
-        period: periodOf(d.dueDate),
-        kind: d.kind,
-        amount_fils: d.amountFils,
-        due_date: d.dueDate,
-        description: d.description,
-      });
+    const { error } = await db.from("charges").insert({
+      org_id: ctx.orgId,
+      contract_id: d.contractId,
+      period: periodOf(d.dueDate),
+      kind: d.kind,
+      amount_fils: d.amountFils,
+      due_date: d.dueDate,
+      description: d.description,
+    });
     if (error) throw error;
     const { applyCredit } = await import("@/server/billing/ensure-charges");
     await applyCredit(ctx.orgId, [d.contractId]);
@@ -422,15 +416,13 @@ export async function closeMonth(
   return run(async () => {
     const ctx = await requireActionContext("close_month");
     const db = await supabaseServer();
-    const { error } = await db
-      .from("monthly_closings")
-      .insert({
-        org_id: ctx.orgId,
-        period,
-        notes,
-        cash_difference_note: cashDifferenceNote ?? null,
-        closed_by: ctx.userId,
-      });
+    const { error } = await db.from("monthly_closings").insert({
+      org_id: ctx.orgId,
+      period,
+      notes,
+      cash_difference_note: cashDifferenceNote ?? null,
+      closed_by: ctx.userId,
+    });
     if (error) throw error;
     // Owners: the month's statements are final.
     const { data: props } = await db.from("properties").select("id, name").eq("active", true);
@@ -517,16 +509,14 @@ export async function logReminder(input: {
   return run(async () => {
     const ctx = await requireActionContext("send_reminder");
     const db = await supabaseServer();
-    const { error } = await db
-      .from("reminders_log")
-      .insert({
-        org_id: ctx.orgId,
-        tenant_id: input.tenantId,
-        contract_id: input.contractId,
-        channel: input.channel,
-        message: input.message,
-        sent_by: ctx.userId,
-      });
+    const { error } = await db.from("reminders_log").insert({
+      org_id: ctx.orgId,
+      tenant_id: input.tenantId,
+      contract_id: input.contractId,
+      channel: input.channel,
+      message: input.message,
+      sent_by: ctx.userId,
+    });
     if (error) throw error;
     reval();
   });

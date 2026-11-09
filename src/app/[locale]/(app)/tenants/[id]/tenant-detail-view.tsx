@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/input";
 import { Documents } from "@/components/domain/documents";
 import { NoContractsIllustration } from "@/components/illustrations";
 import { useMoney } from "@/components/shell/prefs-context";
-import { setBlacklist } from "@/server/actions/master";
+import { setBlacklist, removeTenant } from "@/server/actions/master";
 import { formatDate } from "@/domain/dates";
 import { formatPhone, whatsappLink } from "@/domain/validation";
 import { cn } from "@/lib/utils";
@@ -51,6 +51,10 @@ export function TenantDetailView({
     civilIdRaw: string;
     civilIdChecksumOk: boolean;
     nationality: string | null;
+    partyType: "individual" | "company";
+    licenceNo: string | null;
+    signatoryName: string | null;
+    signatoryCivilId: string | null;
     phones: string[];
     email: string | null;
     employer: string | null;
@@ -94,6 +98,7 @@ export function TenantDetailView({
   const [section, setSection] = useState<
     "contracts" | "ledger" | "reminders" | "legal" | "documents"
   >("contracts");
+  const [removing, setRemoving] = useState(false);
   const [editing, setEditing] = useState(false);
   const [blk, setBlk] = useState(false);
   const [reason, setReason] = useState("");
@@ -166,14 +171,19 @@ export function TenantDetailView({
         back={{ href: "/tenants", label: t("title") }}
         actions={
           canEdit ? (
-            <Button
-              variant="secondary"
-              size="icon"
-              aria-label={t("edit")}
-              onClick={() => setEditing(true)}
-            >
-              <Pencil />
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={() => setRemoving(true)}>
+                {t("remove")}
+              </Button>
+              <Button
+                variant="secondary"
+                size="icon"
+                aria-label={t("edit")}
+                onClick={() => setEditing(true)}
+              >
+                <Pencil />
+              </Button>
+            </div>
           ) : undefined
         }
       >
@@ -396,6 +406,26 @@ export function TenantDetailView({
         </div>
       </div>
 
+      <AlertDialog
+        open={removing}
+        onOpenChange={setRemoving}
+        title={t("remove")}
+        description={t("removeText")}
+        confirmLabel={tc("actions.confirm")}
+        cancelLabel={tc("actions.cancel")}
+        destructive
+        loading={pending}
+        onConfirm={() =>
+          start(async () => {
+            const r = await removeTenant(tn.id);
+            if (r.ok) {
+              toast.success(t("removed"));
+              router.push("/tenants");
+              router.refresh();
+            } else toast.error(t("removeText"));
+          })
+        }
+      />
       <TenantFormSheet
         open={editing}
         onOpenChange={setEditing}
@@ -404,6 +434,10 @@ export function TenantDetailView({
           fullName: tn.fullName,
           civilId: tn.civilIdRaw,
           nationality: tn.nationality ?? "",
+          partyType: tn.partyType,
+          licenceNo: tn.licenceNo,
+          signatoryName: tn.signatoryName,
+          signatoryCivilId: tn.signatoryCivilId,
           phones: tn.phones,
           email: tn.email ?? "",
           employer: tn.employer ?? "",

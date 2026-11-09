@@ -146,7 +146,7 @@ export async function dashboardData(
   const lt = lateTotals(late);
   const trendPeriods = periodRange(addPeriods(f.period, -11), f.period);
   const acc = accountingReport(idx, trendPeriods[0]!, f.period, { ...scope, asOf: today });
-  const finance = can(ctx.role, "view_expenses");
+  const finance = can(ctx.role, "view_deposits");
   const db = await supabaseServer();
 
   let expenses: DashboardData["expenses"] = null;
@@ -269,17 +269,15 @@ export async function dashboardData(
     heatmap: paymentHeatmap(idx, trendPeriods, today)
       .filter((r) => propIds.includes(r.propertyId))
       .map((r) => ({ unitId: r.unitId, property: r.propertyName, label: r.label, cells: r.cells })),
-    expiring: expiring
-      .slice(0, 5)
-      .map((e) => ({
-        contractId: e.contractId,
-        tenant: e.tenantName,
-        unit: `${e.propertyName} · ${e.unitLabels}`,
-        endDate: e.endDate,
-        daysLeft: e.daysLeft,
-        autoRenew: e.autoRenew,
-        notice: !!e.noticeDate,
-      })),
+    expiring: expiring.slice(0, 5).map((e) => ({
+      contractId: e.contractId,
+      tenant: e.tenantName,
+      unit: `${e.propertyName} · ${e.unitLabels}`,
+      endDate: e.endDate,
+      daysLeft: e.daysLeft,
+      autoRenew: e.autoRenew,
+      notice: !!e.noticeDate,
+    })),
     notices: idx.ds.contracts.filter(
       (c) => c.status === "notice_given" && propIds.includes(c.propertyId),
     ).length,

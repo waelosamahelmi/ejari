@@ -58,12 +58,14 @@ function emptyLine(categoryId: string, propertyId: string): Line {
 }
 
 export function VoucherForm({
+  entryOnly = false,
   id,
   initial,
   categories,
   beneficiaries: initialBeneficiaries,
   properties,
 }: {
+  entryOnly?: boolean;
   id: string | null;
   initial: VoucherInput | null;
   categories: { id: string; nameAr: string; nameEn: string }[];
@@ -461,9 +463,11 @@ export function VoucherForm({
           )}
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => submit(false)} loading={pending}>
-            {t("saveDraft")}
-          </Button>
+          {!entryOnly && (
+            <Button variant="secondary" onClick={() => submit(false)} loading={pending}>
+              {t("saveDraft")}
+            </Button>
+          )}
           <Button
             onClick={() => submit(true)}
             loading={pending}

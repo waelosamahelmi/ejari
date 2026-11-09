@@ -63,6 +63,16 @@ export interface RUnit {
   askingRentFils: Fils;
   active: boolean;
   availableFrom?: ISODate | null;
+  retiredOn?: ISODate | null;
+}
+
+/** Inclusive availability window. A retired source unit remains in historical periods. */
+function unitWindow(unit: RUnit, from: ISODate, to: ISODate): [ISODate, ISODate] | null {
+  if (!unit.active && !unit.retiredOn) return null;
+  const start = unit.availableFrom && unit.availableFrom > from ? unit.availableFrom : from;
+  const retiredEnd = unit.retiredOn ? addDays(unit.retiredOn, -1) : to;
+  const end = retiredEnd < to ? retiredEnd : to;
+  return start <= end ? [start, end] : null;
 }
 
 export interface RContract {
@@ -71,6 +81,7 @@ export interface RContract {
   type: ContractType;
   status: ContractStatus;
   tenantId: string;
+  coTenantIds?: string[];
   tenantName: string;
   tenantPhones?: readonly string[];
   propertyId: string;
@@ -235,6 +246,7 @@ export interface StatementRow {
   legalStatus: LegalStatus;
   legalLabel: string;
   rentFils: Fils;
+  discountFils: Fils;
   receiptNos: string[];
   collectedFils: Fils;
   previousFils: Fils;
@@ -249,6 +261,7 @@ export interface StatementRow {
 
 export interface StatementTotals {
   rentFils: Fils;
+  discountFils: Fils;
   collectedFils: Fils;
   previousFils: Fils;
   nextFils: Fils;
@@ -309,7 +322,9 @@ export function monthlyStatement(
   const idx = ds instanceof Index ? ds : new Index(ds);
   const property = idx.propertyById.get(propertyId);
   if (!property) throw new Error(`Unknown property ${propertyId}`);
-  const units = (idx.unitsByProperty.get(propertyId) ?? []).filter((u) => u.active);
+  const units = (idx.unitsByProperty.get(propertyId) ?? []).filter(
+    (u) => unitWindow(u, periodStart(period), periodEnd(period)) !== null,
+  );
   const to = periodEnd(period);
   const contracts = (idx.contractsByProperty.get(propertyId) ?? []).filter((c) =>
     coversPeriod(c, period),
@@ -323,6 +338,16 @@ export function monthlyStatement(
     const ledger = idx.ledger(c.id);
     const periodCharges = ledger.charges.filter((ch) => !ch.voided && ch.period === period);
     const rent = sumBy(periodCharges, (ch) => ch.amountFils);
+    const discount = sumBy(
+      (ledger.adjustments ?? []).filter(
+        (a) =>
+          a.kind === "discount" &&
+          (a.chargeId
+            ? periodCharges.some((ch) => ch.id === a.chargeId)
+            : periodOf(a.date) === period),
+      ),
+      (a) => a.amountFils,
+    );
     const r = receiptsBreakdown(idx, c.id, period);
     const legal = idx.legalStatus(c.id);
     const notes: string[] = [];
@@ -340,6 +365,7 @@ export function monthlyStatement(
       legalStatus: legal,
       legalLabel: LEGAL_STATUS_LABELS_AR[legal],
       rentFils: rent,
+      discountFils: discount,
       receiptNos: r.receiptNos,
       collectedFils: r.collected,
       previousFils: r.previous,
@@ -362,6 +388,7 @@ export function monthlyStatement(
       legalStatus: "none",
       legalLabel: LEGAL_STATUS_LABELS_AR.none,
       rentFils: 0,
+      discountFils: 0,
       receiptNos: [],
       collectedFils: 0,
       previousFils: 0,
@@ -385,6 +412,7 @@ export function monthlyStatement(
     rows,
     totals: {
       rentFils: sumBy(rows, (r) => r.rentFils),
+      discountFils: sumBy(rows, (r) => r.discountFils),
       collectedFils: sumBy(rows, (r) => r.collectedFils),
       previousFils: sumBy(rows, (r) => r.previousFils),
       nextFils: sumBy(rows, (r) => r.nextFils),
@@ -596,7 +624,7 @@ export function vacantUnits(
   const idx = ds instanceof Index ? ds : new Index(ds);
   const out: VacantRow[] = [];
   for (const u of idx.ds.units) {
-    if (!u.active) continue;
+    if (!unitWindow(u, asOf, asOf)) continue;
     if (opts.propertyIds && !opts.propertyIds.includes(u.propertyId)) continue;
     const contracts = idx.ds.contracts.filter(
       (c) => c.unitIds.includes(u.id) && c.status !== "draft",
@@ -720,7 +748,7 @@ export function accountingReport(
     (c) => propIds.has(c.propertyId) && c.status !== "draft",
   );
   let expectedDue = 0;
-  const units = idx.ds.units.filter((u) => propIds.has(u.propertyId) && u.active);
+  const units = idx.ds.units.filter((u) => propIds.has(u.propertyId) && unitWindow(u, fromD, toD));
 
   let gross = 0;
   let vacancyLoss = 0;
@@ -776,9 +804,14 @@ export function accountingReport(
     }
     for (const u of units) {
       if (occupiedUnits.has(u.id)) continue;
-      if (u.availableFrom && u.availableFrom > pE) continue;
-      gross += u.askingRentFils;
-      vacancyLoss += u.askingRentFils;
+      const window = unitWindow(u, pS, pE);
+      if (!window) continue;
+      const potential = mulRound(
+        u.askingRentFils,
+        (diffDays(window[0], window[1]) + 1) / (diffDays(pS, pE) + 1),
+      );
+      gross += potential;
+      vacancyLoss += potential;
     }
     const mExpenses = sumBy(
       idx.ds.expenseAllocations.filter(
@@ -786,10 +819,14 @@ export function accountingReport(
       ),
       (e) => e.amountFils,
     );
-    const avail =
-      units.filter((u) => !u.availableFrom || u.availableFrom <= pE).length *
-      (diffDays(pS, pE) + 1);
-    const occ = sumBy(units, (u) => occupiedDays(u.id, contracts, pS, pE));
+    const avail = sumBy(units, (u) => {
+      const w = unitWindow(u, pS, pE);
+      return w ? diffDays(w[0], w[1]) + 1 : 0;
+    });
+    const occ = sumBy(units, (u) => {
+      const w = unitWindow(u, pS, pE);
+      return w ? occupiedDays(u.id, contracts, w[0], w[1]) : 0;
+    });
     expected += mExpected;
     collected += mCollected;
     months.push({
@@ -806,6 +843,7 @@ export function accountingReport(
     idx.ds.adjustments.filter(
       (a) =>
         (a.kind === "discount" || a.kind === "write_off") &&
+        (!a.chargeId || !idx.chargeById.get(a.chargeId)?.voided) &&
         inRange(a.date, fromD, toD) &&
         contracts.some((c) => c.id === a.contractId),
     ),
@@ -870,10 +908,13 @@ export function accountingReport(
   }
 
   const availDays = sumBy(units, (u) => {
-    const s = u.availableFrom && u.availableFrom > fromD ? u.availableFrom : fromD;
-    return s <= toD ? diffDays(s, toD) + 1 : 0;
+    const w = unitWindow(u, fromD, toD);
+    return w ? diffDays(w[0], w[1]) + 1 : 0;
   });
-  const occDays = sumBy(units, (u) => occupiedDays(u.id, contracts, fromD, toD));
+  const occDays = sumBy(units, (u) => {
+    const w = unitWindow(u, fromD, toD);
+    return w ? occupiedDays(u.id, contracts, w[0], w[1]) : 0;
+  });
   const moveIns = contracts.filter(
     (c) => inRange(c.startDate, fromD, toD) && !isRenewalStart(c, contracts),
   ).length;
@@ -1162,7 +1203,7 @@ export function paymentHeatmap(
   const rows: HeatmapRow[] = [];
   for (const p of idx.ds.properties) {
     for (const u of idx.unitsByProperty.get(p.id) ?? []) {
-      if (!u.active) continue;
+      if (!periods.some((p) => unitWindow(u, periodStart(p), periodEnd(p)))) continue;
       const cells = periods.map((period) => {
         const c = (idx.contractsByProperty.get(p.id) ?? []).find(
           (k) => k.unitIds.includes(u.id) && coversPeriod(k, period),
@@ -1207,7 +1248,7 @@ export function occupancySnapshot(
   let grace = 0;
   let vacant = 0;
   for (const u of idx.ds.units) {
-    if (!u.active) continue;
+    if (!unitWindow(u, asOf, asOf)) continue;
     if (opts.propertyIds && !opts.propertyIds.includes(u.propertyId)) continue;
     const c = idx.ds.contracts.find(
       (k) =>

@@ -45,5 +45,22 @@
   "deleteText": "If the unit has past contracts it will only be deactivated.",
   "maintenanceOn": "Unit marked under maintenance",
   "maintenanceOff": "Maintenance ended",
-  "vacantSince": "Vacant since {date}"
+  "vacantSince": "Vacant since {date}",
+  "restructure": {
+    "title": "Merge or split units",
+    "help": "Select source units, then define the resulting units. Historical units and contracts are retained. Resolve live or draft leases first. A PACI number may be shared by the resulting units.",
+    "sources": "Source units",
+    "results": "Resulting units",
+    "sharedPaci": "Shared PACI number (optional)",
+    "leased": "Has a lease",
+    "label": "Unit number/label",
+    "type": "Unit type",
+    "rent": "Asking rent KWD",
+    "floor": "Floor",
+    "remove": "Remove this row",
+    "add": "Add resulting unit",
+    "reason": "Reason for merge/split",
+    "confirm": "Confirm and save units",
+    "done": "Resulting units saved"
+  }
 }

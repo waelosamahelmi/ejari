@@ -25,13 +25,13 @@ export type Database = {
           Tables: {
             "adjustments": {
                   Row: {
-                    "adjustment_date": string,"amount_fils": number,"approved_by": string | null,"charge_id": string | null,"contract_id": string,"created_at": string,"created_by": string | null,"id": string,"kind": Database["public"]['Enums']["adjustment_kind"],"org_id": string,"reason": string,"updated_at": string
+                    "adjustment_date": string,"amount_fils": number,"approved_by": string | null,"charge_id": string | null,"contract_id": string,"created_at": string,"created_by": string | null,"discount_id": string | null,"id": string,"kind": Database["public"]['Enums']["adjustment_kind"],"org_id": string,"reason": string,"updated_at": string
                   }
                   Insert: {
-                    "adjustment_date"?: string,"amount_fils": number,"approved_by"?: string | null,"charge_id"?: string | null,"contract_id": string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"kind": Database["public"]['Enums']["adjustment_kind"],"org_id": string,"reason": string,"updated_at"?: string
+                    "adjustment_date"?: string,"amount_fils": number,"approved_by"?: string | null,"charge_id"?: string | null,"contract_id": string,"created_at"?: string,"created_by"?: string | null,"discount_id"?: string | null,"id"?: string,"kind": Database["public"]['Enums']["adjustment_kind"],"org_id": string,"reason": string,"updated_at"?: string
                   }
                   Update: {
-                    "adjustment_date"?: string,"amount_fils"?: number,"approved_by"?: string | null,"charge_id"?: string | null,"contract_id"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"kind"?: Database["public"]['Enums']["adjustment_kind"],"org_id"?: string,"reason"?: string,"updated_at"?: string
+                    "adjustment_date"?: string,"amount_fils"?: number,"approved_by"?: string | null,"charge_id"?: string | null,"contract_id"?: string,"created_at"?: string,"created_by"?: string | null,"discount_id"?: string | null,"id"?: string,"kind"?: Database["public"]['Enums']["adjustment_kind"],"org_id"?: string,"reason"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -64,6 +64,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "v_unit_status_today"
       referencedColumns: ["contract_id"]
+    },{
+      foreignKeyName: "adjustments_discount_id_fkey"
+      columns: ["discount_id"]
+isOneToOne: false
+      referencedRelation: "contract_discounts"
+      referencedColumns: ["id"]
     },{
       foreignKeyName: "adjustments_org_id_fkey"
       columns: ["org_id"]
@@ -203,6 +209,43 @@ isOneToOne: false
       referencedColumns: ["unit_id"]
     }
                   ]
+                },"contract_discounts": {
+                  Row: {
+                    "amount_fils": number,"contract_id": string,"created_at": string,"created_by": string | null,"from_period": string,"id": string,"org_id": string,"reason": string,"to_period": string
+                  }
+                  Insert: {
+                    "amount_fils": number,"contract_id": string,"created_at"?: string,"created_by"?: string | null,"from_period": string,"id"?: string,"org_id": string,"reason": string,"to_period": string
+                  }
+                  Update: {
+                    "amount_fils"?: number,"contract_id"?: string,"created_at"?: string,"created_by"?: string | null,"from_period"?: string,"id"?: string,"org_id"?: string,"reason"?: string,"to_period"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "contract_discounts_contract_id_fkey"
+      columns: ["contract_id"]
+isOneToOne: false
+      referencedRelation: "contracts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "contract_discounts_contract_id_fkey"
+      columns: ["contract_id"]
+isOneToOne: false
+      referencedRelation: "v_contract_balances"
+      referencedColumns: ["contract_id"]
+    },{
+      foreignKeyName: "contract_discounts_contract_id_fkey"
+      columns: ["contract_id"]
+isOneToOne: false
+      referencedRelation: "v_unit_status_today"
+      referencedColumns: ["contract_id"]
+    },{
+      foreignKeyName: "contract_discounts_org_id_fkey"
+      columns: ["org_id"]
+isOneToOne: false
+      referencedRelation: "orgs"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"contract_rent_revisions": {
                   Row: {
                     "contract_id": string,"created_at": string,"created_by": string | null,"effective_from": string,"id": string,"monthly_rent_fils": number,"org_id": string,"reason": string | null,"updated_at": string
@@ -310,13 +353,13 @@ isOneToOne: false
                   ]
                 },"contracts": {
                   Row: {
-                    "activated_at": string | null,"annual_increase_every_months": number | null,"annual_increase_kind": Database["public"]['Enums']["increase_kind"] | null,"annual_increase_value": number | null,"auto_renew": boolean,"clause_overrides": NonNullable<Json>,"contract_date": string,"contract_no": string,"created_at": string,"created_by": string | null,"custom_clauses": NonNullable<Json>,"deposit_status": Database["public"]['Enums']["deposit_status"],"electricity_fixed_fils": number,"end_date": string,"expected_move_out": string | null,"first_collection_date": string,"free_months": number,"free_months_penalty_window_months": number,"id": string,"monthly_rent_fils": number,"move_out_date": string | null,"notes": string | null,"notice_date": string | null,"notice_period_months": number,"org_id": string,"owner_id": string | null,"property_id": string,"purpose": string,"rendered_clauses": Json | null,"renewal_term_months": number | null,"renewed_from_id": string | null,"security_deposit_fils": number,"signed_file_path": string | null,"start_date": string,"status": Database["public"]['Enums']["contract_status"],"template_id": string | null,"tenant_id": string,"term_months": number,"termination_reason": string | null,"type": Database["public"]['Enums']["contract_type"],"updated_at": string,"utilities_party": Database["public"]['Enums']["utilities_party"]
+                    "activated_at": string | null,"annual_increase_every_months": number | null,"annual_increase_kind": Database["public"]['Enums']["increase_kind"] | null,"annual_increase_value": number | null,"auto_renew": boolean,"clause_overrides": NonNullable<Json>,"co_tenant_ids": (string)[],"contract_date": string,"contract_no": string,"created_at": string,"created_by": string | null,"custom_clauses": NonNullable<Json>,"deposit_status": Database["public"]['Enums']["deposit_status"],"electricity_fixed_fils": number,"end_date": string,"expected_move_out": string | null,"first_collection_date": string,"free_months": number,"free_months_penalty_window_months": number,"id": string,"initial_discount": Json | null,"monthly_rent_fils": number,"move_out_date": string | null,"notes": string | null,"notice_date": string | null,"notice_period_months": number,"org_id": string,"owner_id": string | null,"property_id": string,"purpose": string,"rendered_clauses": Json | null,"renewal_term_months": number | null,"renewed_from_id": string | null,"security_deposit_fils": number,"signed_file_path": string | null,"start_date": string,"status": Database["public"]['Enums']["contract_status"],"template_id": string | null,"tenant_id": string,"term_months": number,"termination_reason": string | null,"type": Database["public"]['Enums']["contract_type"],"updated_at": string,"utilities_party": Database["public"]['Enums']["utilities_party"]
                   }
                   Insert: {
-                    "activated_at"?: string | null,"annual_increase_every_months"?: number | null,"annual_increase_kind"?: Database["public"]['Enums']["increase_kind"] | null,"annual_increase_value"?: number | null,"auto_renew"?: boolean,"clause_overrides"?: NonNullable<Json>,"contract_date": string,"contract_no": string,"created_at"?: string,"created_by"?: string | null,"custom_clauses"?: NonNullable<Json>,"deposit_status"?: Database["public"]['Enums']["deposit_status"],"electricity_fixed_fils"?: number,"end_date": string,"expected_move_out"?: string | null,"first_collection_date": string,"free_months"?: number,"free_months_penalty_window_months"?: number,"id"?: string,"monthly_rent_fils": number,"move_out_date"?: string | null,"notes"?: string | null,"notice_date"?: string | null,"notice_period_months"?: number,"org_id": string,"owner_id"?: string | null,"property_id": string,"purpose"?: string,"rendered_clauses"?: Json | null,"renewal_term_months"?: number | null,"renewed_from_id"?: string | null,"security_deposit_fils"?: number,"signed_file_path"?: string | null,"start_date": string,"status"?: Database["public"]['Enums']["contract_status"],"template_id"?: string | null,"tenant_id": string,"term_months"?: number,"termination_reason"?: string | null,"type": Database["public"]['Enums']["contract_type"],"updated_at"?: string,"utilities_party"?: Database["public"]['Enums']["utilities_party"]
+                    "activated_at"?: string | null,"annual_increase_every_months"?: number | null,"annual_increase_kind"?: Database["public"]['Enums']["increase_kind"] | null,"annual_increase_value"?: number | null,"auto_renew"?: boolean,"clause_overrides"?: NonNullable<Json>,"co_tenant_ids"?: (string)[],"contract_date": string,"contract_no": string,"created_at"?: string,"created_by"?: string | null,"custom_clauses"?: NonNullable<Json>,"deposit_status"?: Database["public"]['Enums']["deposit_status"],"electricity_fixed_fils"?: number,"end_date": string,"expected_move_out"?: string | null,"first_collection_date": string,"free_months"?: number,"free_months_penalty_window_months"?: number,"id"?: string,"initial_discount"?: Json | null,"monthly_rent_fils": number,"move_out_date"?: string | null,"notes"?: string | null,"notice_date"?: string | null,"notice_period_months"?: number,"org_id": string,"owner_id"?: string | null,"property_id": string,"purpose"?: string,"rendered_clauses"?: Json | null,"renewal_term_months"?: number | null,"renewed_from_id"?: string | null,"security_deposit_fils"?: number,"signed_file_path"?: string | null,"start_date": string,"status"?: Database["public"]['Enums']["contract_status"],"template_id"?: string | null,"tenant_id": string,"term_months"?: number,"termination_reason"?: string | null,"type": Database["public"]['Enums']["contract_type"],"updated_at"?: string,"utilities_party"?: Database["public"]['Enums']["utilities_party"]
                   }
                   Update: {
-                    "activated_at"?: string | null,"annual_increase_every_months"?: number | null,"annual_increase_kind"?: Database["public"]['Enums']["increase_kind"] | null,"annual_increase_value"?: number | null,"auto_renew"?: boolean,"clause_overrides"?: NonNullable<Json>,"contract_date"?: string,"contract_no"?: string,"created_at"?: string,"created_by"?: string | null,"custom_clauses"?: NonNullable<Json>,"deposit_status"?: Database["public"]['Enums']["deposit_status"],"electricity_fixed_fils"?: number,"end_date"?: string,"expected_move_out"?: string | null,"first_collection_date"?: string,"free_months"?: number,"free_months_penalty_window_months"?: number,"id"?: string,"monthly_rent_fils"?: number,"move_out_date"?: string | null,"notes"?: string | null,"notice_date"?: string | null,"notice_period_months"?: number,"org_id"?: string,"owner_id"?: string | null,"property_id"?: string,"purpose"?: string,"rendered_clauses"?: Json | null,"renewal_term_months"?: number | null,"renewed_from_id"?: string | null,"security_deposit_fils"?: number,"signed_file_path"?: string | null,"start_date"?: string,"status"?: Database["public"]['Enums']["contract_status"],"template_id"?: string | null,"tenant_id"?: string,"term_months"?: number,"termination_reason"?: string | null,"type"?: Database["public"]['Enums']["contract_type"],"updated_at"?: string,"utilities_party"?: Database["public"]['Enums']["utilities_party"]
+                    "activated_at"?: string | null,"annual_increase_every_months"?: number | null,"annual_increase_kind"?: Database["public"]['Enums']["increase_kind"] | null,"annual_increase_value"?: number | null,"auto_renew"?: boolean,"clause_overrides"?: NonNullable<Json>,"co_tenant_ids"?: (string)[],"contract_date"?: string,"contract_no"?: string,"created_at"?: string,"created_by"?: string | null,"custom_clauses"?: NonNullable<Json>,"deposit_status"?: Database["public"]['Enums']["deposit_status"],"electricity_fixed_fils"?: number,"end_date"?: string,"expected_move_out"?: string | null,"first_collection_date"?: string,"free_months"?: number,"free_months_penalty_window_months"?: number,"id"?: string,"initial_discount"?: Json | null,"monthly_rent_fils"?: number,"move_out_date"?: string | null,"notes"?: string | null,"notice_date"?: string | null,"notice_period_months"?: number,"org_id"?: string,"owner_id"?: string | null,"property_id"?: string,"purpose"?: string,"rendered_clauses"?: Json | null,"renewal_term_months"?: number | null,"renewed_from_id"?: string | null,"security_deposit_fils"?: number,"signed_file_path"?: string | null,"start_date"?: string,"status"?: Database["public"]['Enums']["contract_status"],"template_id"?: string | null,"tenant_id"?: string,"term_months"?: number,"termination_reason"?: string | null,"type"?: Database["public"]['Enums']["contract_type"],"updated_at"?: string,"utilities_party"?: Database["public"]['Enums']["utilities_party"]
                   }
                   Relationships: [
                     {
@@ -689,13 +732,13 @@ isOneToOne: false
                   ]
                 },"org_members": {
                   Row: {
-                    "active": boolean,"created_at": string,"created_by": string | null,"display_name": string | null,"email": string | null,"id": string,"org_id": string,"phone": string | null,"role": Database["public"]['Enums']["member_role"],"updated_at": string,"user_id": string
+                    "active": boolean,"created_at": string,"created_by": string | null,"display_name": string | null,"email": string | null,"id": string,"org_id": string,"phone": string | null,"property_ids": (string)[] | null,"role": Database["public"]['Enums']["member_role"],"updated_at": string,"user_id": string
                   }
                   Insert: {
-                    "active"?: boolean,"created_at"?: string,"created_by"?: string | null,"display_name"?: string | null,"email"?: string | null,"id"?: string,"org_id": string,"phone"?: string | null,"role": Database["public"]['Enums']["member_role"],"updated_at"?: string,"user_id": string
+                    "active"?: boolean,"created_at"?: string,"created_by"?: string | null,"display_name"?: string | null,"email"?: string | null,"id"?: string,"org_id": string,"phone"?: string | null,"property_ids"?: (string)[] | null,"role": Database["public"]['Enums']["member_role"],"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "active"?: boolean,"created_at"?: string,"created_by"?: string | null,"display_name"?: string | null,"email"?: string | null,"id"?: string,"org_id"?: string,"phone"?: string | null,"role"?: Database["public"]['Enums']["member_role"],"updated_at"?: string,"user_id"?: string
+                    "active"?: boolean,"created_at"?: string,"created_by"?: string | null,"display_name"?: string | null,"email"?: string | null,"id"?: string,"org_id"?: string,"phone"?: string | null,"property_ids"?: (string)[] | null,"role"?: Database["public"]['Enums']["member_role"],"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -1013,13 +1056,13 @@ isOneToOne: false
                   ]
                 },"tenants": {
                   Row: {
-                    "blacklist_reason": string | null,"blacklisted": boolean,"civil_id": string | null,"created_at": string,"created_by": string | null,"email": string | null,"emergency_contact": string | null,"employer": string | null,"full_name": string,"id": string,"nationality": string | null,"notes": string | null,"org_id": string,"phones": (string)[],"updated_at": string
+                    "archived_at": string | null,"blacklist_reason": string | null,"blacklisted": boolean,"civil_id": string | null,"created_at": string,"created_by": string | null,"email": string | null,"emergency_contact": string | null,"employer": string | null,"full_name": string,"id": string,"licence_no": string | null,"nationality": string | null,"notes": string | null,"org_id": string,"party_type": string,"phones": (string)[],"signatory_civil_id": string | null,"signatory_name": string | null,"updated_at": string
                   }
                   Insert: {
-                    "blacklist_reason"?: string | null,"blacklisted"?: boolean,"civil_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"emergency_contact"?: string | null,"employer"?: string | null,"full_name": string,"id"?: string,"nationality"?: string | null,"notes"?: string | null,"org_id": string,"phones"?: (string)[],"updated_at"?: string
+                    "archived_at"?: string | null,"blacklist_reason"?: string | null,"blacklisted"?: boolean,"civil_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"emergency_contact"?: string | null,"employer"?: string | null,"full_name": string,"id"?: string,"licence_no"?: string | null,"nationality"?: string | null,"notes"?: string | null,"org_id": string,"party_type"?: string,"phones"?: (string)[],"signatory_civil_id"?: string | null,"signatory_name"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "blacklist_reason"?: string | null,"blacklisted"?: boolean,"civil_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"emergency_contact"?: string | null,"employer"?: string | null,"full_name"?: string,"id"?: string,"nationality"?: string | null,"notes"?: string | null,"org_id"?: string,"phones"?: (string)[],"updated_at"?: string
+                    "archived_at"?: string | null,"blacklist_reason"?: string | null,"blacklisted"?: boolean,"civil_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"email"?: string | null,"emergency_contact"?: string | null,"employer"?: string | null,"full_name"?: string,"id"?: string,"licence_no"?: string | null,"nationality"?: string | null,"notes"?: string | null,"org_id"?: string,"party_type"?: string,"phones"?: (string)[],"signatory_civil_id"?: string | null,"signatory_name"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -1030,15 +1073,40 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"units": {
+                },"unit_restructures": {
                   Row: {
-                    "active": boolean,"area_m2": number | null,"asking_rent_fils": number,"available_since": string,"bathrooms": number | null,"bedrooms": number | null,"created_at": string,"created_by": string | null,"elec_meter_no": string | null,"floor": number | null,"id": string,"label": string,"notes": string | null,"org_id": string,"paci_no": string | null,"photos": NonNullable<Json>,"property_id": string,"sort_order": number,"type": Database["public"]['Enums']["unit_type"],"under_maintenance": boolean,"updated_at": string,"water_meter_no": string | null
+                    "created_at": string,"created_by": string | null,"id": string,"org_id": string,"property_id": string,"reason": string,"result_ids": (string)[],"source_ids": (string)[]
                   }
                   Insert: {
-                    "active"?: boolean,"area_m2"?: number | null,"asking_rent_fils"?: number,"available_since"?: string,"bathrooms"?: number | null,"bedrooms"?: number | null,"created_at"?: string,"created_by"?: string | null,"elec_meter_no"?: string | null,"floor"?: number | null,"id"?: string,"label": string,"notes"?: string | null,"org_id": string,"paci_no"?: string | null,"photos"?: NonNullable<Json>,"property_id": string,"sort_order"?: number,"type"?: Database["public"]['Enums']["unit_type"],"under_maintenance"?: boolean,"updated_at"?: string,"water_meter_no"?: string | null
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"org_id": string,"property_id": string,"reason": string,"result_ids": (string)[],"source_ids": (string)[]
                   }
                   Update: {
-                    "active"?: boolean,"area_m2"?: number | null,"asking_rent_fils"?: number,"available_since"?: string,"bathrooms"?: number | null,"bedrooms"?: number | null,"created_at"?: string,"created_by"?: string | null,"elec_meter_no"?: string | null,"floor"?: number | null,"id"?: string,"label"?: string,"notes"?: string | null,"org_id"?: string,"paci_no"?: string | null,"photos"?: NonNullable<Json>,"property_id"?: string,"sort_order"?: number,"type"?: Database["public"]['Enums']["unit_type"],"under_maintenance"?: boolean,"updated_at"?: string,"water_meter_no"?: string | null
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"org_id"?: string,"property_id"?: string,"reason"?: string,"result_ids"?: (string)[],"source_ids"?: (string)[]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "unit_restructures_org_id_fkey"
+      columns: ["org_id"]
+isOneToOne: false
+      referencedRelation: "orgs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "unit_restructures_property_id_fkey"
+      columns: ["property_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"units": {
+                  Row: {
+                    "active": boolean,"area_m2": number | null,"asking_rent_fils": number,"available_since": string,"bathrooms": number | null,"bedrooms": number | null,"created_at": string,"created_by": string | null,"elec_meter_no": string | null,"floor": number | null,"id": string,"label": string,"notes": string | null,"org_id": string,"paci_no": string | null,"photos": NonNullable<Json>,"property_id": string,"retired_on": string | null,"sort_order": number,"type": Database["public"]['Enums']["unit_type"],"under_maintenance": boolean,"updated_at": string,"water_meter_no": string | null
+                  }
+                  Insert: {
+                    "active"?: boolean,"area_m2"?: number | null,"asking_rent_fils"?: number,"available_since"?: string,"bathrooms"?: number | null,"bedrooms"?: number | null,"created_at"?: string,"created_by"?: string | null,"elec_meter_no"?: string | null,"floor"?: number | null,"id"?: string,"label": string,"notes"?: string | null,"org_id": string,"paci_no"?: string | null,"photos"?: NonNullable<Json>,"property_id": string,"retired_on"?: string | null,"sort_order"?: number,"type"?: Database["public"]['Enums']["unit_type"],"under_maintenance"?: boolean,"updated_at"?: string,"water_meter_no"?: string | null
+                  }
+                  Update: {
+                    "active"?: boolean,"area_m2"?: number | null,"asking_rent_fils"?: number,"available_since"?: string,"bathrooms"?: number | null,"bedrooms"?: number | null,"created_at"?: string,"created_by"?: string | null,"elec_meter_no"?: string | null,"floor"?: number | null,"id"?: string,"label"?: string,"notes"?: string | null,"org_id"?: string,"paci_no"?: string | null,"photos"?: NonNullable<Json>,"property_id"?: string,"retired_on"?: string | null,"sort_order"?: number,"type"?: Database["public"]['Enums']["unit_type"],"under_maintenance"?: boolean,"updated_at"?: string,"water_meter_no"?: string | null
                   }
                   Relationships: [
                     {
@@ -1174,7 +1242,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "assert_period_open":
+            "apply_discount_to_charge":
+{ Args: { "p_charge": string,"p_discount": string }; Returns: undefined
+                           },
+"assert_period_open":
 { Args: { "p_date": string,"p_org": string }; Returns: undefined
                            },
 "create_org":
@@ -1182,6 +1253,15 @@ isOneToOne: false
                            },
 "current_org_ids":
 { Args: Record<PropertyKey, never>; Returns: string[]
+                           },
+"entry_owns_line":
+{ Args: { "p_id": string }; Returns: boolean
+                           },
+"entry_owns_payment":
+{ Args: { "p_id": string }; Returns: boolean
+                           },
+"entry_owns_voucher":
+{ Args: { "p_id": string }; Returns: boolean
                            },
 "has_role":
 { Args: { "p_org": string,"p_roles": (Database["public"]['Enums']["member_role"])[] }; Returns: boolean
@@ -1209,6 +1289,27 @@ isOneToOne: false
                            },
 "owner_property_ids":
 { Args: Record<PropertyKey, never>; Returns: string[]
+                           },
+"restructure_units":
+{ Args: { "p_property": string,"p_reason": string,"p_sources": (string)[],"p_units": Json }; Returns: (string)[]
+                           },
+"scope_allows":
+{ Args: { "p_org": string,"p_row": Json,"p_table": string }; Returns: boolean
+                           },
+"scoped_object_allowed":
+{ Args: { "p_bucket": string,"p_name": string }; Returns: boolean
+                           },
+"staff_all_properties":
+{ Args: { "p_org": string }; Returns: boolean
+                           },
+"staff_can_contract":
+{ Args: { "p_id": string }; Returns: boolean
+                           },
+"staff_can_property":
+{ Args: { "p_id": string }; Returns: boolean
+                           },
+"staff_can_tenant":
+{ Args: { "p_id": string }; Returns: boolean
                            },
 "void_payment":
 { Args: { "p_payment": string,"p_reason": string }; Returns: undefined

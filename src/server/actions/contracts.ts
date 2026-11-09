@@ -6,6 +6,7 @@ import { requireActionContext, ActionError } from "@/lib/auth";
 import { run } from "@/server/action";
 import {
   contractDraftSchema,
+  discountSchema,
   noticeSchema,
   renewSchema,
   revisionSchema,
@@ -91,6 +92,8 @@ function rowFrom(orgId: string, d: ReturnType<typeof contractDraftSchema.parse>)
     type: d.type,
     template_id: d.templateId ?? null,
     tenant_id: d.tenantId,
+    co_tenant_ids: d.coTenantIds,
+    initial_discount: d.initialDiscount ?? null,
     property_id: d.propertyId,
     owner_id: d.ownerId ?? null,
     contract_date: d.contractDate,
@@ -127,17 +130,46 @@ async function replaceUnits(
 ) {
   const del = await db.from("contract_units").delete().eq("contract_id", contractId);
   if (del.error) throw del.error;
-  const ins = await db
-    .from("contract_units")
-    .insert(
-      unitIds.map((u, i) => ({
-        org_id: orgId,
-        contract_id: contractId,
-        unit_id: u,
-        rent_share_fils: shares?.[i] ?? null,
-      })),
-    );
+  const ins = await db.from("contract_units").insert(
+    unitIds.map((u, i) => ({
+      org_id: orgId,
+      contract_id: contractId,
+      unit_id: u,
+      rent_share_fils: shares?.[i] ?? null,
+    })),
+  );
   if (ins.error) throw ins.error;
+}
+
+async function validateDraftParties(
+  db: Awaited<ReturnType<typeof supabaseServer>>,
+  d: ReturnType<typeof contractDraftSchema.parse>,
+) {
+  if (!d.ownerId) throw new ActionError("validation");
+  const [{ data: owner }, { data: tenant }, { data: units }] = await Promise.all([
+    db
+      .from("property_owners")
+      .select("owner_id")
+      .eq("property_id", d.propertyId)
+      .eq("owner_id", d.ownerId)
+      .maybeSingle(),
+    db.from("tenants").select("id, archived_at").eq("id", d.tenantId).maybeSingle(),
+    db
+      .from("units")
+      .select("id")
+      .eq("property_id", d.propertyId)
+      .eq("active", true)
+      .in("id", d.unitIds),
+  ]);
+  if (
+    !owner ||
+    !tenant ||
+    tenant.archived_at ||
+    units?.length !== new Set(d.unitIds).size ||
+    new Set(d.coTenantIds).size !== d.coTenantIds.length ||
+    d.coTenantIds.includes(d.tenantId)
+  )
+    throw new ActionError("validation");
 }
 
 /** Creates or updates a draft (autosave from the wizard). */
@@ -146,6 +178,7 @@ export async function saveContractDraft(id: string | null, input: ContractDraftI
     const ctx = await requireActionContext("manage_contracts");
     const d = contractDraftSchema.parse(input);
     const db = await supabaseServer();
+    await validateDraftParties(db, d);
     if (id) {
       const { data: cur } = await db.from("contracts").select("status").eq("id", id).single();
       if (cur?.status !== "draft") throw new ActionError("invalid_transition");
@@ -193,6 +226,7 @@ export async function previewContract(
     await requireActionContext("manage_contracts");
     const d = contractDraftSchema.parse(input);
     const db = await supabaseServer();
+    await validateDraftParties(db, d);
     const [tpl, parties] = await Promise.all([
       loadTemplate(db, d.type, d.templateId),
       loadParties(db, d),
@@ -203,6 +237,7 @@ export async function previewContract(
       varsInput(
         {
           contractNo: "—",
+          initialDiscount: d.initialDiscount,
           type: d.type,
           contractDate: d.contractDate,
           startDate: d.startDate,
@@ -270,6 +305,7 @@ async function renderFor(
   const tpl = await loadTemplate(db, c.type, c.template_id);
   const parties = await loadParties(db, {
     ownerId: c.owner_id,
+    coTenantIds: c.co_tenant_ids,
     tenantId: c.tenant_id,
     propertyId: c.property_id,
     unitIds: (c.contract_units ?? []).map((u) => u.unit_id),
@@ -279,6 +315,8 @@ async function renderFor(
     varsInput(
       {
         contractNo,
+        initialDiscount:
+          c.initial_discount as import("@/domain/templates").TemplateVarsInput["initialDiscount"],
         type: c.type,
         contractDate: c.contract_date,
         startDate: c.start_date,
@@ -312,7 +350,7 @@ export async function activateContract(id: string) {
     const db = await supabaseServer();
     const { data: c } = await db
       .from("contracts")
-      .select("status, type, contract_date, contract_no")
+      .select("status, type, contract_date, contract_no, initial_discount")
       .eq("id", id)
       .single();
     if (!c || !canPerform(c.status as ContractStatus, "activate"))
@@ -402,15 +440,13 @@ export async function reviseRent(
     const { data: c } = await db.from("contracts").select("status").eq("id", id).single();
     if (!c || !canPerform(c.status as ContractStatus, "revise_rent"))
       throw new ActionError("invalid_transition");
-    const ins = await db
-      .from("contract_rent_revisions")
-      .insert({
-        org_id: ctx.orgId,
-        contract_id: id,
-        effective_from: d.effectiveFrom,
-        monthly_rent_fils: d.monthlyRentFils,
-        reason: d.reason,
-      });
+    const ins = await db.from("contract_rent_revisions").insert({
+      org_id: ctx.orgId,
+      contract_id: id,
+      effective_from: d.effectiveFrom,
+      monthly_rent_fils: d.monthlyRentFils,
+      reason: d.reason,
+    });
     if (ins.error) throw ins.error;
     const { data: charges } = await db
       .from("v_charge_balances")
@@ -469,6 +505,7 @@ export async function renewContract(
         type: c.type,
         template_id: c.template_id,
         tenant_id: c.tenant_id,
+        co_tenant_ids: c.co_tenant_ids,
         property_id: c.property_id,
         owner_id: c.owner_id,
         contract_date: todayKuwait(),
@@ -540,24 +577,38 @@ export async function quoteTermination(id: string, moveOutDate: string, penaltyO
       .eq("id", id)
       .single();
     if (!c) throw new ActionError("notFound");
-    const [{ data: charges }, { data: payments }, { data: allocs }] = await Promise.all([
-      db
-        .from("charges")
-        .select("id, contract_id, period, kind, amount_fils, waived_value_fils, due_date, voided")
-        .eq("contract_id", id)
-        .eq("voided", false),
-      db
-        .from("payments")
-        .select("id, contract_id, amount_fils, received_at, voided")
-        .eq("contract_id", id)
-        .eq("voided", false),
-      db
-        .from("payment_allocations")
-        .select("payment_id, charge_id, amount_fils, payments!inner(contract_id)")
-        .eq("payments.contract_id", id),
-    ]);
+    const [{ data: charges }, { data: payments }, { data: allocs }, { data: adjustments }] =
+      await Promise.all([
+        db
+          .from("charges")
+          .select("id, contract_id, period, kind, amount_fils, waived_value_fils, due_date, voided")
+          .eq("contract_id", id)
+          .eq("voided", false),
+        db
+          .from("payments")
+          .select("id, contract_id, amount_fils, received_at, voided")
+          .eq("contract_id", id)
+          .eq("voided", false),
+        db
+          .from("payment_allocations")
+          .select("payment_id, charge_id, amount_fils, payments!inner(contract_id)")
+          .eq("payments.contract_id", id),
+        db
+          .from("adjustments")
+          .select("id,contract_id,charge_id,kind,amount_fils,adjustment_date,reason")
+          .eq("contract_id", id),
+      ]);
     const lastPeriod = periodOf(moveOutDate);
     const ledger = {
+      adjustments: (adjustments ?? []).map((a) => ({
+        id: a.id,
+        contractId: a.contract_id,
+        chargeId: a.charge_id,
+        kind: a.kind,
+        amountFils: a.amount_fils,
+        date: a.adjustment_date,
+        reason: a.reason,
+      })),
       charges: (charges ?? [])
         .filter((ch) => ch.period <= lastPeriod)
         .map((ch) => ({
@@ -654,17 +705,15 @@ export async function terminateContract(
       .eq("id", id);
     if (upd.error) throw upd.error;
     if (d.penaltyFils > 0) {
-      const p = await db
-        .from("charges")
-        .insert({
-          org_id: ctx.orgId,
-          contract_id: id,
-          period: lastPeriod,
-          kind: "penalty",
-          amount_fils: d.penaltyFils,
-          due_date: d.moveOutDate,
-          description: "غرامة الإخلاء المبكر (قيمة الأشهر المجانية)",
-        });
+      const p = await db.from("charges").insert({
+        org_id: ctx.orgId,
+        contract_id: id,
+        period: lastPeriod,
+        kind: "penalty",
+        amount_fils: d.penaltyFils,
+        due_date: d.moveOutDate,
+        description: "غرامة الإخلاء المبكر (قيمة الأشهر المجانية)",
+      });
       if (p.error) throw p.error;
     }
     // Released advances become credit → consume against remaining charges.
@@ -711,16 +760,14 @@ export async function terminateContract(
         })),
       );
       if (r.allocations.length)
-        await db
-          .from("payment_allocations")
-          .insert(
-            r.allocations.map((a) => ({
-              org_id: ctx.orgId,
-              payment_id: pay.id,
-              charge_id: a.chargeId,
-              amount_fils: a.amountFils,
-            })),
-          );
+        await db.from("payment_allocations").insert(
+          r.allocations.map((a) => ({
+            org_id: ctx.orgId,
+            payment_id: pay.id,
+            charge_id: a.chargeId,
+            amount_fils: a.amountFils,
+          })),
+        );
     }
     if (c.security_deposit_fils > 0)
       await db.from("contracts").update({ deposit_status: settle.depositStatus }).eq("id", id);
@@ -767,6 +814,7 @@ export async function duplicateContract(id: string) {
         type: c.type,
         template_id: null,
         tenant_id: c.tenant_id,
+        co_tenant_ids: c.co_tenant_ids,
         property_id: c.property_id,
         owner_id: c.owner_id,
         contract_date: todayKuwait(),
@@ -818,5 +866,45 @@ export async function uploadSignedContract(id: string, form: FormData) {
       .eq("id", id);
     if (error) throw error;
     reval();
+  });
+}
+
+export async function addTemporaryDiscount(
+  contractId: string,
+  input: import("zod").input<typeof discountSchema>,
+) {
+  return run(async () => {
+    const ctx = await requireActionContext("manage_contracts");
+    const d = discountSchema.parse(input);
+    const db = await supabaseServer();
+    const { data: c } = await db.from("contracts").select("status").eq("id", contractId).single();
+    if (!c || !["active", "notice_given"].includes(c.status))
+      throw new ActionError("invalid_transition");
+    const { error } = await db.from("contract_discounts").insert({
+      org_id: ctx.orgId,
+      contract_id: contractId,
+      from_period: d.fromPeriod,
+      to_period: d.toPeriod,
+      amount_fils: d.amountFils,
+      reason: d.reason,
+    });
+    if (error) throw error;
+    const { applyCredit } = await import("@/server/billing/ensure-charges");
+    await applyCredit(ctx.orgId, [contractId]);
+    reval();
+  });
+}
+
+export async function listContractDiscounts(contractId: string) {
+  return run(async () => {
+    await requireActionContext("manage_contracts");
+    const db = await supabaseServer();
+    const { data, error } = await db
+      .from("contract_discounts")
+      .select("id,from_period,to_period,amount_fils,reason")
+      .eq("contract_id", contractId)
+      .order("from_period");
+    if (error) throw error;
+    return data;
   });
 }

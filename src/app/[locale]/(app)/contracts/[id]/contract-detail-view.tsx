@@ -1,4 +1,5 @@
 "use client";
+import { DiscountSheet } from "@/components/domain/contracts/discount-sheet";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -865,6 +866,11 @@ export function ContractDetailView({
         </div>
       </Sheet>
 
+      {canManage && ["active", "notice_given"].includes(c.status) && (
+        <div className="my-4">
+          <DiscountSheet contractId={c.id} period={today.slice(0, 7)} />
+        </div>
+      )}
       <AdjustmentSheet open={adjust} onOpenChange={setAdjust} contractId={c.id} />
       <ManualChargeSheet open={manual} onOpenChange={setManual} contractId={c.id} />
       <AlertDialog

@@ -32,7 +32,14 @@ export interface OrgData {
   idx: Index;
   tenants: Map<
     string,
-    { id: string; fullName: string; phones: string[]; civilId: string | null; blacklisted: boolean }
+    {
+      id: string;
+      fullName: string;
+      phones: string[];
+      civilId: string | null;
+      blacklisted: boolean;
+      archivedAt: string | null;
+    }
   >;
   owners: Map<string, { id: string; fullName: string }>;
   properties: Map<
@@ -123,7 +130,7 @@ export async function fetchOrgData(
       db
         .from("units")
         .select(
-          "id, property_id, label, sort_order, type, floor, area_m2, bedrooms, bathrooms, asking_rent_fils, active, under_maintenance, photos, available_since",
+          "id, property_id, label, sort_order, type, floor, area_m2, bedrooms, bathrooms, asking_rent_fils, active, under_maintenance, photos, available_since, retired_on",
         )
         .eq("org_id", orgId)
         .range(f, t),
@@ -132,7 +139,7 @@ export async function fetchOrgData(
       db
         .from("contracts")
         .select(
-          "id, contract_no, type, status, tenant_id, property_id, start_date, end_date, first_collection_date, move_out_date, monthly_rent_fils, auto_renew, notice_date, expected_move_out, free_months, contract_units(unit_id, rent_share_fils)",
+          "id, contract_no, type, status, tenant_id, co_tenant_ids, property_id, start_date, end_date, first_collection_date, move_out_date, monthly_rent_fils, auto_renew, notice_date, expected_move_out, free_months, contract_units(unit_id, rent_share_fils)",
         )
         .eq("org_id", orgId)
         .neq("status", "draft")
@@ -182,7 +189,7 @@ export async function fetchOrgData(
     fetchAll((f, t) =>
       db
         .from("tenants")
-        .select("id, full_name, phones, civil_id, blacklisted")
+        .select("id, full_name, phones, civil_id, blacklisted, archived_at")
         .eq("org_id", orgId)
         .range(f, t),
     ),
@@ -246,6 +253,7 @@ export async function fetchOrgData(
         phones: t.phones ?? [],
         civilId: t.civil_id,
         blacklisted: t.blacklisted,
+        archivedAt: t.archived_at,
       },
     ]),
   );
@@ -283,6 +291,7 @@ export async function fetchOrgData(
       askingRentFils: u.asking_rent_fils,
       active: u.active,
       availableFrom: u.available_since,
+      retiredOn: u.retired_on,
     })),
     contracts: contracts.map((c): RContract => {
       const t = tenantMap.get(c.tenant_id);
@@ -293,7 +302,13 @@ export async function fetchOrgData(
         type: c.type,
         status: c.status,
         tenantId: c.tenant_id,
-        tenantName: t?.fullName ?? "",
+        coTenantIds: c.co_tenant_ids,
+        tenantName: [
+          t?.fullName ?? "",
+          ...c.co_tenant_ids.map((id) => tenantMap.get(id)?.fullName ?? ""),
+        ]
+          .filter(Boolean)
+          .join("؛ "),
         tenantPhones: t?.phones ?? [],
         propertyId: c.property_id,
         unitIds: cu.map((x) => x.unit_id),

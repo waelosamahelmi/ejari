@@ -224,6 +224,7 @@ export async function buildReport(
               { key: "tenant", header: tc("columns.tenant"), width: 28 },
               { key: "legal", header: tc("columns.legal") },
               { key: "rent", header: tc("columns.rent"), type: "money" },
+              { key: "discount", header: tc("columns.discount"), type: "money" },
               { key: "receipts", header: tc("columns.receipts") },
               { key: "collected", header: tc("columns.collected"), type: "money" },
               { key: "prev", header: `${tc("columns.prevNext")} (${tc("prev")})`, type: "money" },
@@ -236,6 +237,7 @@ export async function buildReport(
               tenant: r.vacant ? tc("vacant") : r.tenantName,
               legal: r.vacant ? "" : legal(r.legalStatus),
               rent: r.vacant ? null : r.rentFils,
+              discount: r.vacant ? null : r.discountFils,
               receipts: r.receiptNos.join(", "),
               collected: r.vacant ? null : r.collectedFils,
               prev: r.previousFils || null,
@@ -246,6 +248,7 @@ export async function buildReport(
             totals: {
               unit: t("kpi.total"),
               rent: s.totals.rentFils,
+              discount: s.totals.discountFils,
               collected: s.totals.collectedFils,
               prev: s.totals.previousFils,
               next: s.totals.nextFils,

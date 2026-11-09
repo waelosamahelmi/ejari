@@ -16,6 +16,7 @@ test.describe("contracts", () => {
     await page.getByRole("button", { name: /استثماري/ }).click();
     await page.getByRole("button", { name: "التالي" }).click();
     // parties
+    await page.locator("#w-owner").selectOption({ label: "عبدالعزيز محمد الصالح" });
     await page.getByRole("searchbox").fill("الشمري");
     await page.locator("ul li button").first().click();
     await page.getByRole("button", { name: "التالي" }).click();
@@ -25,6 +26,8 @@ test.describe("contracts", () => {
     await page.getByRole("button", { name: "التالي" }).click();
     // terms (rent prefilled from asking rent)
     await expect(page.getByLabel("الإيجار الشهري")).toHaveValue(/550/);
+    await page.getByRole("radio", { name: "الطرف الأول", exact: true }).click();
+    await page.locator("#w-notice").selectOption("0");
     await page.getByRole("button", { name: "التالي" }).click();
     // clauses
     await expect(page.getByText("استأجر الطرف الثاني محل رقم 1")).toBeVisible();

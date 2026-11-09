@@ -129,7 +129,7 @@ export function CommandPalette({
                         {t("newContract")}
                       </Item>
                     )}
-                    {can(session.role, "manage_expenses") && (
+                    {can(session.role, "record_expense") && (
                       <Item icon={Wallet} onSelect={() => go("/expenses/new")}>
                         {t("newVoucher")}
                       </Item>

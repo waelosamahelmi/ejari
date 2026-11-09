@@ -152,12 +152,13 @@ export function CollectionsView({
     const t0 = statements.reduce(
       (a, s) => ({
         rent: a.rent + s.totals.rentFils,
+        discount: a.discount + s.totals.discountFils,
         collected: a.collected + s.totals.collectedFils,
         prev: a.prev + s.totals.previousFils,
         next: a.next + s.totals.nextFils,
         arrears: a.arrears + s.totals.arrearsFils,
       }),
-      { rent: 0, collected: 0, prev: 0, next: 0, arrears: 0 },
+      { rent: 0, discount: 0, collected: 0, prev: 0, next: 0, arrears: 0 },
     );
     return {
       ...t0,
@@ -225,6 +226,13 @@ export function CollectionsView({
       meta: { numeric: true, footer: money(totals.rent, { showCurrency: false }) },
       cell: (c) =>
         c.row.original.vacant ? "" : money(c.row.original.rentFils, { showCurrency: false }),
+    },
+    {
+      accessorKey: "discountFils",
+      header: t("columns.discount"),
+      meta: { numeric: true, footer: money(totals.discount, { showCurrency: false }) },
+      cell: (c) =>
+        c.row.original.vacant ? "" : money(c.row.original.discountFils, { showCurrency: false }),
     },
     {
       id: "receipts",
@@ -326,94 +334,94 @@ export function CollectionsView({
     <>
       <span data-tour="collections-header" className="contents">
         <LargeTitleHeader
-        title={t("title")}
-        subtitle={formatPeriod(period, locale)}
-        actions={
-          <>
-            {caps.pay && (
-              <Button onClick={() => setPicker(true)} className="hidden sm:inline-flex">
-                <HandCoins />
-                {t("actions.record")}
-              </Button>
-            )}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon" aria-label={tc("actions.more")}>
-                  <Printer />
+          title={t("title")}
+          subtitle={formatPeriod(period, locale)}
+          actions={
+            <>
+              {caps.pay && (
+                <Button onClick={() => setPicker(true)} className="hidden sm:inline-flex">
+                  <HandCoins />
+                  {t("actions.record")}
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {statements.map((s) => (
-                  <DropdownMenuItem
-                    key={s.propertyId}
-                    icon={<Printer />}
-                    onSelect={() =>
-                      window.open(
-                        `/print/statement/${s.propertyId}/${period}?lang=${locale}`,
-                        "_blank",
-                      )
-                    }
-                  >
-                    {t("actions.print")} · {s.propertyName}
-                  </DropdownMenuItem>
-                ))}
-                {caps.export && (
-                  <DropdownMenuItem
-                    icon={<FileSpreadsheet />}
-                    onSelect={() =>
-                      (window.location.href = `/api/export/statement?period=${period}&property=${selected}&lang=${locale}`)
-                    }
-                  >
-                    {t("actions.excel")}
-                  </DropdownMenuItem>
-                )}
-                {caps.close && !closed && (
-                  <DropdownMenuItem icon={<Lock />} onSelect={() => setConfirmClose(true)}>
-                    {t("actions.close")}
-                  </DropdownMenuItem>
-                )}
-                {caps.reopen && closed && (
-                  <DropdownMenuItem
-                    icon={<LockOpen />}
-                    onSelect={() =>
-                      exec(() => reopenMonth(period), {
-                        success: t("reopenedToast"),
-                        onSuccess: () => router.refresh(),
-                      })
-                    }
-                  >
-                    {t("actions.reopen")}
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </>
-        }
-      >
-        <div className="flex flex-wrap items-center gap-3">
-          <MonthPicker value={period} onChange={(p) => nav({ period: p })} />
-          {closed && (
-            <Pill className="bg-inset text-label-2 h-8 px-3">
-              <Lock className="size-3.5" />
-              {t("closed")} · {t("closedBy", { date: formatDate(closedAt!.slice(0, 10)) })}
-            </Pill>
-          )}
-        </div>
-        <ChipScroller className="mt-3">
-          <Chip active={selected === "all"} onClick={() => nav({ property: "all" })}>
-            {t("allProperties")}
-          </Chip>
-          {properties.map((p) => (
-            <Chip key={p.id} active={selected === p.id} onClick={() => nav({ property: p.id })}>
-              {p.name}
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary" size="icon" aria-label={tc("actions.more")}>
+                    <Printer />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {statements.map((s) => (
+                    <DropdownMenuItem
+                      key={s.propertyId}
+                      icon={<Printer />}
+                      onSelect={() =>
+                        window.open(
+                          `/print/statement/${s.propertyId}/${period}?lang=${locale}`,
+                          "_blank",
+                        )
+                      }
+                    >
+                      {t("actions.print")} · {s.propertyName}
+                    </DropdownMenuItem>
+                  ))}
+                  {caps.export && (
+                    <DropdownMenuItem
+                      icon={<FileSpreadsheet />}
+                      onSelect={() =>
+                        (window.location.href = `/api/export/statement?period=${period}&property=${selected}&lang=${locale}`)
+                      }
+                    >
+                      {t("actions.excel")}
+                    </DropdownMenuItem>
+                  )}
+                  {caps.close && !closed && (
+                    <DropdownMenuItem icon={<Lock />} onSelect={() => setConfirmClose(true)}>
+                      {t("actions.close")}
+                    </DropdownMenuItem>
+                  )}
+                  {caps.reopen && closed && (
+                    <DropdownMenuItem
+                      icon={<LockOpen />}
+                      onSelect={() =>
+                        exec(() => reopenMonth(period), {
+                          success: t("reopenedToast"),
+                          onSuccess: () => router.refresh(),
+                        })
+                      }
+                    >
+                      {t("actions.reopen")}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          }
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            <MonthPicker value={period} onChange={(p) => nav({ period: p })} />
+            {closed && (
+              <Pill className="bg-inset text-label-2 h-8 px-3">
+                <Lock className="size-3.5" />
+                {t("closed")} · {t("closedBy", { date: formatDate(closedAt!.slice(0, 10)) })}
+              </Pill>
+            )}
+          </div>
+          <ChipScroller className="mt-3">
+            <Chip active={selected === "all"} onClick={() => nav({ property: "all" })}>
+              {t("allProperties")}
             </Chip>
-          ))}
-          <span className="bg-separator mx-1 w-px self-stretch" />
-          <Chip active={lateOnly} onClick={() => setLateOnly((v) => !v)}>
-            {t("filterLate")}
-          </Chip>
-        </ChipScroller>
-      </LargeTitleHeader>
+            {properties.map((p) => (
+              <Chip key={p.id} active={selected === p.id} onClick={() => nav({ property: p.id })}>
+                {p.name}
+              </Chip>
+            ))}
+            <span className="bg-separator mx-1 w-px self-stretch" />
+            <Chip active={lateOnly} onClick={() => setLateOnly((v) => !v)}>
+              {t("filterLate")}
+            </Chip>
+          </ChipScroller>
+        </LargeTitleHeader>
       </span>
 
       <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -442,84 +450,84 @@ export function CollectionsView({
         )
       ) : (
         <div data-tour="collections-rows">
-        <DataTable
-          data={rows}
-          columns={columns}
-          getRowId={(r) => r.key}
-          showFooter
-          selectable={caps.pay && !closed}
-          density="compact"
-          maxHeight="calc(100dvh - 300px)"
-          groupBy={selected === "all" ? (r) => r.propertyName : undefined}
-          groupLabel={(k, rs) => (
-            <span className="flex justify-between">
-              <span>{k}</span>
-              <span className="num">{money(rs.reduce((a, r) => a + r.collectedFils, 0))}</span>
-            </span>
-          )}
-          onRowClick={(r) =>
-            r.contractId && caps.pay && !closed ? setPayFor(r.contractId) : undefined
-          }
-          rowClassName={(r) => (r.vacant ? "text-label-2" : undefined)}
-          bulkBar={(sel, clear) => (
-            <Button
-              size="sm"
-              variant="white"
-              onClick={() => {
-                setBulkRows(sel.filter((r) => r.contractId && !r.vacant));
-                clear();
-              }}
-            >
-              {t("actions.markPaid")}
-            </Button>
-          )}
-          renderCard={(r) => (
-            <button
-              type="button"
-              disabled={!r.contractId || !caps.pay || closed}
-              onClick={() => r.contractId && setPayFor(r.contractId)}
-              className="bg-paper press flex min-h-[76px] w-full items-center gap-3 rounded-[20px] p-4 text-start shadow-[var(--sh-card)] disabled:opacity-80"
-            >
-              <span
-                className={cn(
-                  "flex size-12 shrink-0 items-center justify-center rounded-[14px] text-[15px] font-semibold",
-                  r.vacant ? "bg-gray/16 text-gray-text" : "bg-inset",
-                )}
+          <DataTable
+            data={rows}
+            columns={columns}
+            getRowId={(r) => r.key}
+            showFooter
+            selectable={caps.pay && !closed}
+            density="compact"
+            maxHeight="calc(100dvh - 300px)"
+            groupBy={selected === "all" ? (r) => r.propertyName : undefined}
+            groupLabel={(k, rs) => (
+              <span className="flex justify-between">
+                <span>{k}</span>
+                <span className="num">{money(rs.reduce((a, r) => a + r.collectedFils, 0))}</span>
+              </span>
+            )}
+            onRowClick={(r) =>
+              r.contractId && caps.pay && !closed ? setPayFor(r.contractId) : undefined
+            }
+            rowClassName={(r) => (r.vacant ? "text-label-2" : undefined)}
+            bulkBar={(sel, clear) => (
+              <Button
+                size="sm"
+                variant="white"
+                onClick={() => {
+                  setBulkRows(sel.filter((r) => r.contractId && !r.vacant));
+                  clear();
+                }}
               >
-                {r.unitLabels.length > 4 ? r.unitLabels.slice(0, 4) : r.unitLabels}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-[16px] font-semibold">
-                  {r.vacant ? t("vacant") : r.tenantName}
-                </span>
-                <span className="text-label-2 block truncate text-[13px]">
-                  {selected === "all" ? `${r.propertyName} · ` : ""}
-                  {r.unitLabels}
-                </span>
-              </span>
-              {!r.vacant && (
-                <span className="flex flex-col items-end gap-1">
-                  {r.pendingFils > 0 ? (
-                    <Pill className="bg-indigo/14 text-indigo-text">
-                      <CloudUpload className="size-3" />
-                      {tPwa("pendingBadge")}
-                    </Pill>
-                  ) : (
-                    <PeriodStatusPill status={r.status} />
+                {t("actions.markPaid")}
+              </Button>
+            )}
+            renderCard={(r) => (
+              <button
+                type="button"
+                disabled={!r.contractId || !caps.pay || closed}
+                onClick={() => r.contractId && setPayFor(r.contractId)}
+                className="bg-paper press flex min-h-[76px] w-full items-center gap-3 rounded-[20px] p-4 text-start shadow-[var(--sh-card)] disabled:opacity-80"
+              >
+                <span
+                  className={cn(
+                    "flex size-12 shrink-0 items-center justify-center rounded-[14px] text-[15px] font-semibold",
+                    r.vacant ? "bg-gray/16 text-gray-text" : "bg-inset",
                   )}
-                  <span
-                    className={cn(
-                      "num text-[15px] font-semibold",
-                      r.arrearsFils > 0 && "text-red-text",
-                    )}
-                  >
-                    {money(r.arrearsFils > 0 ? r.arrearsFils : r.collectedFils)}
+                >
+                  {r.unitLabels.length > 4 ? r.unitLabels.slice(0, 4) : r.unitLabels}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[16px] font-semibold">
+                    {r.vacant ? t("vacant") : r.tenantName}
+                  </span>
+                  <span className="text-label-2 block truncate text-[13px]">
+                    {selected === "all" ? `${r.propertyName} · ` : ""}
+                    {r.unitLabels}
                   </span>
                 </span>
-              )}
-            </button>
-          )}
-        />
+                {!r.vacant && (
+                  <span className="flex flex-col items-end gap-1">
+                    {r.pendingFils > 0 ? (
+                      <Pill className="bg-indigo/14 text-indigo-text">
+                        <CloudUpload className="size-3" />
+                        {tPwa("pendingBadge")}
+                      </Pill>
+                    ) : (
+                      <PeriodStatusPill status={r.status} />
+                    )}
+                    <span
+                      className={cn(
+                        "num text-[15px] font-semibold",
+                        r.arrearsFils > 0 && "text-red-text",
+                      )}
+                    >
+                      {money(r.arrearsFils > 0 ? r.arrearsFils : r.collectedFils)}
+                    </span>
+                  </span>
+                )}
+              </button>
+            )}
+          />
         </div>
       )}
 
@@ -646,7 +654,9 @@ export function CollectionsView({
                       {money(
                         Math.max(
                           r.arrearsFils,
-                          r.rentFils - r.collectedFils > 0 ? r.rentFils - r.collectedFils : 0,
+                          r.rentFils - r.discountFils - r.collectedFils > 0
+                            ? r.rentFils - r.discountFils - r.collectedFils
+                            : 0,
                         ),
                         { showCurrency: false },
                       )}

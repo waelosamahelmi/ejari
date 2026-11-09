@@ -6,11 +6,22 @@ export const customClauseSchema = z.object({
   text: z.string().max(4000, "tooLong"),
 });
 
+export const discountSchema = z
+  .object({
+    fromPeriod: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
+    toPeriod: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
+    amountFils: z.number().int().positive("positive"),
+    reason: z.string().trim().min(1, "required").max(500),
+  })
+  .refine((d) => d.toPeriod >= d.fromPeriod, { message: "invalidDate", path: ["toPeriod"] });
+
 export const contractDraftSchema = z
   .object({
     type: z.enum(["residential", "investment"]),
     ownerId: z.string().uuid().nullable().optional(),
     tenantId: z.string().uuid({ message: "required" }),
+    coTenantIds: z.array(z.string().uuid()).max(20).default([]),
+    initialDiscount: discountSchema.nullable().optional(),
     propertyId: z.string().uuid({ message: "required" }),
     unitIds: z.array(z.string().uuid()).min(1, "required"),
     unitShares: z.array(fils).optional().nullable(),
@@ -46,6 +57,13 @@ export const contractDraftSchema = z
     templateId: z.string().uuid().nullable().optional(),
     notes: optText(2000),
   })
+  .refine(
+    (c) =>
+      !c.initialDiscount ||
+      (c.initialDiscount.amountFils <= c.monthlyRentFils &&
+        c.initialDiscount.fromPeriod >= c.firstCollectionDate.slice(0, 7)),
+    { message: "invalidAmount", path: ["initialDiscount"] },
+  )
   .refine((c) => c.firstCollectionDate >= c.startDate, {
     message: "firstCollectionBeforeStart",
     path: ["firstCollectionDate"],

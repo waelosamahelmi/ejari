@@ -40,6 +40,7 @@ export default async function PrintContract({
   if (!c) notFound();
   const parties = await loadParties(db, {
     ownerId: c.owner_id,
+    coTenantIds: c.co_tenant_ids,
     tenantId: c.tenant_id,
     propertyId: c.property_id,
     unitIds: (c.contract_units ?? []).map((u) => u.unit_id),
@@ -52,6 +53,8 @@ export default async function PrintContract({
       varsInput(
         {
           contractNo: c.contract_no,
+          initialDiscount:
+            c.initial_discount as import("@/domain/templates").TemplateVarsInput["initialDiscount"],
           type: c.type,
           contractDate: c.contract_date,
           startDate: c.start_date,
@@ -90,6 +93,7 @@ export default async function PrintContract({
           rendered={rendered}
           ownerName={parties.owner.name}
           tenantName={parties.tenant.name}
+          coTenantNames={parties.coTenants.map((t) => t.name)}
         />
       </div>
     </>

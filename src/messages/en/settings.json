@@ -47,10 +47,15 @@
     "roleHelp": {
       "admin": "Everything, including users and settings",
       "accountant": "Everything except users and office details",
-      "collector": "Collections, reminders and late units only",
+      "collector": "Enter rent collections and expenses for assigned properties; cannot edit or delete records.",
       "viewer": "Read-only",
       "owner": "Owner portal for their own properties"
-    }
+    },
+    "properties": "Allowed properties",
+    "scopeHelp": "Only selected properties and their data are visible. No selection grants no property access.",
+    "allProperties": "All current and future properties",
+    "remove": "Remove member",
+    "removeHelp": "Revoke this office membership. Receipts and accounting history remain intact."
   },
   "templates": {
     "type": "Type",
@@ -93,7 +98,11 @@
     "threshold": "Large voucher alert threshold",
     "lateDays": "Late alerts (days)"
   },
-  "reminder": { "ar": "Arabic message", "en": "English message", "vars": "Variables: {vars}" },
+  "reminder": {
+    "ar": "Arabic message",
+    "en": "English message",
+    "vars": "Variables: {vars}"
+  },
   "prefs": {
     "language": "Language",
     "theme": "Appearance",

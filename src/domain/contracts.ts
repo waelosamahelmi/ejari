@@ -19,7 +19,7 @@ export function contractDefaults(type: ContractType): ContractDefaults {
   return {
     termMonths: 60,
     autoRenew: type === "investment",
-    noticePeriodMonths: type === "investment" ? 1 : 2,
+    noticePeriodMonths: 0,
     freeMonthsPenaltyWindowMonths: 12,
   };
 }

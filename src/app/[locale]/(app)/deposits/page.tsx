@@ -20,7 +20,7 @@ export default async function DepositsPage({
 }: LocaleParams & { searchParams: Promise<{ period?: string; owner?: string; tab?: string }> }) {
   const { locale } = await pageLocale(params);
   const sp = await searchParams;
-  const ctx = await requireContext(locale, { capability: "view_expenses" });
+  const ctx = await requireContext(locale, { capability: "view_deposits" });
   const data = await loadOrgData(ctx);
   const period = sp.period && isValidPeriod(sp.period) ? sp.period : periodOf(todayKuwait());
   const owner = sp.owner && data.owners.has(sp.owner) ? sp.owner : null;

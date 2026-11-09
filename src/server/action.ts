@@ -28,6 +28,14 @@ export function errorCode(e: unknown): string {
   if (db?.code === "23505") return "duplicate";
   if (db?.code === "23503") return "has_dependents";
   if (db?.code === "42501" || /row-level security/.test(msg)) return "forbidden";
+  for (const code of [
+    "tenant_has_live_contract",
+    "units_have_live_contracts",
+    "discount_exceeds_rent",
+    "overlapping_discount",
+    "discount_period_outside_contract",
+  ])
+    if (msg.includes(code)) return code;
   if (/fetch failed|network/i.test(msg)) return "network";
   return "generic";
 }

@@ -9,6 +9,15 @@ Arabic-first (RTL) with a full English interface, KWD with 3 decimals, installab
 offline collections and web push. See `CLAUDE.md` for the full product specification, `docs/`
 for progress, decisions and the domain glossary, and `docs/LAUNCH.md` for the go-live runbook.
 
+## November client workflows
+
+Company and joint-tenant leases, required nationality, temporary rent discounts, historical
+unit merging/splitting, property-scoped entry-only staff and revised receipts/statements are
+covered in [the client checklist](docs/CLIENT_EDITS_2026-11-09.md). See the
+[operations handover](docs/OPERATIONS_HANDOVER.md) for deployment and independent administration.
+Apply both `20261109` migrations before deploying this application version. Existing collectors
+need an admin to assign their properties in Settings → Users.
+
 ## Stack
 
 Next.js 15 (App Router, Server Components, Server Actions) · React 19 · TypeScript strict ·
@@ -62,18 +71,18 @@ Demo accounts (password `Demo12345!`): `admin@demo.test`, `accountant@demo.test`
 
 ## Scripts
 
-| Script | Purpose |
-|---|---|
-| `pnpm dev` / `build` / `start` | Next.js dev / production build / server |
-| `pnpm typecheck` · `pnpm lint` · `pnpm test` | TS, ESLint, Vitest (domain + i18n) |
-| `pnpm test:coverage` | Vitest coverage (domain ≥ 90 %) |
-| `pnpm test:rls` | Row-level-security suite against local Supabase (`SUPABASE_TEST=1`) |
-| `pnpm test:e2e` | Playwright; resets and re-seeds the **local** DB first (skip with `E2E_NO_RESET=1`) |
-| `pnpm test:e2e --update-snapshots=all` | Refresh the visual-regression baselines |
-| `pnpm i18n:check` | Fails if any message key is missing in `ar`/`en` |
-| `pnpm seed` · `pnpm db:reset` · `pnpm db:types` | Demo data, migrations+seed, generated types |
-| `pnpm brand:assets` · `pnpm screenshots` | Regenerate brand icons/splashes · PWA screenshots |
-| `pnpm vapid` | Print a VAPID key pair for web push |
+| Script                                          | Purpose                                                                             |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `pnpm dev` / `build` / `start`                  | Next.js dev / production build / server                                             |
+| `pnpm typecheck` · `pnpm lint` · `pnpm test`    | TS, ESLint, Vitest (domain + i18n)                                                  |
+| `pnpm test:coverage`                            | Vitest coverage (domain ≥ 90 %)                                                     |
+| `pnpm test:rls`                                 | Row-level-security suite against local Supabase (`SUPABASE_TEST=1`)                 |
+| `pnpm test:e2e`                                 | Playwright; resets and re-seeds the **local** DB first (skip with `E2E_NO_RESET=1`) |
+| `pnpm test:e2e --update-snapshots=all`          | Refresh the visual-regression baselines                                             |
+| `pnpm i18n:check`                               | Fails if any message key is missing in `ar`/`en`                                    |
+| `pnpm seed` · `pnpm db:reset` · `pnpm db:types` | Demo data, migrations+seed, generated types                                         |
+| `pnpm brand:assets` · `pnpm screenshots`        | Regenerate brand icons/splashes · PWA screenshots                                   |
+| `pnpm vapid`                                    | Print a VAPID key pair for web push                                                 |
 
 ## Database
 

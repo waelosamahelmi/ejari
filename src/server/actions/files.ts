@@ -155,6 +155,24 @@ export async function uploadAttachment(
     if (!DOC_TYPES.includes(file.type)) throw new ActionError("validation");
     const path = `${ctx.orgId}/${entityType}/${entityId}/${safeName(file.name)}`;
     const db = await supabaseServer();
+    if (ctx.role === "collector") {
+      if (entityType !== "payment" && entityType !== "voucher") throw new ActionError("forbidden");
+      const own =
+        entityType === "payment"
+          ? await db
+              .from("payments")
+              .select("id")
+              .eq("id", entityId)
+              .eq("created_by", ctx.userId)
+              .maybeSingle()
+          : await db
+              .from("expense_vouchers")
+              .select("id")
+              .eq("id", entityId)
+              .eq("created_by", ctx.userId)
+              .maybeSingle();
+      if (!own.data) throw new ActionError("forbidden");
+    }
     const up = await db.storage.from(bucket).upload(path, file, { contentType: file.type });
     if (up.error) throw up.error;
     const { data, error } = await db

@@ -11,6 +11,7 @@ describe("master data schemas", () => {
   it("tenant: normalizes phones and civil ID, rejects bad phones", () => {
     const ok = tenantSchema.parse({
       fullName: " خالد ",
+      nationality: "كويتي",
       civilId: "٢٨٥٠١٠١١٢٣٥٨",
       phones: ["+965 5512 3456", ""],
       email: "",
@@ -69,9 +70,13 @@ describe("master data schemas", () => {
   it("planned units: bounds, duplicates and max count", () => {
     const pid = "0d000000-0000-4000-8000-000000000001";
     const unit = { label: "101", type: "apartment" as const, floor: 1, askingRentFils: 300000 };
-    expect(createPlannedUnitsSchema.parse({ propertyId: pid, units: [unit] }).units).toHaveLength(1);
+    expect(createPlannedUnitsSchema.parse({ propertyId: pid, units: [unit] }).units).toHaveLength(
+      1,
+    );
     expect(() => createPlannedUnitsSchema.parse({ propertyId: pid, units: [] })).toThrow();
-    expect(() => createPlannedUnitsSchema.parse({ propertyId: pid, units: [unit, unit] })).toThrow();
+    expect(() =>
+      createPlannedUnitsSchema.parse({ propertyId: pid, units: [unit, unit] }),
+    ).toThrow();
     expect(() => createPlannedUnitsSchema.parse({ propertyId: "x", units: [unit] })).toThrow();
     expect(() =>
       createPlannedUnitsSchema.parse({

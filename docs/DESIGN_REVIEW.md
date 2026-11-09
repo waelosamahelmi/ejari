@@ -7,15 +7,15 @@ compared side by side with the reference boards in `docs/design/references/`.
 
 ## What was checked
 
-| Area | Result |
-|---|---|
-| RTL mirroring (sidebar, sheets, chevrons, charts, tab bar, print) | Correct everywhere; Arabic flows right→left, English mirrors exactly |
-| Photo-led glass direction (§21): heroes, glass pills, pill buttons, floating tab bar, chip scrollers | Matches the references; data screens stay photo-free and dense |
-| Numbers: tabular figures, 3 decimals, currency label, tafqeet under money inputs | Correct; amounts never wrap mid-number |
-| Print layouts: statement, voucher, contract (residential + investment), report | Match the paper forms; letterhead, QR, signature blocks, footer |
-| Dark mode | Designed, not inverted; ring/ink flips, glass over photos stays legible, status colors re-tuned |
-| Mobile 375–390px | No horizontal scroll; hit targets ≥ 44px; tab bar floats over content with safe-area padding |
-| English | No leftover Arabic in chrome; property data stays in its own script wrapped as needed |
+| Area                                                                                                 | Result                                                                                          |
+| ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| RTL mirroring (sidebar, sheets, chevrons, charts, tab bar, print)                                    | Correct everywhere; Arabic flows right→left, English mirrors exactly                            |
+| Photo-led glass direction (§21): heroes, glass pills, pill buttons, floating tab bar, chip scrollers | Matches the references; data screens stay photo-free and dense                                  |
+| Numbers: tabular figures, 3 decimals, currency label, tafqeet under money inputs                     | Correct; amounts never wrap mid-number                                                          |
+| Print layouts: statement, voucher, contract (residential + investment), report                       | Match the paper forms; letterhead, QR, signature blocks, footer                                 |
+| Dark mode                                                                                            | Designed, not inverted; ring/ink flips, glass over photos stays legible, status colors re-tuned |
+| Mobile 375–390px                                                                                     | No horizontal scroll; hit targets ≥ 44px; tab bar floats over content with safe-area padding    |
+| English                                                                                              | No leftover Arabic in chrome; property data stays in its own script wrapped as needed           |
 
 ## Issues found and fixed
 
@@ -73,7 +73,16 @@ ar/en × light/dark × 390/1440; axe on signup, setup and the tour):
 ## 2026-10-25 — Client contract print and termination feedback
 
 Reviewed residential and investment print output with the client's plain lease reference:
+
 - Plain centered Arabic title; office branding, QR and system-number header removed.
 - Owner identity appears in the preamble and signature block; contract-specific fields are red and boilerplate remains black. Browser print-media assertions verify the color survives printing.
 - Contract preview and print captures pass at 390px and 1440px in ar/en and light/dark (24 captures; 16 print baselines refreshed). Signature blocks remain legible and together.
 - Termination keeps the required reason visible and explains why confirmation is disabled, with a loading state and a retry action for failed settlement quotes. The paid-contract browser flow confirms successful termination.
+
+## 2026-11-09 — Client workflow and document review
+
+- Receipt: bold property name, complete address and unit type/label above a separated title, amount box and receipt/date column. Desktop Arabic preview and print-media checks confirm no heading collisions.
+- Property statement: property/address header and a separate discount column; the August fixture retains gross rent 8,960.000, collections 8,890.000 and arrears 70.000.
+- Company licence/signatory and joint-tenant names/signature spaces appear in the lease. Existing plain contract layout and red variable fields are preserved.
+- Owner-filtered property selection, searchable alphabetical tenants, explicit utilities/notice choices, temporary discount fields, staff property selection and unit restructuring follow the existing bilingual controls.
+- Focused visual run: four tests, 48 captures (collections, building stack, statement, receipt, wizard terms/review × Arabic/English × light/dark × mobile/desktop). Eight receipt baselines added; changed existing baselines refreshed. Generated receipt and statement previews were inspected.

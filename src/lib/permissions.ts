@@ -7,8 +7,10 @@ export type Capability =
   | "manage_contracts"
   | "record_payment"
   | "void_payment"
+  | "record_expense"
   | "manage_expenses"
   | "view_expenses"
+  | "view_deposits"
   | "manage_deposits"
   | "view_reports"
   | "view_late_units"
@@ -28,8 +30,10 @@ const MATRIX: Record<Role, readonly Capability[]> = {
     "manage_contracts",
     "record_payment",
     "void_payment",
+    "record_expense",
     "manage_expenses",
     "view_expenses",
+    "view_deposits",
     "manage_deposits",
     "view_reports",
     "view_late_units",
@@ -46,8 +50,10 @@ const MATRIX: Record<Role, readonly Capability[]> = {
     "manage_contracts",
     "record_payment",
     "void_payment",
+    "record_expense",
     "manage_expenses",
     "view_expenses",
+    "view_deposits",
     "manage_deposits",
     "view_reports",
     "view_late_units",
@@ -58,8 +64,14 @@ const MATRIX: Record<Role, readonly Capability[]> = {
     "view_legal",
     "manage_templates",
   ],
-  collector: ["record_payment", "view_late_units", "send_reminder"],
-  viewer: ["view_expenses", "view_reports", "view_late_units", "view_legal"],
+  collector: [
+    "record_payment",
+    "record_expense",
+    "view_expenses",
+    "view_late_units",
+    "send_reminder",
+  ],
+  viewer: ["view_expenses", "view_deposits", "view_reports", "view_late_units", "view_legal"],
   owner: [],
 };
 

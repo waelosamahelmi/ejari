@@ -23,19 +23,53 @@ export function restoreContractPresentation(
   current: RenderedContract,
 ): RenderedContract {
   const preambleParts = saved.preamble.map((text, i) => {
-    const parts = recoverParts(text, saved.preambleParts?.[i] ?? current.preambleParts?.[i]);
+    const parts = saved.preambleParts?.[i]
+      ? recoverParts(text, saved.preambleParts[i])
+      : current.preambleParts?.map((p) => recoverParts(text, p)).find((p) => p !== undefined);
     return parts?.map((part) => {
       if (!part.variable?.startsWith("owner_") || part.text.trim()) return part;
       const value = current.preambleParts?.flat().find((p) => p.variable === part.variable)?.text;
       return value ? { ...part, text: value } : part;
     });
   });
+  const present = new Set(
+    preambleParts.flatMap((parts) => parts?.map((p) => p.variable).filter(Boolean) ?? []),
+  );
+  const supplement = (current.preambleParts ?? []).filter((parts) =>
+    parts.some(
+      (p) =>
+        p.variable &&
+        /^(tenant_licence_no|tenant_signatory_name|co_tenants)$/.test(p.variable) &&
+        !present.has(p.variable) &&
+        p.text.trim(),
+    ),
+  );
+  const oldPreamble = saved.preamble.map(
+    (text, i) =>
+      preambleParts[i]
+        ?.map((p) => p.text)
+        .join("")
+        .trim() ?? text,
+  );
+  const completeParts = preambleParts.map((parts, i) => parts ?? [{ text: saved.preamble[i]! }]);
+  const insertion = oldPreamble.findIndex(
+    (line) => line.startsWith("حيث إن") || line.startsWith("حيث ان"),
+  );
+  oldPreamble.splice(
+    insertion < 0 ? oldPreamble.length : insertion,
+    0,
+    ...supplement.map((parts) =>
+      parts
+        .map((p) => p.text)
+        .join("")
+        .trim(),
+    ),
+  );
+  completeParts.splice(insertion < 0 ? completeParts.length : insertion, 0, ...supplement);
   return {
     ...saved,
-    preamble: saved.preamble.map(
-      (text, i) => preambleParts[i]?.map((p) => p.text).join("") ?? text,
-    ),
-    preambleParts: preambleParts.map((parts, i) => parts ?? [{ text: saved.preamble[i]! }]),
+    preamble: oldPreamble,
+    preambleParts: completeParts,
     clauses: saved.clauses.map((clause) => ({
       ...clause,
       parts:

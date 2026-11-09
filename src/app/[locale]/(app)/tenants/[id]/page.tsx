@@ -42,7 +42,7 @@ export default async function TenantPage({ params }: LocaleParams<{ id: string }
   const data = await loadOrgData(ctx);
   const today = todayKuwait();
   const contracts = data.ds.contracts
-    .filter((c) => c.tenantId === id)
+    .filter((c) => c.tenantId === id || c.coTenantIds?.includes(id))
     .sort((a, b) => b.startDate.localeCompare(a.startDate));
   const ledgerRows = contracts.flatMap((c) => {
     const l = data.idx.ledger(c.id);
@@ -75,6 +75,10 @@ export default async function TenantPage({ params }: LocaleParams<{ id: string }
         civilIdRaw: fullId ? (tenant.civil_id ?? "") : "",
         civilIdChecksumOk: tenant.civil_id ? validateCivilId(tenant.civil_id).checksumValid : true,
         nationality: tenant.nationality,
+        partyType: tenant.party_type as "individual" | "company",
+        licenceNo: tenant.licence_no,
+        signatoryName: tenant.signatory_name,
+        signatoryCivilId: tenant.signatory_civil_id,
         phones: tenant.phones ?? [],
         email: tenant.email,
         employer: tenant.employer,

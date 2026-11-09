@@ -1,4 +1,5 @@
 "use client";
+import { DiscountFields } from "@/components/domain/contracts/discount-fields";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, m } from "motion/react";
@@ -166,6 +167,9 @@ export function ContractWizard({
     return base;
   });
   const [ownerTouched, setOwnerTouched] = useState(!!initial);
+  // A resumed draft may have been saved before the terms were explicitly chosen.
+  const [utilitiesChosen, setUtilitiesChosen] = useState(false);
+  const [noticeChosen, setNoticeChosen] = useState(false);
   const [tenants, setTenants] = useState(initialTenants);
   const [tenantQuery, setTenantQuery] = useState("");
   const [tenantSheet, setTenantSheet] = useState(false);
@@ -182,7 +186,13 @@ export function ContractWizard({
   const fileRef = useRef<HTMLInputElement>(null);
 
   const set = <K extends keyof ContractDraftInput>(k: K, val: ContractDraftInput[K]) =>
-    setV((s) => ({ ...s, [k]: val }));
+    setV((s) => ({
+      ...s,
+      [k]: val,
+      ...(k === "tenantId"
+        ? { coTenantIds: (s.coTenantIds ?? []).filter((id) => id !== val) }
+        : {}),
+    }));
   const property = properties.find((p) => p.id === v.propertyId);
   const tenant = tenants.find((x) => x.id === v.tenantId);
   const endDate = contractEndDate(v.startDate, v.termMonths);
@@ -200,6 +210,10 @@ export function ContractWizard({
       clauseOverrides: {},
     }));
     setCustomPurpose(false);
+    if (!initial) {
+      setUtilitiesChosen(false);
+      setNoticeChosen(false);
+    }
   };
 
   const pickProperty = (id: string) => {
@@ -232,21 +246,20 @@ export function ContractWizard({
 
   const filteredTenants = useMemo(() => {
     const q = normalizeDigits(tenantQuery).trim().toLowerCase();
-    if (!q) return tenants.slice(0, 8);
-    return tenants
-      .filter(
-        (x) =>
-          x.name.toLowerCase().includes(q) ||
-          x.civilId.includes(q) ||
-          x.phones.some((p) => p.includes(q)),
-      )
-      .slice(0, 12);
+    const sorted = [...tenants].sort((a, b) => a.name.localeCompare(b.name, "ar"));
+    if (!q) return sorted;
+    return sorted.filter(
+      (x) =>
+        x.name.toLowerCase().includes(q) ||
+        x.civilId.includes(q) ||
+        x.phones.some((p) => p.includes(q)),
+    );
   }, [tenants, tenantQuery]);
 
   const canNext = (() => {
     switch (STEPS[step]) {
       case "parties":
-        return !!v.tenantId;
+        return !!v.tenantId && !!v.ownerId;
       case "units":
         return !!v.propertyId && v.unitIds.length > 0;
       case "terms":
@@ -254,7 +267,14 @@ export function ContractWizard({
           v.monthlyRentFils > 0 &&
           v.purpose.trim().length > 0 &&
           v.firstCollectionDate >= v.startDate &&
-          v.termMonths > 0
+          v.termMonths > 0 &&
+          utilitiesChosen &&
+          noticeChosen &&
+          (!v.initialDiscount ||
+            (v.initialDiscount.amountFils > 0 &&
+              v.initialDiscount.amountFils <= v.monthlyRentFils &&
+              !!v.initialDiscount.reason.trim() &&
+              v.initialDiscount.toPeriod >= v.initialDiscount.fromPeriod))
         );
       case "review":
         return true;
@@ -290,7 +310,10 @@ export function ContractWizard({
   };
 
   const next = async () => {
-    if (STEPS[step] === "terms" || STEPS[step] === "clauses") await saveDraft(true);
+    if (STEPS[step] === "terms" || STEPS[step] === "clauses") {
+      const r = await saveDraft(true);
+      if (!r.ok) return;
+    }
     setStep((s) => Math.min(STEPS.length - 1, s + 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -354,18 +377,23 @@ export function ContractWizard({
             <Field label={t("parties.owner")} hint={t("parties.ownerHint")} htmlFor="w-owner">
               <Select
                 id="w-owner"
+                required
+                aria-required="true"
                 value={v.ownerId ?? ""}
                 onChange={(e) => {
                   setOwnerTouched(true);
-                  set("ownerId", e.target.value || null);
+                  const ownerId = e.target.value || null;
+                  setV((s) => ({ ...s, ownerId, propertyId: "", unitIds: [] }));
                 }}
               >
                 <option value="">—</option>
-                {owners.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.name}
-                  </option>
-                ))}
+                {[...owners]
+                  .sort((a, b) => a.name.localeCompare(b.name, "ar"))
+                  .map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.name}
+                    </option>
+                  ))}
               </Select>
             </Field>
             <div className="space-y-3">
@@ -400,7 +428,7 @@ export function ContractWizard({
                     placeholder={t("parties.searchTenant")}
                     autoFocus
                   />
-                  <ul className="bg-paper divide-separator divide-y-[0.5px] overflow-hidden rounded-[20px] shadow-[var(--sh-card)]">
+                  <ul className="bg-paper divide-separator max-h-96 divide-y-[0.5px] overflow-y-auto rounded-[20px] shadow-[var(--sh-card)]">
                     {filteredTenants.map((x) => (
                       <li key={x.id}>
                         <button
@@ -421,6 +449,35 @@ export function ContractWizard({
                   </ul>
                 </>
               )}
+              {tenant && (
+                <Field label={t("parties.coTenants")}>
+                  <div className="max-h-60 space-y-2 overflow-y-auto">
+                    {[...tenants]
+                      .filter((x) => x.id !== v.tenantId)
+                      .sort((a, b) => a.name.localeCompare(b.name, "ar"))
+                      .map((x) => (
+                        <label
+                          key={x.id}
+                          className="bg-paper flex min-h-11 items-center gap-3 rounded-xl px-3"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={(v.coTenantIds ?? []).includes(x.id)}
+                            onChange={(e) =>
+                              set(
+                                "coTenantIds",
+                                e.target.checked
+                                  ? [...(v.coTenantIds ?? []), x.id]
+                                  : (v.coTenantIds ?? []).filter((id) => id !== x.id),
+                              )
+                            }
+                          />
+                          {x.name}
+                        </label>
+                      ))}
+                  </div>
+                </Field>
+              )}
             </div>
           </div>
         );
@@ -430,16 +487,18 @@ export function ContractWizard({
           <div className="space-y-5">
             <Field label={t("units.property")}>
               <ChipScroller>
-                {properties.map((p) => (
-                  <Chip
-                    key={p.id}
-                    active={v.propertyId === p.id}
-                    onClick={() => pickProperty(p.id)}
-                    className="h-11 px-5 text-[15px]"
-                  >
-                    {p.name}
-                  </Chip>
-                ))}
+                {properties
+                  .filter((p) => !!v.ownerId && p.ownerIds.includes(v.ownerId))
+                  .map((p) => (
+                    <Chip
+                      key={p.id}
+                      active={v.propertyId === p.id}
+                      onClick={() => pickProperty(p.id)}
+                      className="h-11 px-5 text-[15px]"
+                    >
+                      {p.name}
+                    </Chip>
+                  ))}
               </ChipScroller>
             </Field>
             {property && (
@@ -606,14 +665,50 @@ export function ContractWizard({
                 )}
               </div>
             </Field>
-            <Field label={t("terms.utilities")} className="lg:col-span-2">
+            <div className="space-y-4 lg:col-span-2">
+              <label className="flex min-h-11 items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={!!v.initialDiscount}
+                  onChange={(e) =>
+                    set(
+                      "initialDiscount",
+                      e.target.checked
+                        ? {
+                            fromPeriod: v.firstCollectionDate.slice(0, 7),
+                            toPeriod: v.firstCollectionDate.slice(0, 7),
+                            amountFils: 0,
+                            reason: "",
+                          }
+                        : null,
+                    )
+                  }
+                />
+                {tc("discount.title")}
+              </label>
+              {v.initialDiscount && (
+                <DiscountFields
+                  value={v.initialDiscount}
+                  onChange={(d) => set("initialDiscount", d)}
+                />
+              )}
+            </div>
+            <Field
+              hint={t("terms.chooseUtilities")}
+              label={t("terms.utilities")}
+              className="lg:col-span-2"
+            >
               <SegmentedControl
                 options={(["owner", "tenant"] as const).map((x) => ({
                   value: x,
                   label: tEnum(`utilitiesParty.${x}`),
                 }))}
-                value={v.utilitiesParty}
-                onChange={(x) => set("utilitiesParty", x)}
+                ariaLabel={t("terms.utilities")}
+                value={utilitiesChosen ? v.utilitiesParty : ""}
+                onChange={(x) => {
+                  set("utilitiesParty", x as "owner" | "tenant");
+                  setUtilitiesChosen(true);
+                }}
               />
             </Field>
             {v.type === "investment" && (
@@ -660,13 +755,24 @@ export function ContractWizard({
             <div className="space-y-3">
               <div className="bg-paper flex items-center justify-between rounded-[14px] px-4 py-2.5">
                 <span className="text-[15px]">{t("terms.notice")}</span>
-                <Stepper
-                  value={v.noticePeriodMonths}
-                  onChange={(n) => set("noticePeriodMonths", n)}
-                  min={0}
-                  max={12}
-                  labels={{ decrement: tu("decrement"), increment: tu("increment") }}
-                />
+                <Select
+                  id="w-notice"
+                  aria-label={t("terms.notice")}
+                  value={noticeChosen ? String(v.noticePeriodMonths) : ""}
+                  onChange={(e) => {
+                    set("noticePeriodMonths", Number(e.target.value));
+                    setNoticeChosen(true);
+                  }}
+                >
+                  <option value="" disabled>
+                    {t("terms.chooseNotice")}
+                  </option>
+                  {Array.from({ length: 13 }, (_, n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </Select>
               </div>
               <label className="bg-paper flex items-center justify-between rounded-[14px] px-4 py-3">
                 <span className="text-[15px]">{t("terms.autoRenew")}</span>
@@ -846,6 +952,12 @@ export function ContractWizard({
                     </li>
                   );
                 })}
+                {renderedByKey.get("initial_temporary_discount") && (
+                  <li className="px-4 py-3.5">
+                    <p className="font-semibold">{tc("discount.title")}</p>
+                    <p>{renderedByKey.get("initial_temporary_discount")?.text}</p>
+                  </li>
+                )}
                 {custom.map((c, i) => (
                   <li key={c.key} className="flex items-start gap-3 px-4 py-3.5">
                     <span className="num text-label-2 mt-2 w-6 shrink-0 text-[14px] font-semibold">
@@ -941,6 +1053,9 @@ export function ContractWizard({
                       rendered={preview.rendered}
                       ownerName={owners.find((o) => o.id === v.ownerId)?.name ?? ""}
                       tenantName={tenant.name}
+                      coTenantNames={(v.coTenantIds ?? []).map(
+                        (id) => tenants.find((t) => t.id === id)?.name ?? "",
+                      )}
                     />
                   </div>
                 ) : (

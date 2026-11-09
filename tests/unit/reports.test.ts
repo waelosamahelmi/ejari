@@ -240,3 +240,54 @@ describe("owner statement, expiring, grace, expenses, heatmap", () => {
     expect(sabah.cells.map((c) => c.status)).toEqual(["advance", "advance"]);
   });
 });
+
+it("temporary discounts remain separate from gross rent and reduce arrears", () => {
+  const base = monthlyStatement(ds, prop("الجابرية"), "2026-08");
+  const row = base.rows.find((r) => r.unitLabels === "تسعة")!;
+  const charge = ds.charges.find(
+    (c) => c.contractId === row.contractId && c.period === "2026-08" && c.kind === "rent",
+  )!;
+  const discounted = {
+    ...ds,
+    adjustments: [
+      ...ds.adjustments,
+      {
+        id: "discount-test",
+        contractId: charge.contractId,
+        chargeId: charge.id,
+        kind: "discount" as const,
+        amountFils: 20000,
+        date: "2026-08-01",
+        reason: "Approved temporary discount",
+      },
+    ],
+  };
+  const result = monthlyStatement(discounted, prop("الجابرية"), "2026-08");
+  expect(result.totals.rentFils).toBe(base.totals.rentFils);
+  expect(result.totals.discountFils).toBe(20000);
+  expect(result.totals.arrearsFils).toBe(50000);
+});
+it("a retired unit and its replacement appear only in their respective historical periods", () => {
+  const unit = ds.units.find((u) => u.propertyId === prop("الجابرية") && u.label === "محل")!;
+  const transformed = {
+    ...ds,
+    units: [
+      ...ds.units.map((u) =>
+        u.id === unit.id ? { ...u, active: false, retiredOn: "2026-10-01" } : u,
+      ),
+      {
+        ...unit,
+        id: "replacement-shop",
+        label: "محل جديد",
+        availableFrom: "2026-10-01",
+        active: true,
+      },
+    ],
+  };
+  const before = monthlyStatement(transformed, prop("الجابرية"), "2026-08");
+  expect(before.rows.some((r) => r.unitIds.includes(unit.id))).toBe(true);
+  expect(before.rows.some((r) => r.unitIds.includes("replacement-shop"))).toBe(false);
+  const after = monthlyStatement(transformed, prop("الجابرية"), "2026-11");
+  expect(after.rows.some((r) => r.unitIds.includes(unit.id))).toBe(false);
+  expect(after.rows.some((r) => r.unitIds.includes("replacement-shop"))).toBe(true);
+});

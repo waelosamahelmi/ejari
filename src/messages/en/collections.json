@@ -13,7 +13,8 @@
     "lastPayment": "Last payment",
     "arrears": "Arrears",
     "notes": "Notes",
-    "status": "Status"
+    "status": "Status",
+    "discount": "Discount KWD"
   },
   "prev": "prior",
   "next": "future",

@@ -60,7 +60,15 @@ export async function loadTemplate(
 
 export interface ContractPartyData {
   owner: { name: string; civilId: string | null; phones: string[] };
-  tenant: { name: string; civilId: string | null; phones: string[] };
+  tenant: {
+    name: string;
+    civilId: string | null;
+    phones: string[];
+    licenceNo: string | null;
+    signatoryName: string | null;
+    signatoryCivilId: string | null;
+  };
+  coTenants: { name: string; civilId: string | null }[];
   property: {
     area: string | null;
     block: string | null;
@@ -75,10 +83,20 @@ export interface ContractPartyData {
 
 export async function loadParties(
   db: DB,
-  input: { ownerId?: string | null; tenantId: string; propertyId: string; unitIds: string[] },
+  input: {
+    ownerId?: string | null;
+    tenantId: string;
+    propertyId: string;
+    unitIds: string[];
+    coTenantIds?: string[];
+  },
 ): Promise<ContractPartyData> {
   const [{ data: tenant }, { data: property }, { data: units }] = await Promise.all([
-    db.from("tenants").select("full_name, civil_id, phones").eq("id", input.tenantId).single(),
+    db
+      .from("tenants")
+      .select("full_name, civil_id, phones, licence_no, signatory_name, signatory_civil_id")
+      .eq("id", input.tenantId)
+      .single(),
     db
       .from("properties")
       .select(
@@ -96,6 +114,9 @@ export async function loadParties(
   const { data: owner } = ownerId
     ? await db.from("owners").select("full_name, civil_id, phones").eq("id", ownerId).single()
     : { data: null };
+  const { data: coTenants } = input.coTenantIds?.length
+    ? await db.from("tenants").select("full_name, civil_id").in("id", input.coTenantIds)
+    : { data: [] };
   const ordered = [...(units ?? [])].sort((a, b) => a.sort_order - b.sort_order);
   return {
     owner: {
@@ -104,10 +125,14 @@ export async function loadParties(
       phones: owner?.phones ?? [],
     },
     tenant: {
+      licenceNo: tenant?.licence_no ?? null,
+      signatoryName: tenant?.signatory_name ?? null,
+      signatoryCivilId: tenant?.signatory_civil_id ?? null,
       name: tenant?.full_name ?? "",
       civilId: tenant?.civil_id ?? null,
       phones: tenant?.phones ?? [],
     },
+    coTenants: (coTenants ?? []).map((t) => ({ name: t.full_name, civilId: t.civil_id })),
     property: {
       area: property?.area ?? null,
       block: property?.block ?? null,
@@ -122,13 +147,14 @@ export async function loadParties(
 }
 
 export function varsInput(
-  c: Omit<TemplateVarsInput, "owner" | "tenant" | "property" | "units">,
+  c: Omit<TemplateVarsInput, "owner" | "tenant" | "property" | "units" | "coTenants">,
   parties: ContractPartyData,
 ): TemplateVarsInput {
   return {
     ...c,
     owner: parties.owner,
     tenant: parties.tenant,
+    coTenants: parties.coTenants,
     property: { ...parties.property },
     units: parties.units,
   };
@@ -140,5 +166,18 @@ export function renderWith(
   overrides: { enabled?: Record<string, boolean>; text?: Record<string, string> },
   custom: { key: string; text: string }[],
 ): RenderedContract {
-  return renderContract(tpl, buildTemplateVars(input), overrides, custom);
+  return renderContract(
+    tpl,
+    buildTemplateVars(input),
+    overrides,
+    input.initialDiscount
+      ? [
+          ...custom,
+          {
+            key: "initial_temporary_discount",
+            text: "خصم شهري مؤقت قدره {{discount_amount}} دينار عن الأشهر من {{discount_from}} إلى {{discount_to}}. السبب: {{discount_reason}}.",
+          },
+        ]
+      : custom,
+  );
 }

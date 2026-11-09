@@ -37,11 +37,13 @@ const STATUS_CLS = {
 export function ExpensesView({
   rows,
   canCreate,
+  canManage,
   categories,
   properties,
 }: {
   rows: Row[];
   canCreate: boolean;
+  canManage: boolean;
   categories: { id: string; name: string }[];
   properties: { id: string; name: string }[];
 }) {
@@ -129,11 +131,13 @@ export function ExpensesView({
         actions={
           canCreate ? (
             <>
-              <Button asChild variant="secondary" size="icon" aria-label={t("recurring")}>
-                <Link href="/expenses/recurring">
-                  <Repeat />
-                </Link>
-              </Button>
+              {canManage && (
+                <Button asChild variant="secondary" size="icon" aria-label={t("recurring")}>
+                  <Link href="/expenses/recurring">
+                    <Repeat />
+                  </Link>
+                </Button>
+              )}
               <Button asChild>
                 <Link href="/expenses/new">
                   <Plus />

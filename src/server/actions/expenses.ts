@@ -91,7 +91,8 @@ async function computeAllocations(
 /** Creates/updates a voucher (draft or posted). Posted vouchers are locked (void instead). */
 export async function saveVoucher(id: string | null, input: VoucherInput, post: boolean) {
   return run(async () => {
-    const ctx = await requireActionContext("manage_expenses");
+    const ctx = await requireActionContext("record_expense");
+    if (ctx.role === "collector" && (id || !post)) throw new ActionError("forbidden");
     const d = voucherSchema.parse(input);
     const db = await supabaseServer();
     const allocations = await computeAllocations(db, d.voucherDate, d.lines);
@@ -155,17 +156,15 @@ export async function saveVoucher(id: string | null, input: VoucherInput, post: 
         .select("id")
         .single();
       if (error) throw error;
-      const al = await db
-        .from("expense_allocations")
-        .insert(
-          allocations[i]!.map((a) => ({
-            org_id: ctx.orgId,
-            expense_line_id: line.id,
-            property_id: a.propertyId,
-            unit_id: a.unitId,
-            amount_fils: a.amountFils,
-          })),
-        );
+      const al = await db.from("expense_allocations").insert(
+        allocations[i]!.map((a) => ({
+          org_id: ctx.orgId,
+          expense_line_id: line.id,
+          property_id: a.propertyId,
+          unit_id: a.unitId,
+          amount_fils: a.amountFils,
+        })),
+      );
       if (al.error) throw al.error;
     }
     const total = voucherTotal(d.lines);
@@ -333,18 +332,16 @@ export async function saveDeposit(id: string | null, input: DepositInput) {
     const depId = res.data.id;
     await db.from("deposit_properties").delete().eq("deposit_id", depId);
     if (d.properties.length) {
-      const ins = await db
-        .from("deposit_properties")
-        .insert(
-          d.properties
-            .filter((p) => p.amountFils > 0)
-            .map((p) => ({
-              org_id: ctx.orgId,
-              deposit_id: depId,
-              property_id: p.propertyId,
-              amount_fils: p.amountFils,
-            })),
-        );
+      const ins = await db.from("deposit_properties").insert(
+        d.properties
+          .filter((p) => p.amountFils > 0)
+          .map((p) => ({
+            org_id: ctx.orgId,
+            deposit_id: depId,
+            property_id: p.propertyId,
+            amount_fils: p.amountFils,
+          })),
+      );
       if (ins.error) throw ins.error;
     }
     if (!id) {

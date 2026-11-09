@@ -61,7 +61,7 @@ export const NAV: NavItem[] = [
     href: "/deposits",
     icon: Landmark,
     section: "finance",
-    capability: "view_expenses",
+    capability: "view_deposits",
     tone: "sand",
   },
   {

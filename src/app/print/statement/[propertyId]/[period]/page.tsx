@@ -1,3 +1,5 @@
+import { fullPropertyAddress } from "@/domain/property-address";
+import { supabaseServer } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requirePrintContext } from "@/server/print";
@@ -5,7 +7,7 @@ import { loadOrgData } from "@/server/queries/dataset";
 import { monthlyStatement } from "@/domain/reports";
 import { formatPeriod, isValidPeriod } from "@/domain/dates";
 import { StatementPrint } from "@/components/print/statement-print";
-import { Letterhead, PoweredBy } from "@/components/print/letterhead";
+import { PoweredBy } from "@/components/print/letterhead";
 import { PrintToolbar } from "@/components/print/print-toolbar";
 
 export async function generateMetadata({
@@ -31,7 +33,7 @@ export default async function PrintStatement({
   const { propertyId, period } = await params;
   const sp = await searchParams;
   if (!isValidPeriod(period)) notFound();
-  const { ctx, logoUrl, lang } = await requirePrintContext(sp.lang);
+  const { ctx, lang } = await requirePrintContext(sp.lang);
   const data = await loadOrgData(ctx);
   if (!data.properties.has(propertyId)) notFound();
   const s = monthlyStatement(data.idx, propertyId, period);
@@ -47,6 +49,7 @@ export default async function PrintStatement({
     tenant: t("columns.tenant"),
     legal: t("columns.legal"),
     rent: t("columns.rent"),
+    discount: t("columns.discount"),
     receipts: t("columns.receipts"),
     collected: t("columns.collected"),
     prevNext: t("columns.prevNext"),
@@ -62,6 +65,12 @@ export default async function PrintStatement({
     recipient: t("recipient"),
     signature: t("signature"),
   };
+  const db = await supabaseServer();
+  const { data: property } = await db
+    .from("properties")
+    .select("governorate,area,block,street,avenue,house_or_plot,paci_no")
+    .eq("id", propertyId)
+    .single();
   return (
     <>
       <PrintToolbar
@@ -71,13 +80,12 @@ export default async function PrintStatement({
       />
       <div className="print-page landscape" dir={lang === "ar" ? "rtl" : "ltr"}>
         <style>{`@page { size: A4 landscape; margin: 12mm; }`}</style>
-        <Letterhead
-          show={ctx.settings.letterhead}
-          orgName={ctx.orgName}
-          orgNameEn={ctx.orgNameEn}
-          logoUrl={logoUrl}
+        <StatementPrint
+          address={property ? fullPropertyAddress(property, lang) : undefined}
+          s={s}
+          labels={labels}
+          monthTitle={formatPeriod(period, lang)}
         />
-        <StatementPrint s={s} labels={labels} monthTitle={formatPeriod(period, lang)} />
         <PoweredBy show={ctx.settings.poweredBy} />
       </div>
     </>

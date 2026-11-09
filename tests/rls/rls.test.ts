@@ -87,10 +87,10 @@ describe.skipIf(!enabled)("RLS", () => {
     expect(ins.error).not.toBeNull();
   });
 
-  it("collector cannot open expenses or deposits but can read collections data", async () => {
-    expect((await collector.from("expense_vouchers").select("id")).data).toEqual([]);
+  it("collector can read entry expenses and collections but cannot change records or access deposits", async () => {
+    expect((await collector.from("expense_vouchers").select("id")).data!.length).toBeGreaterThan(0);
     expect((await collector.from("deposits").select("id")).data).toEqual([]);
-    expect((await collector.from("beneficiaries").select("id")).data).toEqual([]);
+    expect((await collector.from("beneficiaries").select("id")).data!.length).toBeGreaterThan(0);
     const v = await collector
       .from("expense_vouchers")
       .insert({ org_id: ORG, voucher_no: "X-1", voucher_date: "2026-09-01" });
@@ -127,15 +127,13 @@ describe.skipIf(!enabled)("RLS", () => {
       .select("id")
       .single();
     expect(ok.error).toBeNull();
-    const bad = await viewer
-      .from("payments")
-      .insert({
-        org_id: ORG,
-        tenant_id: c!.tenant_id,
-        contract_id: c!.id,
-        amount_fils: 1000,
-        received_at: "2026-09-29",
-      });
+    const bad = await viewer.from("payments").insert({
+      org_id: ORG,
+      tenant_id: c!.tenant_id,
+      contract_id: c!.id,
+      amount_fils: 1000,
+      received_at: "2026-09-29",
+    });
     expect(bad.error).not.toBeNull();
     const del = await collector.rpc("void_payment", { p_payment: ok.data!.id, p_reason: "test" });
     // collectors may not void (update policy is managers only)
@@ -219,15 +217,13 @@ describe.skipIf(!enabled)("RLS", () => {
       .eq("status", "active")
       .limit(1)
       .single();
-    const r = await admin
-      .from("payments")
-      .insert({
-        org_id: ORG,
-        tenant_id: c!.tenant_id,
-        contract_id: c!.id,
-        amount_fils: 1,
-        received_at: "2026-07-15",
-      });
+    const r = await admin.from("payments").insert({
+      org_id: ORG,
+      tenant_id: c!.tenant_id,
+      contract_id: c!.id,
+      amount_fils: 1,
+      received_at: "2026-07-15",
+    });
     expect(r.error?.message).toMatch(/closed/);
   });
 

@@ -6,12 +6,12 @@ describe("defaults & numbering", () => {
     expect(c.contractDefaults("residential")).toEqual({
       termMonths: 60,
       autoRenew: false,
-      noticePeriodMonths: 2,
+      noticePeriodMonths: 0,
       freeMonthsPenaltyWindowMonths: 12,
     });
     expect(c.contractDefaults("investment")).toMatchObject({
       autoRenew: true,
-      noticePeriodMonths: 1,
+      noticePeriodMonths: 0,
     });
     expect(c.PURPOSE_PRESETS.investment).toContain("مكتب عقاري");
   });

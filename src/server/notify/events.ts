@@ -131,6 +131,26 @@ export async function notifyOrg(
       }
     }
   }
+  const { data: scopedMembers } = await db
+    .from("org_members")
+    .select("user_id,role,property_ids")
+    .eq("org_id", orgId)
+    .eq("active", true);
+  const membersById = new Map((scopedMembers ?? []).map((m) => [m.user_id, m]));
+  userIds = new Set(
+    [...userIds].filter((id) => {
+      const member = membersById.get(id);
+      if (!member) return false;
+      if (
+        member.role === "owner" ||
+        member.role === "admin" ||
+        member.property_ids === null ||
+        type === "test"
+      )
+        return true;
+      return !!propertyId && member.property_ids.includes(propertyId);
+    }),
+  );
   // Per-property mute (Settings → Notifications).
   const propertyForMute = propertyId;
   if (propertyForMute && userIds.size) {

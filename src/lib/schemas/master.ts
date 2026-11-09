@@ -117,16 +117,28 @@ export const createPropertyWithPlanSchema = z.object({
 });
 export type CreatePropertyWithPlanInput = z.input<typeof createPropertyWithPlanSchema>;
 
-export const tenantSchema = z.object({
-  fullName: req(z.string().max(160, "tooLong")),
-  civilId,
-  nationality: optText(60),
-  phones,
-  email,
-  employer: optText(160),
-  emergencyContact: optText(200),
-  notes: optText(2000),
-});
+export const tenantSchema = z
+  .object({
+    fullName: req(z.string().max(160, "tooLong")),
+    civilId,
+    nationality: req(z.string().max(80, "tooLong")),
+    partyType: z.enum(["individual", "company"]).default("individual"),
+    licenceNo: optText(80),
+    signatoryName: optText(160),
+    signatoryCivilId: civilId,
+    phones,
+    email,
+    employer: optText(160),
+    emergencyContact: optText(200),
+    notes: optText(2000),
+  })
+  .superRefine((v, ctx) => {
+    if (v.partyType === "company") {
+      if (!v.licenceNo) ctx.addIssue({ code: "custom", path: ["licenceNo"], message: "required" });
+      if (!v.signatoryName)
+        ctx.addIssue({ code: "custom", path: ["signatoryName"], message: "required" });
+    }
+  });
 export type TenantInput = z.input<typeof tenantSchema>;
 
 export const categorySchema = z.object({

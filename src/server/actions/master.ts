@@ -72,28 +72,24 @@ async function writePropertyRelations(
   // Replace owner shares.
   const del = await db.from("property_owners").delete().eq("property_id", pid);
   if (del.error) throw del.error;
-  const ins = await db
-    .from("property_owners")
-    .insert(
-      d.owners.map((o) => ({
-        org_id: ctx.orgId,
-        property_id: pid,
-        owner_id: o.ownerId,
-        share_pct: o.sharePct,
-      })),
-    );
+  const ins = await db.from("property_owners").insert(
+    d.owners.map((o) => ({
+      org_id: ctx.orgId,
+      property_id: pid,
+      owner_id: o.ownerId,
+      share_pct: o.sharePct,
+    })),
+  );
   if (ins.error) throw ins.error;
   if (d.commission !== undefined) {
     await db.from("property_commissions").delete().eq("property_id", pid);
     if (d.commission) {
-      const c = await db
-        .from("property_commissions")
-        .insert({
-          org_id: ctx.orgId,
-          property_id: pid,
-          kind: d.commission.kind,
-          value: d.commission.value,
-        });
+      const c = await db.from("property_commissions").insert({
+        org_id: ctx.orgId,
+        property_id: pid,
+        kind: d.commission.kind,
+        value: d.commission.value,
+      });
       if (c.error) throw c.error;
     }
   }
@@ -343,6 +339,10 @@ export async function saveTenant(id: string | null, input: TenantInput) {
       full_name: d.fullName,
       civil_id: d.civilId,
       nationality: d.nationality,
+      party_type: d.partyType,
+      licence_no: d.licenceNo,
+      signatory_name: d.signatoryName,
+      signatory_civil_id: d.signatoryCivilId,
       phones: d.phones,
       email: d.email,
       employer: d.employer,
@@ -426,5 +426,70 @@ export async function saveBeneficiary(id: string | null, input: z.input<typeof b
     if (res.error) throw res.error;
     reval();
     return res.data;
+  });
+}
+
+/** Remove an accidental record; retain any accounting/legal history by archiving instead. */
+export async function removeTenant(id: string) {
+  return run(async () => {
+    z.string().uuid().parse(id);
+    await requireActionContext("manage_master_data");
+    const db = await supabaseServer();
+    const { data: contracts, error: ce } = await db
+      .from("contracts")
+      .select("id,status")
+      .or(`tenant_id.eq.${id},co_tenant_ids.cs.{${id}}`);
+    if (ce) throw ce;
+    if (contracts?.some((c) => ["active", "notice_given", "draft"].includes(c.status)))
+      throw new ActionError("tenant_has_live_contract");
+    if (!contracts?.length) {
+      const { error } = await db.from("tenants").delete().eq("id", id);
+      if (!error) {
+        reval();
+        return "deleted";
+      }
+      if (error.code !== "23503") throw error;
+    }
+    const { error } = await db
+      .from("tenants")
+      .update({ archived_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) throw error;
+    reval();
+    return "archived";
+  });
+}
+
+export async function restructureUnits(input: {
+  propertyId: string;
+  sourceIds: string[];
+  units: UnitInput[];
+  reason: string;
+}) {
+  return run(async () => {
+    await requireActionContext("manage_master_data");
+    const d = z
+      .object({
+        propertyId: z.string().uuid(),
+        sourceIds: z.array(z.string().uuid()).min(1).max(200),
+        units: z.array(unitSchema).min(1).max(200),
+        reason: z.string().trim().min(1).max(500),
+      })
+      .parse(input);
+    if (
+      d.units.some((u) => u.propertyId !== d.propertyId) ||
+      new Set(d.sourceIds).size !== d.sourceIds.length
+    )
+      throw new ActionError("validation");
+    const db = await supabaseServer();
+    const { data, error } = await db.rpc("restructure_units", {
+      p_property: d.propertyId,
+      p_sources: d.sourceIds,
+      p_units: d.units,
+      p_reason: d.reason,
+    });
+    if (error) throw error;
+    reval();
+    return data;
   });
 }

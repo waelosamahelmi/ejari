@@ -10,13 +10,17 @@
   "fields": {
     "fullName": "Full name",
     "civilId": "Civil ID",
-    "nationality": "Nationality",
+    "nationality": "Nationality (required)",
     "phones": "Phone numbers",
     "addPhone": "Add number",
     "email": "Email",
     "employer": "Employer",
     "emergency": "Emergency contact",
-    "notes": "Notes"
+    "notes": "Notes",
+    "partyType": "Tenant type",
+    "licenceNo": "Trade licence number",
+    "signatoryName": "Authorised signatory",
+    "signatoryCivilId": "Signatory Civil ID"
   },
   "filters": {
     "all": "All",
@@ -56,5 +60,10 @@
   "duplicateCivilId": "A tenant with this civil ID already exists: {name}",
   "open": "Open",
   "noContracts": "No contracts for this tenant",
-  "noReminders": "No reminders sent yet"
+  "noReminders": "No reminders sent yet",
+  "individual": "Individual",
+  "company": "Company",
+  "remove": "Remove tenant",
+  "removeText": "Mistaken records without activity are deleted. Tenants with history are archived. End any live leases first.",
+  "removed": "Tenant removed"
 }

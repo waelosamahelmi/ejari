@@ -60,6 +60,8 @@ export default async function NewContractPage({
         type: c.type,
         ownerId: c.owner_id,
         tenantId: c.tenant_id,
+        coTenantIds: c.co_tenant_ids,
+        initialDiscount: c.initial_discount as ContractDraftInput["initialDiscount"],
         propertyId: c.property_id,
         unitIds: (c.contract_units ?? []).map((u) => u.unit_id),
         contractDate: c.contract_date,
@@ -100,14 +102,16 @@ export default async function NewContractPage({
       }}
       properties={properties}
       owners={[...data.owners.values()].map((o) => ({ id: o.id, name: o.fullName }))}
-      tenants={[...data.tenants.values()].map((t) => ({
-        id: t.id,
-        name: t.fullName,
-        civilIdMasked: maskCivilId(t.civilId),
-        civilId: t.civilId ?? "",
-        phones: t.phones,
-        blacklisted: t.blacklisted,
-      }))}
+      tenants={[...data.tenants.values()]
+        .filter((t) => !t.archivedAt)
+        .map((t) => ({
+          id: t.id,
+          name: t.fullName,
+          civilIdMasked: maskCivilId(t.civilId),
+          civilId: t.civilId ?? "",
+          phones: t.phones,
+          blacklisted: t.blacklisted,
+        }))}
       templates={{
         residential: resTpl.clauses.map((c) => ({
           key: c.key,

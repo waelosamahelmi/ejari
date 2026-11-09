@@ -46,13 +46,14 @@
     },
     "parties": {
       "owner": "Party 1 (owner)",
-      "ownerHint": "Taken from the property's owners; you can change it",
+      "ownerHint": "Choose the owner first to show only their properties.",
       "tenant": "Party 2 (tenant)",
       "searchTenant": "Search tenants by name, civil ID or phone",
       "newTenant": "New tenant",
       "selected": "Selected tenant",
       "change": "Change",
-      "blacklisted": "This tenant is blacklisted"
+      "blacklisted": "This tenant is blacklisted",
+      "coTenants": "Additional tenants on this lease"
     },
     "units": {
       "property": "Property",
@@ -91,7 +92,9 @@
       "increaseNone": "None",
       "increaseValue": "Value",
       "increaseEvery": "Every (months)",
-      "notes": "Internal notes"
+      "notes": "Internal notes",
+      "chooseNotice": "Choose notice period (default zero)",
+      "chooseUtilities": "Choose the responsible party before continuing."
     },
     "clauses": {
       "title": "Clauses",
@@ -227,5 +230,15 @@
   },
   "deleteDraftConfirm": "Delete this draft?",
   "uploaded": "Signed copy uploaded",
-  "duplicated": "New draft created"
+  "duplicated": "New draft created",
+  "discount": {
+    "title": "Temporary discount",
+    "from": "From month",
+    "to": "To month",
+    "amount": "Monthly discount KWD",
+    "reason": "Discount reason",
+    "apply": "Apply discount",
+    "saved": "Discount applied",
+    "help": "Apply a concession each month in the selected range while retaining the original contract rent. Any overpayment becomes tenant credit."
+  }
 }

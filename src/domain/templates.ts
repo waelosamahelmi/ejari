@@ -509,7 +509,21 @@ export interface TemplateVarsInput {
   noticePeriodMonths: number;
   securityDepositFils: Fils;
   owner: { name: string; civilId?: string | null; phones?: readonly string[] };
-  tenant: { name: string; civilId?: string | null; phones?: readonly string[] };
+  tenant: {
+    name: string;
+    civilId?: string | null;
+    phones?: readonly string[];
+    licenceNo?: string | null;
+    signatoryName?: string | null;
+    signatoryCivilId?: string | null;
+  };
+  initialDiscount?: {
+    fromPeriod: string;
+    toPeriod: string;
+    amountFils: number;
+    reason: string;
+  } | null;
+  coTenants?: readonly { name: string; civilId?: string | null }[];
   property: PropertyAddress & { propertyType?: string | null };
   units: readonly { label: string; type: UnitType; paciNo?: string | null }[];
 }
@@ -518,6 +532,11 @@ export interface TemplateVarsInput {
 export function buildTemplateVars(i: TemplateVarsInput): Vars {
   const utilitiesOwner = i.utilitiesParty === "owner";
   return {
+    initial_discount: !!i.initialDiscount,
+    discount_amount: i.initialDiscount ? fromFils(i.initialDiscount.amountFils) : "",
+    discount_from: i.initialDiscount?.fromPeriod ?? "",
+    discount_to: i.initialDiscount?.toPeriod ?? "",
+    discount_reason: i.initialDiscount?.reason ?? "",
     contract_no: i.contractNo,
     contract_type: i.type,
     day_name: dayNameAr(i.contractDate),
@@ -526,6 +545,12 @@ export function buildTemplateVars(i: TemplateVarsInput): Vars {
     owner_civil_id: i.owner.civilId ?? "",
     owner_phones: (i.owner.phones ?? []).join(" - "),
     tenant_name: i.tenant.name,
+    tenant_licence_no: i.tenant.licenceNo ?? "",
+    tenant_signatory_name: i.tenant.signatoryName ?? "",
+    tenant_signatory_civil_id: i.tenant.signatoryCivilId ?? "",
+    co_tenants: (i.coTenants ?? [])
+      .map((t) => `${t.name}${t.civilId ? `، رقم مدني: ${t.civilId}` : ""}`)
+      .join("؛ "),
     tenant_civil_id: i.tenant.civilId ?? "",
     tenant_phones: (i.tenant.phones ?? []).join(" - "),
     property_description: propertyDescription(i.property, i.type),
@@ -562,6 +587,10 @@ export function buildTemplateVars(i: TemplateVarsInput): Vars {
 
 /** Variables exposed in the template editor's variable picker. */
 export const TEMPLATE_VARIABLES = [
+  "discount_amount",
+  "discount_from",
+  "discount_to",
+  "discount_reason",
   "day_name",
   "contract_date",
   "contract_no",
@@ -569,6 +598,10 @@ export const TEMPLATE_VARIABLES = [
   "owner_civil_id",
   "owner_phones",
   "tenant_name",
+  "tenant_licence_no",
+  "tenant_signatory_name",
+  "tenant_signatory_civil_id",
+  "co_tenants",
   "tenant_civil_id",
   "tenant_phones",
   "property_description",

@@ -9,9 +9,11 @@ export function StatementPrint({
   s,
   labels,
   monthTitle,
+  address,
 }: {
   s: MonthlyStatement;
   monthTitle: string;
+  address?: string;
   labels: Record<string, string>;
 }) {
   return (
@@ -19,7 +21,8 @@ export function StatementPrint({
       <div className="mb-3 grid grid-cols-3 items-end gap-3 text-[10.5pt]">
         <div>
           <div>
-            <strong>{labels.property}:</strong> {s.propertyName}
+            <strong className="text-[13pt]">{s.propertyName}</strong>
+            {address && <p className="mt-1 text-[9pt] leading-5">{address}</p>}
           </div>
           <div>
             <strong>{labels.owner}:</strong> {s.ownerNames.join("، ")}
@@ -45,6 +48,7 @@ export function StatementPrint({
             <th>{labels.tenant}</th>
             <th>{labels.legal}</th>
             <th>{labels.rent}</th>
+            <th>{labels.discount}</th>
             <th>{labels.receipts}</th>
             <th>{labels.collected}</th>
             <th>{labels.prevNext}</th>
@@ -60,6 +64,7 @@ export function StatementPrint({
               <td>{r.vacant ? labels.vacant : r.tenantName}</td>
               <td className="text-center">{r.vacant ? "" : r.legalLabel}</td>
               <td className="num text-center">{r.vacant ? "" : fromFils(r.rentFils)}</td>
+              <td className="num text-center">{r.vacant ? "" : fromFils(r.discountFils)}</td>
               <td className="num text-center text-[8.5pt]">{r.receiptNos.join(", ")}</td>
               <td className="num text-center">{r.vacant ? "" : fromFils(r.collectedFils)}</td>
               <td className="num text-center text-[8.5pt]">
@@ -90,6 +95,7 @@ export function StatementPrint({
               {labels.total}
             </td>
             <td className="num text-center">{fromFils(s.totals.rentFils)}</td>
+            <td className="num text-center">{fromFils(s.totals.discountFils)}</td>
             <td />
             <td className="num text-center">{fromFils(s.totals.collectedFils)}</td>
             <td className="num text-center">{fmt(s.totals.previousFils + s.totals.nextFils)}</td>

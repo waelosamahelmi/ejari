@@ -45,3 +45,14 @@ Resume rule: read this file first and continue from the first unchecked item.
 - [x] Highlight contract fields in red on screen and in print, retaining structured snapshot metadata.
 - [x] Quality gate: `pnpm typecheck`, `pnpm lint`, `pnpm test` (283 passed; 9 opt-in RLS tests skipped), `pnpm build` green. Contract browser regression (legacy blank-owner snapshot + fully paid termination) and focused visual suite (4 tests / 24 captures) green; 16 print baselines refreshed.
 - [x] Commit and push client changes to `origin/master`.
+
+## Client change set (2026-11-09): complete WhatsApp review
+
+- [x] Inventory and review supplied text, images, voices and videos; track requirements in `CLIENT_EDITS_2026-11-09.md`.
+- [x] Implement tenant/contract/unit/discount and document workflows.
+- [x] Implement property-scoped, entry-only staff access and member removal.
+- [x] Verify all requirements, record decisions and handover steps, commit and push.
+
+Verification: typecheck, lint, 292 unit tests and production build pass. Fresh local migrations and 16 database/RLS tests pass. The broader nonvisual browser run passed 26 cases; two test-fixture cleanup failures were corrected and all 11 client/report cases passed on rerun (all 28 distinct browser cases covered, including three accessibility runs). Focused visual verification passed four tests / 48 captures. Generated database types were refreshed and typechecked.
+
+Deployment: a private pre-migration snapshot was saved outside Git; both November migrations were applied to the production Supabase project before the source push. Two admin memberships retain access; the existing collector requires explicit property assignment. Raw bilingual transcripts of all 25 recordings are in the supplied local transcript artifact, outside Git.

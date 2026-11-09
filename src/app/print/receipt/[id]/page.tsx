@@ -2,9 +2,10 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requirePrintContext } from "@/server/print";
-import { Letterhead, PoweredBy } from "@/components/print/letterhead";
+import { PoweredBy } from "@/components/print/letterhead";
 import { PrintToolbar } from "@/components/print/print-toolbar";
 import { formatDate, formatPeriod } from "@/domain/dates";
+import { fullPropertyAddress } from "@/domain/property-address";
 import { fromFils, splitDinarFils } from "@/domain/money";
 import { tafqeetKWD, wordsEN } from "@/domain/tafqeet";
 
@@ -31,12 +32,12 @@ export default async function PrintReceipt({
 }) {
   const { id } = await params;
   const sp = await searchParams;
-  const { ctx, logoUrl, lang } = await requirePrintContext(sp.lang);
+  const { ctx, lang } = await requirePrintContext(sp.lang);
   const db = await supabaseServer();
   const { data: p } = await db
     .from("payments")
     .select(
-      "*, tenants(full_name), contracts(contract_no, properties(name), contract_units(units(label))), payment_allocations(amount_fils, charges(period))",
+      "*, tenants(full_name), contracts(contract_no, properties(name, governorate, area, block, street, avenue, house_or_plot, paci_no), contract_units(units(label,type))), payment_allocations(amount_fils, charges(period))",
     )
     .eq("id", id)
     .maybeSingle();
@@ -53,14 +54,24 @@ export default async function PrintReceipt({
   const tMethod = await getTranslations({ locale: lang, namespace: "enums.paymentMethod" });
   const c = p.contracts as unknown as {
     contract_no: string;
-    properties: { name: string };
-    contract_units: { units: { label: string } }[];
+    properties: {
+      name: string;
+      governorate: string | null;
+      area: string | null;
+      block: string | null;
+      street: string | null;
+      avenue: string | null;
+      house_or_plot: string | null;
+      paci_no: string | null;
+    };
+    contract_units: { units: { label: string; type: import("@/domain/types").UnitType } }[];
   };
   const periods = [
     ...new Set(
       (p.payment_allocations ?? []).map((a) => (a.charges as unknown as { period: string }).period),
     ),
   ].sort();
+  const tUnit = await getTranslations({ locale: lang, namespace: "enums.unitType" });
   const { dinars, fils } = splitDinarFils(p.amount_fils);
   const rtl = lang === "ar";
   return (
@@ -72,14 +83,15 @@ export default async function PrintReceipt({
       />
       <div className="print-page" style={{ minHeight: "148mm" }} dir={rtl ? "rtl" : "ltr"}>
         <style>{`@page { size: A5 landscape; margin: 10mm; }`}</style>
-        <Letterhead
-          show={ctx.settings.letterhead}
-          orgName={ctx.orgName}
-          orgNameEn={ctx.orgNameEn}
-          logoUrl={logoUrl}
-        />
-        <div className="flex items-start justify-between">
-          <table className="print-table w-auto text-center text-[12pt]">
+        <header className="mb-4 border-b border-black pb-4 text-start">
+          <h2 className="text-[17pt] font-bold">{c.properties.name}</h2>
+          <p className="text-[10pt] leading-6">{fullPropertyAddress(c.properties, lang)}</p>
+          <p className="text-[11pt] font-semibold">
+            {c.contract_units.map((u) => `${tUnit(u.units.type)} ${u.units.label}`).join("، ")}
+          </p>
+        </header>
+        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-4">
+          <table className="print-table w-full text-center text-[12pt]">
             <thead>
               <tr>
                 <th className="px-4">{t("dinar")}</th>
@@ -93,10 +105,13 @@ export default async function PrintReceipt({
               </tr>
             </tbody>
           </table>
-          <h1 className="text-[20pt] font-bold">{t("title")}</h1>
-          <div className="num text-[10pt]">
+          <h1 className="text-center text-[20pt] font-bold whitespace-nowrap">{t("title")}</h1>
+          <div className="num min-w-0 text-end text-[10pt] leading-6 break-words">
             <div>
-              {t("no")}: <strong>{p.receipt_no ?? p.system_no}</strong>
+              {t("no")}:{" "}
+              <strong dir="ltr" className="inline-block">
+                {p.receipt_no ?? p.system_no}
+              </strong>
             </div>
             <div>
               {t("date")}: {formatDate(p.received_at)}

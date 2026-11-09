@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { nationalityOptions } from "@/data/nationalities";
 import { useRouter, Link } from "@/i18n/navigation";
 import { Sheet } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Field, Input, Textarea } from "@/components/ui/input";
+import { Field, Input, Textarea, Select } from "@/components/ui/input";
 import { CivilIdInput, civilIdStatus } from "@/components/ui/civil-id-input";
 import { PhonesField } from "@/components/domain/phones-field";
 import { tenantSchema, type TenantInput } from "@/lib/schemas/master";
@@ -17,6 +18,10 @@ const BLANK: TenantInput = {
   fullName: "",
   civilId: "",
   nationality: "",
+  partyType: "individual",
+  licenceNo: "",
+  signatoryName: "",
+  signatoryCivilId: "",
   phones: [""],
   email: "",
   employer: "",
@@ -37,6 +42,8 @@ export function TenantFormSheet({
   onSaved?: (t: { id: string; full_name: string }) => void;
 }) {
   const t = useTranslations("tenants");
+  const locale = useLocale();
+  const nationalities = nationalityOptions(locale);
   const tc = useTranslations("common.actions");
   const tErr = useTranslations("errors.field");
   const fe = useFieldError();
@@ -64,6 +71,8 @@ export function TenantFormSheet({
     }
   }, [open, tenant, form]);
   const cid = watch("civilId");
+  const nationality = watch("nationality");
+  const partyType = watch("partyType") ?? "individual";
   const submit = handleSubmit((v) =>
     exec(() => saveTenant(tenant?.id ?? null, { ...v, phones: (v.phones ?? []).filter(Boolean) }), {
       success: t("saved"),
@@ -86,6 +95,33 @@ export function TenantFormSheet({
       }
     >
       <form onSubmit={submit} className="space-y-4">
+        <Field label={t("fields.partyType")} htmlFor="t-party">
+          <Select id="t-party" {...register("partyType")}>
+            <option value="individual">{t("individual")}</option>
+            <option value="company">{t("company")}</option>
+          </Select>
+        </Field>
+        {partyType === "company" && (
+          <>
+            <Field
+              label={t("fields.licenceNo")}
+              htmlFor="t-licence"
+              error={fe(errors.licenceNo?.message)}
+            >
+              <Input id="t-licence" {...register("licenceNo")} />
+            </Field>
+            <Field label={t("fields.signatoryName")} htmlFor="t-signatory">
+              <Input id="t-signatory" {...register("signatoryName")} />
+            </Field>
+            <Field
+              label={t("fields.signatoryCivilId")}
+              htmlFor="t-signatory-cid"
+              error={fe(errors.signatoryCivilId?.message)}
+            >
+              <CivilIdInput id="t-signatory-cid" {...register("signatoryCivilId")} />
+            </Field>
+          </>
+        )}
         <Field label={t("fields.fullName")} htmlFor="t-name" error={fe(errors.fullName?.message)}>
           <Input
             id="t-name"
@@ -136,8 +172,28 @@ export function TenantFormSheet({
           )}
         />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={t("fields.nationality")} htmlFor="t-nat">
-            <Input id="t-nat" {...register("nationality")} />
+          <Field
+            label={t("fields.nationality")}
+            htmlFor="t-nat"
+            error={fe(errors.nationality?.message)}
+          >
+            <Select
+              id="t-nat"
+              required
+              aria-required="true"
+              aria-invalid={!!errors.nationality}
+              {...register("nationality")}
+            >
+              <option value="">—</option>
+              {nationality && !nationalities.some((n) => n.value === nationality) && (
+                <option value={nationality}>{nationality}</option>
+              )}
+              {nationalities.map((n) => (
+                <option key={n.value} value={n.value}>
+                  {n.label}
+                </option>
+              ))}
+            </Select>
           </Field>
           <Field label={t("fields.email")} htmlFor="t-email" error={fe(errors.email?.message)}>
             <Input id="t-email" type="email" dir="ltr" inputMode="email" {...register("email")} />

@@ -34,7 +34,13 @@ const VIEWPORTS = [
 ] as const;
 
 type ViewportSpec = (typeof VIEWPORTS)[number];
-type Ids = { unit: string; residential: string; investment: string; voucher: string };
+type Ids = {
+  unit: string;
+  residential: string;
+  investment: string;
+  voucher: string;
+  receipt: string;
+};
 
 const tNext = (locale: "ar" | "en") => (locale === "ar" ? "التالي" : "Next");
 
@@ -112,8 +118,9 @@ async function reseed() {
   let resId: string | null = null;
   let invId: string | null = null;
   let voucherId: string | null = null;
-  for (let i = 0; i < 30 && !(unitId && resId && invId && voucherId); i++) {
-    const [u, r0, r1, v] = await Promise.all([
+  let receiptId: string | null = null;
+  for (let i = 0; i < 30 && !(unitId && resId && invId && voucherId && receiptId); i++) {
+    const [u, r0, r1, v, receipt] = await Promise.all([
       sb
         .from("contract_units")
         .select("unit_id, contracts!inner(status)")
@@ -123,15 +130,24 @@ async function reseed() {
       sb.from("contracts").select("id").eq("type", "residential").limit(1).maybeSingle(),
       sb.from("contracts").select("id").eq("type", "investment").limit(1).maybeSingle(),
       sb.from("expense_vouchers").select("id").limit(1).maybeSingle(),
+      sb.from("payments").select("id").eq("voided", false).order("id").limit(1).maybeSingle(),
     ]);
     unitId = u.data?.unit_id ?? null;
     resId = r0.data?.id ?? null;
     invId = r1.data?.id ?? null;
     voucherId = v.data?.id ?? null;
-    if (!(unitId && resId && invId && voucherId)) await new Promise((r) => setTimeout(r, 1000));
+    receiptId = receipt.data?.id ?? null;
+    if (!(unitId && resId && invId && voucherId && receiptId))
+      await new Promise((r) => setTimeout(r, 1000));
   }
-  if (!unitId || !resId || !invId || !voucherId) throw new Error("seed ids missing");
-  ids = { unit: unitId, residential: resId, investment: invId, voucher: voucherId };
+  if (!unitId || !resId || !invId || !voucherId || !receiptId) throw new Error("seed ids missing");
+  ids = {
+    unit: unitId,
+    residential: resId,
+    investment: invId,
+    voucher: voucherId,
+    receipt: receiptId,
+  };
 
   // Extra users for the signup/setup/new-office screens: one without an org, one with an empty org.
   const { data: setupUser, error: setupErr } = await sb.auth.admin.createUser({
@@ -225,6 +241,11 @@ async function shot(
   name: string,
   opts: { fullPage?: boolean; extraMask?: Locator[]; stylePath?: string } = {},
 ) {
+  if (
+    process.env.E2E_CLIENT_VISUALS_ONLY === "1" &&
+    !/-(collections|building-stack|statement-print|receipt-print|wizard-4|wizard-6)$/.test(name)
+  )
+    return;
   await page.waitForLoadState("networkidle").catch(() => {});
   await page.evaluate(() => document.fonts.ready.then(() => undefined)).catch(() => {});
   await page.waitForTimeout(250);
@@ -305,12 +326,15 @@ async function captureAll(
   await shot(page, `${pre}-wizard-1`);
   await page.getByRole("button", { name: t("استثماري", "Investment") }).click();
   await next.click();
+  await page.locator("#w-owner").selectOption({ label: "عبدالعزيز محمد الصالح" });
   await page.getByRole("searchbox").fill("الشمري");
   await page.locator("ul li button").first().click();
   await next.click();
   await page.getByRole("button", { name: /الري قسيمة 1674|Al-Rai Plot 1674/ }).click();
   await page.getByRole("button", { name: /^1 — / }).click();
   await next.click();
+  await page.getByRole("radio", { name: t("الطرف الأول", "Party 1 (owner)"), exact: true }).click();
+  await page.locator("#w-notice").selectOption("0");
   await page.locator("#w-cdate").fill("01/10/2026");
   await page.locator("#w-start").fill("01/10/2026");
   await page.locator("#w-first").fill("01/12/2026");
@@ -334,6 +358,9 @@ async function captureAll(
   await shot(page, `${pre}-voucher-print`, { fullPage: true });
   await page.goto(`/print/statement/${IDS.jabriya}/2026-08?lang=${locale}`);
   await shot(page, `${pre}-statement-print`, { fullPage: true });
+
+  await page.goto(`/print/receipt/${ids.receipt}?lang=${locale}`);
+  await shot(page, `${pre}-receipt-print`, { fullPage: true });
 
   // Settings → Install, then the iOS guide sheet (iPhone user agent).
   await page.goto(`/${locale}/settings/install`);
@@ -377,12 +404,17 @@ test.describe("visual regression (§20)", () => {
             await page.goto(`/${locale}/contracts/new`);
             await page.getByRole("button", { name: t("استثماري", "Investment") }).click();
             await next.click();
+            await page.locator("#w-owner").selectOption({ label: "عبدالعزيز محمد الصالح" });
             await page.getByRole("searchbox").fill("الشمري");
             await page.locator("ul li button").first().click();
             await next.click();
             await page.getByRole("button", { name: /الري قسيمة 1674|Al-Rai Plot 1674/ }).click();
             await page.getByRole("button", { name: /^1 — / }).click();
             await next.click();
+            await page
+              .getByRole("radio", { name: t("الطرف الأول", "Party 1 (owner)"), exact: true })
+              .click();
+            await page.locator("#w-notice").selectOption("0");
             await page.locator("#w-cdate").fill("01/10/2026");
             await page.locator("#w-start").fill("01/10/2026");
             await page.locator("#w-first").fill("01/12/2026");

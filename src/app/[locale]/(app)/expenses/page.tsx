@@ -32,7 +32,8 @@ export default async function ExpensesPage({ params }: LocaleParams) {
   const { data: props } = await db.from("properties").select("id, name").order("name");
   return (
     <ExpensesView
-      canCreate={can(ctx.role, "manage_expenses")}
+      canCreate={can(ctx.role, "record_expense")}
+      canManage={can(ctx.role, "manage_expenses")}
       categories={(cats ?? []).map((c) => ({
         id: c.id,
         name: locale === "ar" ? c.name_ar : c.name_en,

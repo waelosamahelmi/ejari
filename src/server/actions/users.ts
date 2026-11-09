@@ -45,6 +45,7 @@ export async function inviteUser(input: {
   role: "admin" | "accountant" | "collector" | "viewer";
   displayName: string;
   locale: "ar" | "en";
+  propertyIds?: string[] | null;
 }) {
   return run(async () => {
     const ctx = await requireActionContext("manage_users");
@@ -54,23 +55,24 @@ export async function inviteUser(input: {
         role: z.enum(["admin", "accountant", "collector", "viewer"]),
         displayName: z.string().trim().min(1).max(80),
         locale: z.enum(["ar", "en"]),
+        propertyIds: z.array(z.string().uuid()).nullable().optional(),
       })
       .parse(input);
+    await validatePropertyAccess(ctx.orgId, d.propertyIds ?? null);
     const userId = await inviteAuthUser(d.email, d.locale, d.displayName);
     const db = await supabaseServer();
-    const { error } = await db
-      .from("org_members")
-      .upsert(
-        {
-          org_id: ctx.orgId,
-          user_id: userId,
-          role: d.role,
-          display_name: d.displayName,
-          email: d.email,
-          active: true,
-        },
-        { onConflict: "org_id,user_id" },
-      );
+    const { error } = await db.from("org_members").upsert(
+      {
+        org_id: ctx.orgId,
+        user_id: userId,
+        role: d.role,
+        property_ids: d.propertyIds ?? null,
+        display_name: d.displayName,
+        email: d.email,
+        active: true,
+      },
+      { onConflict: "org_id,user_id" },
+    );
     if (error) throw error;
     await supabaseAdmin()
       .from("user_settings")
@@ -119,23 +121,86 @@ export async function inviteOwnerToPortal(ownerId: string, locale: "ar" | "en") 
       .single();
     if (!o?.email) throw new ActionError("validation");
     const userId = await inviteAuthUser(o.email.toLowerCase(), locale, o.full_name);
-    const up = await db
-      .from("org_members")
-      .upsert(
-        {
-          org_id: ctx.orgId,
-          user_id: userId,
-          role: "owner",
-          display_name: o.full_name,
-          email: o.email,
-          active: true,
-        },
-        { onConflict: "org_id,user_id" },
-      );
+    const up = await db.from("org_members").upsert(
+      {
+        org_id: ctx.orgId,
+        user_id: userId,
+        role: "owner",
+        display_name: o.full_name,
+        email: o.email,
+        active: true,
+      },
+      { onConflict: "org_id,user_id" },
+    );
     if (up.error) throw up.error;
     const { error } = await db.from("owners").update({ portal_user_id: userId }).eq("id", ownerId);
     if (error) throw error;
     reval();
     return o.email;
+  });
+}
+
+async function validatePropertyAccess(orgId: string, propertyIds: string[] | null) {
+  if (!propertyIds) return;
+  if (propertyIds.length > 1000 || new Set(propertyIds).size !== propertyIds.length)
+    throw new ActionError("validation");
+  const db = await supabaseServer();
+  const { data, error } = await db
+    .from("properties")
+    .select("id")
+    .eq("org_id", orgId)
+    .in("id", propertyIds);
+  if (error) throw error;
+  if (data?.length !== propertyIds.length) throw new ActionError("forbidden");
+}
+
+export async function setMemberAccess(id: string, propertyIds: string[] | null) {
+  return run(async () => {
+    const ctx = await requireActionContext("manage_users");
+    await validatePropertyAccess(ctx.orgId, propertyIds);
+    const db = await supabaseServer();
+    const { data: m } = await db
+      .from("org_members")
+      .select("user_id,role")
+      .eq("id", id)
+      .eq("org_id", ctx.orgId)
+      .single();
+    if (!m || m.user_id === ctx.userId || m.role === "owner") throw new ActionError("forbidden");
+    const { error } = await db
+      .from("org_members")
+      .update({ property_ids: propertyIds })
+      .eq("id", id)
+      .eq("org_id", ctx.orgId);
+    if (error) throw error;
+    // Old per-property notifications may contain information from a previous assignment.
+    await supabaseAdmin()
+      .from("notifications")
+      .delete()
+      .eq("user_id", m.user_id)
+      .eq("org_id", ctx.orgId);
+    reval();
+  });
+}
+
+export async function removeMember(id: string) {
+  return run(async () => {
+    const ctx = await requireActionContext("manage_users");
+    const db = await supabaseServer();
+    const { data: m } = await db
+      .from("org_members")
+      .select("user_id")
+      .eq("id", id)
+      .eq("org_id", ctx.orgId)
+      .single();
+    if (!m || m.user_id === ctx.userId) throw new ActionError("forbidden");
+    const { error } = await db.from("org_members").delete().eq("id", id).eq("org_id", ctx.orgId);
+    if (error) throw error;
+    // Revoke only this office's access; receipts retain the auth user for audit/history.
+    await supabaseAdmin()
+      .from("notifications")
+      .delete()
+      .eq("user_id", m.user_id)
+      .eq("org_id", ctx.orgId);
+    reval();
   });
 }

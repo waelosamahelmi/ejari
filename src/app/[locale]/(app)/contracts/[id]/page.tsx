@@ -75,7 +75,8 @@ export default async function ContractPage({ params }: LocaleParams<{ id: string
         type: c.type,
         status: c.status,
         tenantId: tenant.id,
-        tenantName: tenant.full_name,
+        tenantName:
+          data.ds.contracts.find((row) => row.id === c.id)?.tenantName ?? tenant.full_name,
         tenantPhone: tenant.phones?.[0] ?? null,
         propertyId: property.id,
         propertyName: property.name,

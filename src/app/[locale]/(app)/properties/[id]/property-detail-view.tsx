@@ -1,4 +1,5 @@
 "use client";
+import { RestructureUnits } from "@/components/domain/units/restructure-units";
 import dynamic from "next/dynamic";
 import { useRef, useState, useTransition } from "react";
 import {
@@ -327,7 +328,8 @@ export function PropertyDetailView({
                 title={t("stack.title")}
                 action={
                   canEdit ? (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      <RestructureUnits propertyId={p.id} units={stack} />
                       <Button size="sm" variant="secondary" onClick={() => setBulk(true)}>
                         <Layers3 />
                         {t("stack.bulk")}
