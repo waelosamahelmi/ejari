@@ -497,6 +497,16 @@ export async function renewContract(
       monthlyRentFils: c.monthly_rent_fils,
       newRentFils: d.monthlyRentFils,
     });
+    const { data: ongoing, error: discountError } = await db
+      .from("contract_discounts")
+      .select("amount_fils,reason")
+      .eq("contract_id", id)
+      .is("to_period", null)
+      .lte("from_period", c.end_date.slice(0, 7))
+      .maybeSingle();
+    if (discountError) throw discountError;
+    if (ongoing && ongoing.amount_fils > terms.monthlyRentFils)
+      throw new ActionError("invalidAmount");
     const { data: created, error } = await db
       .from("contracts")
       .insert({
@@ -506,6 +516,14 @@ export async function renewContract(
         template_id: c.template_id,
         tenant_id: c.tenant_id,
         co_tenant_ids: c.co_tenant_ids,
+        initial_discount: ongoing
+          ? {
+              fromPeriod: terms.firstCollectionDate.slice(0, 7),
+              toPeriod: null,
+              amountFils: ongoing.amount_fils,
+              reason: ongoing.reason,
+            }
+          : null,
         property_id: c.property_id,
         owner_id: c.owner_id,
         contract_date: todayKuwait(),

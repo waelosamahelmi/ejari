@@ -243,7 +243,9 @@ async function shot(
 ) {
   if (
     process.env.E2E_CLIENT_VISUALS_ONLY === "1" &&
-    !/-(collections|building-stack|statement-print|receipt-print|wizard-4|wizard-6)$/.test(name)
+    !/-(collections|building-stack|statement-print|receipt-print|wizard-4|wizard-6|discount-months|discount-ongoing)$/.test(
+      name,
+    )
   )
     return;
   await page.waitForLoadState("networkidle").catch(() => {});
@@ -340,6 +342,18 @@ async function captureAll(
   await page.locator("#w-first").fill("01/12/2026");
   await expect(page.locator("#w-first")).toHaveValue("01/12/2026");
   await shot(page, `${pre}-wizard-4`);
+  const discount = page.getByLabel(t("خصم الإيجار", "Rent discount"), { exact: true });
+  await discount.check();
+  await page.locator("#discount-amount").fill("50");
+  await page.locator("#discount-reason").fill("موافقة المالك");
+  await page.locator("#discount-to").click();
+  await shot(page, `${pre}-discount-months`);
+  await page.keyboard.press("Escape");
+  await page
+    .getByLabel(t("دائم طوال مدة العقد", "Ongoing for this lease"), { exact: true })
+    .check();
+  await shot(page, `${pre}-discount-ongoing`);
+  await discount.uncheck();
   await next.click();
   await next.click();
   await expect(page.getByText(t("أول الاستحقاقات", "First charges"))).toBeVisible();

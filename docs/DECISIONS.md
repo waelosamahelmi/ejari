@@ -102,3 +102,15 @@
 - Production migrations must precede the GitHub push/deployment. They are tested against a fresh local database; live migration history/schema are checked before applying, with a private local pre-migration snapshot.
 
 - Both November migrations were applied transactionally to production after local verification, with migration history recorded and a private pre-migration snapshot outside Git. Existing admins retain access; the existing collector has an explicit empty property scope until assigned.
+
+## 2026-11-10 — Follow-up recordings
+
+- The 12:07 follow-up says the Iranian option was found, superseding the earlier query. Keep `إيراني`; remove IL only from new nationality choices, without rewriting saved tenant data.
+- An ongoing discount stores a null end period and applies from its start to actual rent charges through lease expiry/termination. Renewal carries it into the new lease with a new start period; fixed-duration discounts do not carry. Reject a renewal rent below the ongoing discount.
+- Native month inputs are replaced with the app's bilingual month/year picker. Discount reasons remain required for audit; inline errors and a wizard explanation make missing choices visible.
+- Advance receipts use their actual receipt date. The existing FIFO/credit ledger is retained. Future charge generation is authorised using the signed-in user's contract visibility before using the billing service.
+- Staff onboarding is an invitation into the existing office, followed by password setup and normal login. No actual staff invitations are sent as part of this code change.
+
+- Statements include financial rows for receipts received before the lease starts (or after it ends), so advance collections appear in receipt-month totals. Such rows do not change physical occupancy/vacancy counts.
+
+- Applied migration `20261110000001_open_ended_discounts` transactionally to production after a private pre-migration snapshot. Verified the nullable end field through the live schema/API and preserved lease, charge, payment and allocation row counts. Existing member assignments remain unchanged.

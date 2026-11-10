@@ -114,7 +114,7 @@ test("wizard requires owner and explicit terms, offers all tenants and filters p
   await expect(next).toBeDisabled();
   await page.locator("#w-notice").selectOption("0");
   await expect(next).toBeEnabled();
-  await page.getByLabel("خصم مؤقت", { exact: true }).check();
+  await page.getByLabel("خصم الإيجار", { exact: true }).check();
   await page.locator("#discount-amount").fill("20");
   await page.locator("#discount-reason").fill("عرض مؤقت");
   await next.click();
@@ -144,7 +144,7 @@ test("wizard requires owner and explicit terms, offers all tenants and filters p
     .select("amount_fils")
     .eq("contract_id", id);
   expect(d?.map((x) => x.amount_fils)).toEqual([20000]);
-  await page.getByRole("button", { name: "خصم مؤقت", exact: true }).click();
+  await page.getByRole("button", { name: "خصم الإيجار", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText("عرض مؤقت");
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "فسخ العقد", exact: true }).click();

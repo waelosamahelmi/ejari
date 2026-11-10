@@ -9,11 +9,17 @@ export const customClauseSchema = z.object({
 export const discountSchema = z
   .object({
     fromPeriod: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
-    toPeriod: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
+    toPeriod: z
+      .string()
+      .regex(/^\d{4}-(0[1-9]|1[0-2])$/)
+      .nullable(),
     amountFils: z.number().int().positive("positive"),
     reason: z.string().trim().min(1, "required").max(500),
   })
-  .refine((d) => d.toPeriod >= d.fromPeriod, { message: "invalidDate", path: ["toPeriod"] });
+  .refine((d) => d.toPeriod === null || d.toPeriod >= d.fromPeriod, {
+    message: "invalidDate",
+    path: ["toPeriod"],
+  });
 
 export const contractDraftSchema = z
   .object({

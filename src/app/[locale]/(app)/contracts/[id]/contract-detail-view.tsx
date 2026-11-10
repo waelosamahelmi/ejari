@@ -868,7 +868,13 @@ export function ContractDetailView({
 
       {canManage && ["active", "notice_given"].includes(c.status) && (
         <div className="my-4">
-          <DiscountSheet contractId={c.id} period={today.slice(0, 7)} />
+          <DiscountSheet
+            contractId={c.id}
+            period={today.slice(0, 7)}
+            minPeriod={c.firstCollectionDate.slice(0, 7)}
+            maxPeriod={c.endDate.slice(0, 7)}
+            rentFils={c.monthlyRentFils}
+          />
         </div>
       )}
       <AdjustmentSheet open={adjust} onOpenChange={setAdjust} contractId={c.id} />

@@ -274,7 +274,11 @@ export function ContractWizard({
             (v.initialDiscount.amountFils > 0 &&
               v.initialDiscount.amountFils <= v.monthlyRentFils &&
               !!v.initialDiscount.reason.trim() &&
-              v.initialDiscount.toPeriod >= v.initialDiscount.fromPeriod))
+              (v.initialDiscount.toPeriod === null ||
+                (v.initialDiscount.toPeriod >= v.initialDiscount.fromPeriod &&
+                  v.initialDiscount.toPeriod <= endDate.slice(0, 7))) &&
+              v.initialDiscount.fromPeriod >= v.firstCollectionDate.slice(0, 7) &&
+              v.initialDiscount.fromPeriod <= endDate.slice(0, 7)))
         );
       case "review":
         return true;
@@ -524,7 +528,7 @@ export function ContractWizard({
       case "terms": {
         const presets = PURPOSE_PRESETS[v.type];
         return (
-          <div className="grid gap-5 lg:grid-cols-2">
+          <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-2">
             <Field
               label={t("terms.contractDate")}
               htmlFor="w-cdate"
@@ -690,6 +694,9 @@ export function ContractWizard({
                 <DiscountFields
                   value={v.initialDiscount}
                   onChange={(d) => set("initialDiscount", d)}
+                  minPeriod={v.firstCollectionDate.slice(0, 7)}
+                  maxPeriod={endDate.slice(0, 7)}
+                  rentFils={v.monthlyRentFils}
                 />
               )}
             </div>
@@ -1249,6 +1256,14 @@ export function ContractWizard({
               transition={{ duration: 0.2 }}
             >
               {stepBody()}
+              {STEPS[step] === "terms" && !canNext && (
+                <p
+                  role="status"
+                  className="text-orange-text bg-orange/10 mt-5 rounded-2xl p-4 text-sm"
+                >
+                  {t("terms.completeRequired")}
+                </p>
+              )}
             </m.div>
           </AnimatePresence>
         </Wizard>

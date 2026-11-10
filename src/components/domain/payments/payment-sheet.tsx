@@ -32,6 +32,19 @@ import { ASK_PUSH_EVENT } from "@/components/pwa/push-prompt";
 
 type AmountMode = "month" | "due" | "custom";
 
+function monthlyPaymentAmount(ctx: PaymentContext) {
+  if (ctx.thisMonthFils > 0) return ctx.thisMonthFils;
+  const current = todayKuwait().slice(0, 7);
+  const next = ctx.open
+    .map((o) => o.period)
+    .filter((p) => p >= current)
+    .sort()[0];
+  const scheduled = ctx.open
+    .filter((o) => o.period === next)
+    .reduce((sum, o) => sum + o.outstandingFils, 0);
+  return scheduled > 0 ? scheduled : ctx.monthlyRentFils;
+}
+
 /** Record-payment sheet for one contract (§10.6). Works offline via the outbox. */
 export function PaymentSheet({
   open,
@@ -103,7 +116,7 @@ export function PaymentSheet({
   useEffect(() => {
     if (!ctx) return;
     const due = ctx.dueNowFils;
-    const initial = due > 0 ? due : ctx.monthlyRentFils;
+    const initial = due > 0 ? due : monthlyPaymentAmount(ctx);
     setMode(due > 0 ? "due" : "custom");
     setAmount(initial);
     setPeriods([...new Set(ctx.open.map((o) => o.period))].slice(0, 1));
@@ -112,7 +125,7 @@ export function PaymentSheet({
   const pickMode = (m: AmountMode) => {
     setMode(m);
     if (!ctx) return;
-    if (m === "month") setAmount(ctx.thisMonthFils || ctx.monthlyRentFils);
+    if (m === "month") setAmount(monthlyPaymentAmount(ctx));
     if (m === "due") setAmount(ctx.dueNowFils);
   };
 

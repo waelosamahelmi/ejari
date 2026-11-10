@@ -61,6 +61,7 @@ it("validates temporary discount date range and positive integer fils", () => {
     reason: "موافقة المالك",
   };
   expect(discountSchema.parse(d)).toEqual(d);
+  expect(discountSchema.parse({ ...d, toPeriod: null }).toPeriod).toBeNull();
   expect(discountSchema.safeParse({ ...d, toPeriod: "2026-10" }).success).toBe(false);
   expect(discountSchema.safeParse({ ...d, amountFils: 0 }).success).toBe(false);
   expect(discountSchema.safeParse({ ...d, amountFils: 0.5 }).success).toBe(false);
@@ -82,7 +83,10 @@ it("includes the complete property address without undefined fields", () => {
 it("provides bilingual nationality options including common legacy demonyms", () => {
   expect(nationalityOptions("ar").find((x) => x.value === "هندي")?.label).toBe("هندي");
   expect(nationalityOptions("en").find((x) => x.value === "هندي")?.label).toBe("India");
-  expect(nationalityOptions("ar")).toHaveLength(249);
+  expect(nationalityOptions("ar")).toHaveLength(248);
+  expect(nationalityOptions("ar").some((n) => n.value === "إيراني")).toBe(true);
+  expect(nationalityOptions("ar").some((n) => /إسرائيل/.test(n.label))).toBe(false);
+  expect(nationalityOptions("en").some((n) => n.label === "Israel")).toBe(false);
 });
 describe("company details on old lease prints", () => {
   const template = {

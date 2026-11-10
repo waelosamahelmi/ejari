@@ -12,7 +12,7 @@ import {
 } from "@/domain/allocation";
 import { formatSequenceNo } from "@/domain/contracts";
 import { fromFils } from "@/domain/money";
-import { formatPeriod, periodOf, todayKuwait } from "@/domain/dates";
+import { addPeriods, formatPeriod, periodOf, todayKuwait } from "@/domain/dates";
 import { isoDate } from "@/lib/schemas/common";
 import { PAYMENT_METHODS } from "@/domain/types";
 import { notifyEvent } from "@/server/notify/events";
@@ -37,10 +37,32 @@ export interface PaymentContext {
   collectors: { id: string; name: string }[];
 }
 
+/** Authorise through RLS before materialising future rent for advance collection. */
+async function preparePaymentCharges(
+  ctx: Awaited<ReturnType<typeof requireActionContext>>,
+  id: string,
+) {
+  const db = await supabaseServer();
+  const { data: c, error } = await db
+    .from("contracts")
+    .select("first_collection_date,status")
+    .eq("id", id)
+    .eq("org_id", ctx.orgId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!c) throw new ActionError("notFound");
+  if (!["active", "notice_given"].includes(c.status)) return;
+  const now = periodOf(todayKuwait());
+  const first = periodOf(c.first_collection_date);
+  const { ensureChargesUntil } = await import("@/server/billing/ensure-charges");
+  await ensureChargesUntil(ctx.orgId, addPeriods(first > now ? first : now, 3), ctx.settings, [id]);
+}
+
 /** Everything the Record-payment sheet needs for one contract. */
 export async function getPaymentContext(contractId: string) {
   return run(async (): Promise<PaymentContext> => {
     const ctx = await requireActionContext("record_payment");
+    await preparePaymentCharges(ctx, contractId);
     const db = await supabaseServer();
     const [{ data: c }, { data: balances }, { data: pays }, { data: members }] = await Promise.all([
       db
@@ -181,6 +203,7 @@ export async function recordPayment(input: RecordPaymentInput) {
       .single();
     if (!c) throw new ActionError("notFound");
     if (c.status === "draft") throw new ActionError("contract_not_live");
+    await preparePaymentCharges(ctx, d.contractId);
     if (
       d.receiptNo &&
       ctx.settings.receiptDuplicatePolicy === "block" &&

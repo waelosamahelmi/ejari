@@ -9,20 +9,39 @@ import { addTemporaryDiscount, listContractDiscounts } from "@/server/actions/co
 import { useMoney } from "@/components/shell/prefs-context";
 import { DiscountFields, type DiscountInput } from "./discount-fields";
 
-export function DiscountSheet({ contractId, period }: { contractId: string; period: string }) {
+export function DiscountSheet({
+  contractId,
+  period,
+  minPeriod,
+  maxPeriod,
+  rentFils,
+}: {
+  contractId: string;
+  period: string;
+  minPeriod: string;
+  maxPeriod: string;
+  rentFils: number;
+}) {
+  const firstPeriod = period < minPeriod ? minPeriod : period > maxPeriod ? maxPeriod : period;
   const t = useTranslations("contracts.discount");
   const router = useRouter();
   const money = useMoney();
   const [open, setOpen] = useState(false);
   const { exec, pending } = useAction();
   const [value, setValue] = useState<DiscountInput>({
-    fromPeriod: period,
-    toPeriod: period,
+    fromPeriod: firstPeriod,
+    toPeriod: firstPeriod,
     amountFils: 0,
     reason: "",
   });
   const [rows, setRows] = useState<
-    { id: string; from_period: string; to_period: string; amount_fils: number; reason: string }[]
+    {
+      id: string;
+      from_period: string;
+      to_period: string | null;
+      amount_fils: number;
+      reason: string;
+    }[]
   >([]);
   useEffect(() => {
     if (open)
@@ -44,7 +63,9 @@ export function DiscountSheet({ contractId, period }: { contractId: string; peri
             block
             loading={pending}
             disabled={
-              !value.reason.trim() || value.amountFils <= 0 || value.toPeriod < value.fromPeriod
+              !value.reason.trim() ||
+              value.amountFils <= 0 ||
+              (value.toPeriod !== null && value.toPeriod < value.fromPeriod)
             }
             onClick={() =>
               exec(() => addTemporaryDiscount(contractId, value), {
@@ -61,12 +82,18 @@ export function DiscountSheet({ contractId, period }: { contractId: string; peri
         }
       >
         <p className="text-label-2 mb-5 text-sm">{t("help")}</p>
-        <DiscountFields value={value} onChange={setValue} />
+        <DiscountFields
+          value={value}
+          onChange={setValue}
+          minPeriod={minPeriod}
+          maxPeriod={maxPeriod}
+          rentFils={rentFils}
+        />
         <ul className="mt-6 space-y-3">
           {rows.map((r) => (
             <li key={r.id} className="bg-inset rounded-2xl p-4">
               <p className="num">
-                {r.from_period} — {r.to_period} · {money(r.amount_fils)}
+                {r.from_period} — {r.to_period ?? t("openEnded")} · {money(r.amount_fils)}
               </p>
               <p>{r.reason}</p>
             </li>

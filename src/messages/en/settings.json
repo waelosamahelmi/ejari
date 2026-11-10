@@ -55,7 +55,11 @@
     "scopeHelp": "Only selected properties and their data are visible. No selection grants no property access.",
     "allProperties": "All current and future properties",
     "remove": "Remove member",
-    "removeHelp": "Revoke this office membership. Receipts and accounting history remain intact."
+    "removeHelp": "Revoke this office membership. Receipts and accounting history remain intact.",
+    "accessHelpTitle": "How staff access your office",
+    "accessHelpInvite": "Invite their email and choose their role and allowed properties.",
+    "accessHelpEmail": "They open the emailed invitation and set their password.",
+    "accessHelpLogin": "They then use the login page with the same email; they should not sign up for another office."
   },
   "templates": {
     "type": "Type",

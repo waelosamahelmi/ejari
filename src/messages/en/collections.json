@@ -62,5 +62,7 @@
   "owner": "Owner",
   "from": "From",
   "to": "To",
-  "filterLate": "Late only"
+  "filterLate": "Late only",
+  "advance": "Collect in advance",
+  "advanceHelp": "Select a lease even if it starts in a future month. Use the actual receipt date; payment covers future charges or remains as tenant credit."
 }

@@ -54,6 +54,14 @@ export function UsersView({
   const [role, setRole] = useState<StaffRole>("collector");
   return (
     <SettingsShell title={title}>
+      <div className="bg-inset mb-5 rounded-2xl p-4 text-sm">
+        <p className="font-semibold">{t("accessHelpTitle")}</p>
+        <ol className="mt-2 list-decimal space-y-1 ps-5">
+          <li>{t("accessHelpInvite")}</li>
+          <li>{t("accessHelpEmail")}</li>
+          <li>{t("accessHelpLogin")}</li>
+        </ol>
+      </div>
       <Button
         onClick={() => {
           setPropertyIds([]);

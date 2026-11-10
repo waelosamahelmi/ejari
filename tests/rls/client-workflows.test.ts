@@ -307,6 +307,74 @@ describe.skipIf(!enabled)("client workflows and property scope", () => {
       ).error,
     ).not.toBeNull();
   });
+  it("applies ongoing concessions to future rent, rejects overlaps and respects lease expiry", async () => {
+    const d = await admin
+      .from("contract_discounts")
+      .insert({
+        org_id: org,
+        contract_id: contractB,
+        from_period: "2026-11",
+        to_period: null,
+        amount_fils: 10000,
+        reason: "Ongoing concession",
+      })
+      .select("id")
+      .single();
+    expect(d.error).toBeNull();
+    expect(
+      (await admin.from("adjustments").select("amount_fils").eq("charge_id", chargeB)).data?.map(
+        (x) => x.amount_fils,
+      ),
+    ).toEqual([10000]);
+    for (const period of ["2026-12", "2027-01"]) {
+      const ch = await admin
+        .from("charges")
+        .insert({
+          org_id: org,
+          contract_id: contractB,
+          period,
+          due_date: period + "-01",
+          kind: "rent",
+          amount_fils: 300000,
+        })
+        .select("id")
+        .single();
+      expect(ch.error).toBeNull();
+      const adj = await admin
+        .from("adjustments")
+        .select("amount_fils")
+        .eq("charge_id", ch.data!.id);
+      expect(adj.data?.map((x) => x.amount_fils)).toEqual(period === "2026-12" ? [10000] : []);
+    }
+    expect(
+      (
+        await admin
+          .from("contract_discounts")
+          .insert({
+            org_id: org,
+            contract_id: contractB,
+            from_period: "2026-12",
+            to_period: "2026-12",
+            amount_fils: 1000,
+            reason: "Overlap",
+          })
+      ).error,
+    ).not.toBeNull();
+    expect(
+      (
+        await admin
+          .from("contract_discounts")
+          .insert({
+            org_id: org,
+            contract_id: contractB,
+            from_period: "2027-02",
+            to_period: null,
+            amount_fils: 1000,
+            reason: "Outside lease",
+          })
+      ).error,
+    ).not.toBeNull();
+  });
   it("splits/merges units atomically, shares PACI and retains originals", async () => {
     const result = await admin.rpc("restructure_units", {
       p_property: a,

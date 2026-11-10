@@ -211,13 +211,13 @@ isOneToOne: false
                   ]
                 },"contract_discounts": {
                   Row: {
-                    "amount_fils": number,"contract_id": string,"created_at": string,"created_by": string | null,"from_period": string,"id": string,"org_id": string,"reason": string,"to_period": string
+                    "amount_fils": number,"contract_id": string,"created_at": string,"created_by": string | null,"from_period": string,"id": string,"org_id": string,"reason": string,"to_period": string | null
                   }
                   Insert: {
-                    "amount_fils": number,"contract_id": string,"created_at"?: string,"created_by"?: string | null,"from_period": string,"id"?: string,"org_id": string,"reason": string,"to_period": string
+                    "amount_fils": number,"contract_id": string,"created_at"?: string,"created_by"?: string | null,"from_period": string,"id"?: string,"org_id": string,"reason": string,"to_period"?: string | null
                   }
                   Update: {
-                    "amount_fils"?: number,"contract_id"?: string,"created_at"?: string,"created_by"?: string | null,"from_period"?: string,"id"?: string,"org_id"?: string,"reason"?: string,"to_period"?: string
+                    "amount_fils"?: number,"contract_id"?: string,"created_at"?: string,"created_by"?: string | null,"from_period"?: string,"id"?: string,"org_id"?: string,"reason"?: string,"to_period"?: string | null
                   }
                   Relationships: [
                     {

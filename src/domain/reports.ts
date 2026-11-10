@@ -326,15 +326,20 @@ export function monthlyStatement(
     (u) => unitWindow(u, periodStart(period), periodEnd(period)) !== null,
   );
   const to = periodEnd(period);
-  const contracts = (idx.contractsByProperty.get(propertyId) ?? []).filter((c) =>
-    coversPeriod(c, period),
+  const contracts = (idx.contractsByProperty.get(propertyId) ?? []).filter(
+    (c) =>
+      coversPeriod(c, period) ||
+      (c.status !== "draft" &&
+        (idx.paymentsByContract.get(c.id) ?? []).some((p) =>
+          inRange(p.receivedAt, periodStart(period), to),
+        )),
   );
   const covered = new Set<string>();
   const rows: StatementRow[] = [];
 
   for (const c of contracts) {
     const cUnits = c.unitIds.map((id) => idx.unitById.get(id)).filter((u): u is RUnit => !!u);
-    cUnits.forEach((u) => covered.add(u.id));
+    if (coversPeriod(c, period)) cUnits.forEach((u) => covered.add(u.id));
     const ledger = idx.ledger(c.id);
     const periodCharges = ledger.charges.filter((ch) => !ch.voided && ch.period === period);
     const rent = sumBy(periodCharges, (ch) => ch.amountFils);
@@ -373,7 +378,10 @@ export function monthlyStatement(
       lastPaymentDate: lastPaymentDate(ledger.payments, to),
       arrearsFils: arrearsAsOf(ledger, to),
       notes,
-      status: periodStatus(ledger, period, to, { legal: legal !== "none" }),
+      status:
+        c.startDate > to && r.next > 0
+          ? "advance"
+          : periodStatus(ledger, period, to, { legal: legal !== "none" }),
       vacant: false,
       sortOrder: Math.min(...cUnits.map((u) => u.sortOrder), Number.MAX_SAFE_INTEGER),
     });
@@ -418,7 +426,7 @@ export function monthlyStatement(
       nextFils: sumBy(rows, (r) => r.nextFils),
       arrearsFils: sumBy(rows, (r) => r.arrearsFils),
       vacantCount: rows.filter((r) => r.vacant).length,
-      occupiedCount: rows.filter((r) => !r.vacant).length,
+      occupiedCount: contracts.filter((c) => coversPeriod(c, period)).length,
     },
   };
 }

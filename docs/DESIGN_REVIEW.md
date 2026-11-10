@@ -86,3 +86,13 @@ Reviewed residential and investment print output with the client's plain lease r
 - Company licence/signatory and joint-tenant names/signature spaces appear in the lease. Existing plain contract layout and red variable fields are preserved.
 - Owner-filtered property selection, searchable alphabetical tenants, explicit utilities/notice choices, temporary discount fields, staff property selection and unit restructuring follow the existing bilingual controls.
 - Focused visual run: four tests, 48 captures (collections, building stack, statement, receipt, wizard terms/review × Arabic/English × light/dark × mobile/desktop). Eight receipt baselines added; changed existing baselines refreshed. Generated receipt and statement previews were inspected.
+
+## 2026-11-10 — Discount and advance-collection follow-up
+
+- Replace native discount month inputs with the bilingual month/year picker, including billing-term boundaries. Add an ongoing-discount option that hides the end month, with a clear explanation and visible amount/reason/range errors.
+- Constrain the terms grid to the mobile viewport; the amount fields and ongoing-discount explanation now fit within the card instead of extending beyond the screen.
+- Add a visible advance-collection action and explain future-lease collection. Verify the suggested payment uses the net scheduled amount (600.000 rent minus 50.000 discount = 550.000).
+- Browser coverage follows creation → ongoing discount → advance receipt before lease start → receipt-month statement → renewal with the discount carried forward.
+- Add 16 visual baselines for the discount month selector and ongoing state across Arabic/English, light/dark and mobile/desktop, alongside the established document/collections/wizard captures.
+
+Verification: all four focused visual runs pass (64 captures). Inspected the Arabic mobile month selector and ongoing-discount state, plus the English dark mobile state; fields and explanatory copy fit within the card.

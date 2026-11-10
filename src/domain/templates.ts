@@ -519,7 +519,7 @@ export interface TemplateVarsInput {
   };
   initialDiscount?: {
     fromPeriod: string;
-    toPeriod: string;
+    toPeriod: string | null;
     amountFils: number;
     reason: string;
   } | null;

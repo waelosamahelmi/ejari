@@ -29,5 +29,13 @@ Apply the new migrations to the intended Supabase project **before** deploying t
 
 - `20261109000001_client_workflows.sql`
 - `20261109000002_property_access.sql`
+- `20261110000001_open_ended_discounts.sql` (10 November follow-up; existing fixed-duration discounts are preserved)
 
 Existing collectors start with no property access until an admin assigns their properties. Other existing memberships retain their previous scope. Existing leases, receipts and unit histories are preserved. Existing tenant nationality fields are not invented or backfilled; an edit requires selecting a nationality. Unit restructuring requires resolving live/draft leases first. Temporary discounts are separate adjustments and never rewrite the original contractual rent.
+
+## دخول الموظف إلى المكتب
+
+1. الأدمن يفتح **الإعدادات ← المستخدمون ← دعوة مستخدم**، ويكتب اسم الموظف وبريده.
+2. يختار دور **محصّل** لموظف تسجيل التحصيل والمصروفات فقط، ويحدد العقارات المسموح بها.
+3. الموظف يفتح رابط الدعوة من بريده ويعيّن كلمة المرور، ثم يستخدم صفحة **تسجيل الدخول** بنفس البريد.
+4. الموظف لا ينشئ مكتبًا جديدًا من صفحة التسجيل. الأدمن يستطيع تعطيله أو إزالة عضويته لاحقًا مع الاحتفاظ بتاريخ المعاملات.

@@ -15,8 +15,10 @@ Company and joint-tenant leases, required nationality, temporary rent discounts,
 unit merging/splitting, property-scoped entry-only staff and revised receipts/statements are
 covered in [the client checklist](docs/CLIENT_EDITS_2026-11-09.md). See the
 [operations handover](docs/OPERATIONS_HANDOVER.md) for deployment and independent administration.
-Apply both `20261109` migrations before deploying this application version. Existing collectors
+Apply the two `20261109` migrations and `20261110000001_open_ended_discounts.sql` before deploying this application version. Existing collectors
 need an admin to assign their properties in Settings → Users.
+
+The [10 November follow-up](docs/CLIENT_EDITS_2026-11-10.md) adds ongoing discounts with renewal carry-forward, bilingual discount month selection, advance collection for future leases and staff login guidance.
 
 ## Stack
 

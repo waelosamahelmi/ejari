@@ -20,11 +20,17 @@ export function MonthPicker({
   onChange,
   className,
   max,
+  min,
+  id,
+  label,
 }: {
   value: Period;
   onChange: (p: Period) => void;
   className?: string;
   max?: Period;
+  min?: Period;
+  id?: string;
+  label?: string;
 }) {
   const locale = useLocale() as "ar" | "en";
   const t = useTranslations("ui");
@@ -33,6 +39,8 @@ export function MonthPicker({
   const nextDisabled = !!max && addPeriods(value, 1) > max;
   return (
     <div
+      role="group"
+      aria-label={label}
       className={cn(
         "bg-paper ring-separator inline-flex h-11 items-center rounded-full p-1 shadow-[0_1px_2px_rgba(16,24,40,.05)] ring-1",
         className,
@@ -41,6 +49,7 @@ export function MonthPicker({
       <button
         type="button"
         aria-label={t("prevMonth")}
+        disabled={!!min && addPeriods(value, -1) < min}
         onClick={() => onChange(addPeriods(value, -1))}
         className="hover:bg-inset flex size-9 items-center justify-center rounded-full"
       >
@@ -57,7 +66,8 @@ export function MonthPicker({
           <button
             type="button"
             className="hover:bg-inset h-9 min-w-32 rounded-full px-3 text-[15px] font-semibold"
-            aria-label={t("chooseMonth")}
+            id={id}
+            aria-label={label ?? t("chooseMonth")}
           >
             {formatPeriod(value, locale)}
           </button>
@@ -86,7 +96,7 @@ export function MonthPicker({
             {Array.from({ length: 12 }, (_, i) => {
               const p = makePeriod(year, i + 1);
               const active = p === value;
-              const disabled = !!max && p > max;
+              const disabled = (!!max && p > max) || (!!min && p < min);
               return (
                 <button
                   key={p}

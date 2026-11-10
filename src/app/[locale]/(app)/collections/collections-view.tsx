@@ -400,6 +400,11 @@ export function CollectionsView({
         >
           <div className="flex flex-wrap items-center gap-3">
             <MonthPicker value={period} onChange={(p) => nav({ period: p })} />
+            {caps.pay && (
+              <Button variant="secondary" onClick={() => setPicker(true)}>
+                {t("advance")}
+              </Button>
+            )}
             {closed && (
               <Pill className="bg-inset text-label-2 h-8 px-3">
                 <Lock className="size-3.5" />
@@ -555,6 +560,7 @@ export function CollectionsView({
       />
 
       <Sheet open={picker} onOpenChange={setPicker} title={t("pickContract")}>
+        <p className="text-label-2 mb-4 text-sm">{t("advanceHelp")}</p>
         <SearchField
           value={pickerQ}
           onValueChange={setPickerQ}

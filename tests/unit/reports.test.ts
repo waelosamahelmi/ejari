@@ -291,3 +291,43 @@ it("a retired unit and its replacement appear only in their respective historica
   expect(after.rows.some((r) => r.unitIds.includes(unit.id))).toBe(false);
   expect(after.rows.some((r) => r.unitIds.includes("replacement-shop"))).toBe(true);
 });
+
+it("includes advance receipts before lease start without treating the unit as occupied", () => {
+  const c = ds.contracts[0]!;
+  const charge = {
+    ...ds.charges.find((ch) => ch.contractId === c.id)!,
+    id: "advance-charge",
+    period: "2027-01",
+    dueDate: "2027-01-01",
+    amountFils: 300000,
+  };
+  const payment = {
+    ...ds.payments.find((p) => p.contractId === c.id)!,
+    id: "advance-receipt",
+    receivedAt: "2026-11-10",
+    amountFils: 100000,
+    receiptNo: "ADV-1",
+    voided: false,
+  };
+  const data = {
+    ...ds,
+    contracts: [
+      { ...c, startDate: "2027-01-01", endDate: "2027-12-31", status: "active" as const },
+    ],
+    charges: [charge],
+    payments: [payment],
+    allocations: [{ paymentId: payment.id, chargeId: charge.id, amountFils: 100000 }],
+    adjustments: [],
+  };
+  const s = monthlyStatement(data, c.propertyId, "2026-11");
+  expect(s.totals.rentFils).toBe(0);
+  expect(s.totals.collectedFils).toBe(100000);
+  expect(s.totals.nextFils).toBe(100000);
+  expect(s.totals.occupiedCount).toBe(0);
+  expect(s.totals.vacantCount).toBeGreaterThan(0);
+  expect(s.rows.find((r) => r.contractId === c.id)).toMatchObject({
+    status: "advance",
+    receiptNos: ["ADV-1"],
+    arrearsFils: 0,
+  });
+});

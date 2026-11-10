@@ -56,3 +56,14 @@ Resume rule: read this file first and continue from the first unchecked item.
 Verification: typecheck, lint, 292 unit tests and production build pass. Fresh local migrations and 16 database/RLS tests pass. The broader nonvisual browser run passed 26 cases; two test-fixture cleanup failures were corrected and all 11 client/report cases passed on rerun (all 28 distinct browser cases covered, including three accessibility runs). Focused visual verification passed four tests / 48 captures. Generated database types were refreshed and typechecked.
 
 Deployment: a private pre-migration snapshot was saved outside Git; both November migrations were applied to the production Supabase project before the source push. Two admin memberships retain access; the existing collector requires explicit property assignment. Raw bilingual transcripts of all 25 recordings are in the supplied local transcript artifact, outside Git.
+
+## Client follow-up (2026-11-10)
+
+- [x] Review all eight recordings and both images; source map in `CLIENT_EDITS_2026-11-10.md`.
+- [x] Ongoing discounts, month selection and visible wizard guidance.
+- [x] Advance collections, nationality catalogue and staff access guidance.
+- [x] Quality gate, database/browser regressions, production migration, commit and push.
+
+Verification: typecheck, lint, 293 unit tests and production build pass; 17 database/RLS tests pass on the new local migration. Full nonvisual browser suite: 30/30, including accessibility, ongoing discount → future-lease advance collection → receipt-month statement → renewal, plus the existing PWA/offline flows. Focused visual suite: 4/4 tests, 64 captures; 16 discount baselines added and selected existing baselines refreshed after correcting mobile grid overflow.
+
+Production: `20261110000001_open_ended_discounts` applied transactionally after a private pre-migration snapshot. Live API/schema and existing financial row counts verified. Staff property assignments remain unchanged. The eight-recording follow-up transcript is saved in Downloads, outside Git.

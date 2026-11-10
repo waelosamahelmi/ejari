@@ -94,7 +94,8 @@
       "increaseEvery": "Every (months)",
       "notes": "Internal notes",
       "chooseNotice": "Choose notice period (default zero)",
-      "chooseUtilities": "Choose the responsible party before continuing."
+      "chooseUtilities": "Choose the responsible party before continuing.",
+      "completeRequired": "To continue: confirm utilities and notice, and complete the amount, dates and reason for any discount."
     },
     "clauses": {
       "title": "Clauses",
@@ -232,13 +233,18 @@
   "uploaded": "Signed copy uploaded",
   "duplicated": "New draft created",
   "discount": {
-    "title": "Temporary discount",
+    "title": "Rent discount",
     "from": "From month",
     "to": "To month",
     "amount": "Monthly discount KWD",
     "reason": "Discount reason",
     "apply": "Apply discount",
     "saved": "Discount applied",
-    "help": "Apply a concession each month in the selected range while retaining the original contract rent. Any overpayment becomes tenant credit."
+    "help": "Choose a fixed period or an ongoing discount for this lease. Base rent stays unchanged; excess payments return to tenant credit.",
+    "openEnded": "Ongoing for this lease",
+    "openEndedHelp": "Applies from the start month through the lease end and carries into renewal. No discount end month is needed.",
+    "requiredReason": "Enter the discount reason to continue.",
+    "invalidAmount": "Enter a positive discount no greater than monthly rent.",
+    "invalidPeriod": "Choose months within the lease billing term, with the end on or after the start."
   }
 }
