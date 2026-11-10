@@ -67,3 +67,11 @@ Deployment: a private pre-migration snapshot was saved outside Git; both Novembe
 Verification: typecheck, lint, 293 unit tests and production build pass; 17 database/RLS tests pass on the new local migration. Full nonvisual browser suite: 30/30, including accessibility, ongoing discount → future-lease advance collection → receipt-month statement → renewal, plus the existing PWA/offline flows. Focused visual suite: 4/4 tests, 64 captures; 16 discount baselines added and selected existing baselines refreshed after correcting mobile grid overflow.
 
 Production: `20261110000001_open_ended_discounts` applied transactionally after a private pre-migration snapshot. Live API/schema and existing financial row counts verified. Staff property assignments remain unchanged. The eight-recording follow-up transcript is saved in Downloads, outside Git.
+
+## Merge/split follow-up (2026-11-11)
+
+- [x] Review the video and reproduce the hidden blank-result-row problem.
+- [x] Explicit merge/split modes, suggested results and visible validation.
+- [x] Quality gate, browser regressions, commit and push.
+
+Verification: typecheck, lint, 293 unit tests and production build pass; 17 database/RLS tests pass. The targeted browser suite passed 12/12, including Arabic split → merge and the English mobile reproduction (shops 11 + 12 → one plot, 1,300.000 KWD, correct floor, preserved source history). Inspected both screenshots. No database migration or production unit changes are required. Raw video/transcripts remain outside Git.

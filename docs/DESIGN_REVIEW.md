@@ -96,3 +96,9 @@ Reviewed residential and investment print output with the client's plain lease r
 - Add 16 visual baselines for the discount month selector and ongoing state across Arabic/English, light/dark and mobile/desktop, alongside the established document/collections/wizard captures.
 
 Verification: all four focused visual runs pass (64 captures). Inspected the Arabic mobile month selector and ongoing-discount state, plus the English dark mobile state; fields and explanatory copy fit within the card.
+
+## 2026-11-11 — Merge/split form clarity
+
+- Separate merge and split choices, prefilled editable results, and a scrollable source list eliminate the unused blank result row when merging.
+- The footer shows source/result counts and missing requirements beside confirmation. The required reason appears before the source/result fields.
+- Inspected Arabic desktop and English mobile screenshots; the mobile case confirms changing the result type to Plot, saving 11+12 at 1,300.000 KWD and preserving the two retired source units. Targeted browser checks pass 12/12.

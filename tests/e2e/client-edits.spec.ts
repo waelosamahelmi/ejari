@@ -244,6 +244,7 @@ test("merge/split UI retains source units and permits a shared PACI", async ({ p
   await page.goto(`/ar/properties/${IDS.jabriya}?tab=units`);
   await page.getByRole("button", { name: "دمج أو فرز الوحدات", exact: true }).click();
   const sheet = page.getByRole("dialog");
+  await sheet.getByRole("radio", { name: "فرز وحدة", exact: true }).click();
   await sheet.getByLabel("محل QA-SOURCE", { exact: true }).check();
   await sheet.locator("#result-label-0").fill("QA-1");
   await sheet.locator("#result-label-1").fill("QA-2");
@@ -272,11 +273,20 @@ test("merge/split UI retains source units and permits a shared PACI", async ({ p
   await page.getByRole("button", { name: "دمج أو فرز الوحدات", exact: true }).click();
   await sheet.getByLabel("محل QA-1", { exact: true }).check();
   await sheet.getByLabel("محل QA-2", { exact: true }).check();
-  await sheet.getByRole("button", { name: "إزالة هذا الصف", exact: true }).last().click();
+  await expect(sheet.locator("#result-label-1")).toHaveCount(0);
+  await expect(sheet.locator("#result-label-0")).toHaveValue("QA-1+QA-2");
+  await expect(sheet.locator("#result-type-0")).toHaveValue("shop");
+  await expect(sheet.locator("#result-rent-0")).toHaveValue("300.000");
+  await expect(
+    sheet.getByRole("button", { name: "تأكيد وحفظ الوحدات", exact: true }),
+  ).toBeDisabled();
+  await expect(sheet.getByRole("status")).toContainText("اكتب سبب الدمج أو الفرز لإتمام الحفظ.");
   await sheet.locator("#result-label-0").fill("QA-MERGED");
   await sheet.locator("#result-type-0").selectOption("shop");
   await sheet.locator("#result-rent-0").fill("300");
   await sheet.locator("#restructure-reason").fill("دمج المحلين");
+  await sheet.locator("#result-label-0").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: "test-results/unit-merge-arabic.png", fullPage: true });
   await sheet.getByRole("button", { name: "تأكيد وحفظ الوحدات", exact: true }).click();
   await expect(sheet).not.toBeVisible();
   const { data: retired } = await db

@@ -114,3 +114,9 @@
 - Statements include financial rows for receipts received before the lease starts (or after it ends), so advance collections appear in receipt-month totals. Such rows do not change physical occupancy/vacancy counts.
 
 - Applied migration `20261110000001_open_ended_discounts` transactionally to production after a private pre-migration snapshot. Verified the nullable end field through the live schema/API and preserved lease, charge, payment and allocation row counts. Existing member assignments remain unchanged.
+
+## 2026-11-11 — Clear merge/split workflow
+
+- The video shows an incomplete form, not a failed database operation: two result rows were required even when merging two shops into one. Introduce explicit merge (two or more sources → one result) and split (one source → two or more results) modes.
+- Suggested result data are editable. Merge adds asking rents, joins source labels, preserves a common type/floor, and uses “other”/ground floor when sources differ. Split suggests labelled parts and divides asking rent in integer fils. Changing the selection refreshes those suggestions.
+- The mandatory audit reason remains required. Display missing requirements in the footer rather than silently disabling confirmation; keep the source list within a scrollable area. Existing history/contract guards and transactional database operations are unchanged; no migration or live customer-data rewrite is needed.

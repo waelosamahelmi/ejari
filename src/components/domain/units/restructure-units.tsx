@@ -8,6 +8,9 @@ import { MoneyInput } from "@/components/ui/money-input";
 import { useAction } from "@/hooks/use-action";
 import { useRouter } from "@/i18n/navigation";
 import { restructureUnits } from "@/server/actions/master";
+import { SegmentedControl } from "@/components/ui/segmented";
+import { splitEven } from "@/domain/money";
+import { unitSchema } from "@/lib/schemas/master";
 import { UNIT_TYPES, type UnitType } from "@/domain/types";
 
 interface ResultUnit {
@@ -29,19 +32,77 @@ export function RestructureUnits({
   units,
 }: {
   propertyId: string;
-  units: { id: string; label: string; status: string; type: string; askingRentFils: number }[];
+  units: {
+    id: string;
+    label: string;
+    status: string;
+    type: string;
+    askingRentFils: number;
+    floor: number | null;
+  }[];
 }) {
   const t = useTranslations("units.restructure");
   const te = useTranslations("enums.unitType");
   const router = useRouter();
   const { exec, pending } = useAction();
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"merge" | "split">("merge");
   const [sources, setSources] = useState<string[]>([]);
-  const [results, setResults] = useState<ResultUnit[]>([blank(), blank()]);
+  const [results, setResults] = useState<ResultUnit[]>([blank()]);
   const [paci, setPaci] = useState("");
   const [reason, setReason] = useState("");
   const edit = (i: number, patch: Partial<ResultUnit>) =>
     setResults((rows) => rows.map((r, index) => (index === i ? { ...r, ...patch } : r)));
+  const chooseSources = (ids: string[]) => {
+    setSources(ids);
+    const selected = units.filter((u) => ids.includes(u.id));
+    const first = selected[0];
+    if (mode === "merge") {
+      setResults([
+        {
+          ...blank(),
+          label: selected.map((u) => u.label).join("+"),
+          type:
+            first && selected.every((u) => u.type === first.type)
+              ? (first.type as UnitType)
+              : "other",
+          floor: first && selected.every((u) => u.floor === first.floor) ? (first.floor ?? 0) : 0,
+          askingRentFils: selected.reduce((total, u) => total + u.askingRentFils, 0),
+        },
+      ]);
+    } else {
+      const rents = splitEven(first?.askingRentFils ?? 0, 2);
+      setResults(
+        [0, 1].map((i) => ({
+          ...blank(),
+          label: first ? `${first.label}-${i + 1}` : "",
+          type: first ? (first.type as UnitType) : "apartment",
+          floor: first?.floor ?? 0,
+          askingRentFils: rents[i]!,
+        })),
+      );
+    }
+  };
+  const issues: string[] = [];
+  if ((mode === "merge" && sources.length < 2) || (mode === "split" && sources.length !== 1))
+    issues.push(t(mode === "merge" ? "chooseMergeSources" : "chooseSplitSource"));
+  if (!reason.trim()) issues.push(t("reasonRequired"));
+  if (results.some((r) => !r.label.trim())) issues.push(t("labelsRequired"));
+  const labels = results.map((r) => r.label.trim().toLocaleLowerCase()).filter(Boolean);
+  if (
+    new Set(labels).size !== labels.length ||
+    units.some(
+      (u) => !sources.includes(u.id) && labels.includes(u.label.trim().toLocaleLowerCase()),
+    )
+  )
+    issues.push(t("duplicateLabel"));
+  if (
+    results.every((r) => r.label.trim()) &&
+    results.some((r) => !unitSchema.safeParse({ ...r, propertyId }).success)
+  )
+    issues.push(t("invalidResult"));
+  if (paci !== "" && !/^\d{8}$/.test(paci)) issues.push(t("invalidPaci"));
+  const ready = issues.length === 0;
   return (
     <>
       <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>
@@ -52,50 +113,88 @@ export function RestructureUnits({
         onOpenChange={setOpen}
         title={t("title")}
         footer={
-          <Button
-            block
-            loading={pending}
-            disabled={
-              !sources.length ||
-              !reason.trim() ||
-              results.some((r) => !r.label.trim()) ||
-              (sources.length === 1 && results.length === 1) ||
-              (paci !== "" && !/^\d{8}$/.test(paci))
-            }
-            onClick={() =>
-              exec(
-                () =>
-                  restructureUnits({
-                    propertyId,
-                    sourceIds: sources,
-                    reason,
-                    units: results.map((r) => ({
-                      ...r,
+          <div className="space-y-3">
+            <p className="text-label-2 text-sm">
+              {t("summary", { sources: sources.length, results: results.length })}
+            </p>
+            {!ready && (
+              <ul
+                role="status"
+                aria-live="polite"
+                className="text-orange-text list-disc space-y-1 ps-5 text-sm"
+              >
+                {issues.map((issue) => (
+                  <li key={issue}>{issue}</li>
+                ))}
+              </ul>
+            )}
+            <Button
+              block
+              loading={pending}
+              disabled={!ready}
+              onClick={() =>
+                exec(
+                  () =>
+                    restructureUnits({
                       propertyId,
-                      paciNo: paci,
-                      active: true,
-                      sortOrder: 0,
-                    })),
-                  }),
-                {
-                  success: t("done"),
-                  onSuccess: () => {
-                    setOpen(false);
-                    setSources([]);
-                    setResults([blank(), blank()]);
-                    setReason("");
-                    router.refresh();
+                      sourceIds: sources,
+                      reason,
+                      units: results.map((r) => ({
+                        ...r,
+                        propertyId,
+                        paciNo: paci,
+                        active: true,
+                        sortOrder: 0,
+                      })),
+                    }),
+                  {
+                    success: t("done"),
+                    onSuccess: () => {
+                      setOpen(false);
+                      setSources([]);
+                      setMode("merge");
+                      setResults([blank()]);
+                      setPaci("");
+                      setReason("");
+                      router.refresh();
+                    },
                   },
-                },
-              )
-            }
-          >
-            {t("confirm")}
-          </Button>
+                )
+              }
+            >
+              {t("confirm")}
+            </Button>
+          </div>
         }
       >
         <p className="text-label-2 mb-4 text-sm">{t("help")}</p>
-        <fieldset className="space-y-2">
+        <SegmentedControl
+          options={[
+            { value: "merge", label: t("merge") },
+            { value: "split", label: t("split") },
+          ]}
+          value={mode}
+          ariaLabel={t("operation")}
+          onChange={(value) => {
+            setMode(value);
+            setSources([]);
+            setResults(value === "merge" ? [blank()] : [blank(), blank()]);
+            setReason("");
+          }}
+        />
+        <p className="text-label-2 my-3 text-sm">
+          {t(mode === "merge" ? "mergeHelp" : "splitHelp")}
+        </p>
+        <Field label={t("reason")} htmlFor="restructure-reason" hint={t("reasonRequired")}>
+          <Input
+            id="restructure-reason"
+            required
+            maxLength={500}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+          />
+        </Field>
+        <fieldset className="mt-5 max-h-56 space-y-2 overflow-y-auto">
           <legend className="font-semibold">{t("sources")}</legend>
           {units.map((u) => (
             <label key={u.id} className="flex min-h-11 items-center gap-3">
@@ -104,8 +203,12 @@ export function RestructureUnits({
                 disabled={u.status !== "vacant"}
                 checked={sources.includes(u.id)}
                 onChange={(e) =>
-                  setSources(
-                    e.target.checked ? [...sources, u.id] : sources.filter((id) => id !== u.id),
+                  chooseSources(
+                    e.target.checked
+                      ? mode === "merge"
+                        ? [...sources, u.id]
+                        : [u.id]
+                      : sources.filter((id) => id !== u.id),
                   )
                 }
               />
@@ -164,27 +267,27 @@ export function RestructureUnits({
                   onChange={(e) => edit(i, { floor: Number(e.target.value) })}
                 />
               </Field>
-              <Button
-                variant="plain"
-                size="sm"
-                disabled={results.length <= 1}
-                onClick={() => setResults((rows) => rows.filter((_, n) => n !== i))}
-              >
-                {t("remove")}
-              </Button>
+              {mode === "split" && (
+                <Button
+                  variant="plain"
+                  size="sm"
+                  disabled={results.length <= 2}
+                  onClick={() => setResults((rows) => rows.filter((_, n) => n !== i))}
+                >
+                  {t("remove")}
+                </Button>
+              )}
             </div>
           ))}
-          <Button variant="secondary" onClick={() => setResults((rows) => [...rows, blank()])}>
-            {t("add")}
-          </Button>
-          <Field label={t("reason")} htmlFor="restructure-reason">
-            <Input
-              id="restructure-reason"
-              maxLength={500}
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-            />
-          </Field>
+          {mode === "split" && (
+            <Button
+              variant="secondary"
+              disabled={results.length >= 200}
+              onClick={() => setResults((rows) => [...rows, blank()])}
+            >
+              {t("add")}
+            </Button>
+          )}
         </div>
       </Sheet>
     </>

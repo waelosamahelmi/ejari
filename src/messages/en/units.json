@@ -61,6 +61,19 @@
     "add": "Add resulting unit",
     "reason": "Reason for merge/split",
     "confirm": "Confirm and save units",
-    "done": "Resulting units saved"
+    "done": "Resulting units saved",
+    "operation": "Operation",
+    "merge": "Merge units",
+    "split": "Split a unit",
+    "mergeHelp": "Select two or more units to create one unit. Its label, type and total asking rent are prefilled and can be edited before saving.",
+    "splitHelp": "Select one source unit and create two or more result units. Suggested labels and asking rents can be edited.",
+    "chooseMergeSources": "Select at least two source units to merge.",
+    "chooseSplitSource": "Select one source unit to split.",
+    "reasonRequired": "Enter the reason for merging or splitting to save.",
+    "labelsRequired": "Enter a label for each result unit.",
+    "duplicateLabel": "Result labels must be distinct and must not match another unit in the property.",
+    "invalidResult": "Check result unit details: labels are required and rent cannot be negative.",
+    "invalidPaci": "PACI is optional; when supplied it must contain eight digits.",
+    "summary": "{sources} source units → {results} result units"
   }
 }
