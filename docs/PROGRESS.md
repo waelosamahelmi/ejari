@@ -75,3 +75,15 @@ Production: `20261110000001_open_ended_discounts` applied transactionally after 
 - [x] Quality gate, browser regressions, commit and push.
 
 Verification: typecheck, lint, 293 unit tests and production build pass; 17 database/RLS tests pass. The targeted browser suite passed 12/12, including Arabic split → merge and the English mobile reproduction (shops 11 + 12 → one plot, 1,300.000 KWD, correct floor, preserved source history). Inspected both screenshots. No database migration or production unit changes are required. Raw video/transcripts remain outside Git.
+
+## Client review (2026-11-13)
+
+- [x] Review all supplied recordings, images and quoted infrastructure messages.
+- [x] Property views/owner selection, planner input and typed unit identity.
+- [x] Frozen clearance documents and reprintable unit history.
+- [x] Verified access audit, encrypted backup and handover/fallback guidance.
+- [x] Quality gate, migrations, commit and push.
+
+Verification: typecheck, lint, 295 unit tests and production build pass. Fresh local reset plus all 19 database/RLS tests pass. The full nonvisual browser run passed 33/34 initially; one old expense assertion matched the departing form and the new voucher simultaneously. Scoped it to the allocation list and reran the expense suite: 3/3 passed, covering all 34 distinct browser cases. The earlier targeted run passed 15/15. Inspected Arabic/English mobile property layouts (all three views, no horizontal overflow) and the clearance print page.
+
+Production: applied `20261113000001_unit_identity` and `20261113000002_contract_clearances` transactionally after verifying an encrypted pre-update database/source backup. Existing contracts, units, charges, payments, adjustments and allocation counts were preserved. RLS is enabled on the new immutable clearance table. No historical lease/clearance or customer financial records were manufactured. Readable recordings review and the unsent client reply are in Downloads, outside Git. Provider invitations, visibility changes, a deployed mirror and automatic backup scheduling remain outside this release.

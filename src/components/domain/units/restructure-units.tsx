@@ -88,11 +88,15 @@ export function RestructureUnits({
     issues.push(t(mode === "merge" ? "chooseMergeSources" : "chooseSplitSource"));
   if (!reason.trim()) issues.push(t("reasonRequired"));
   if (results.some((r) => !r.label.trim())) issues.push(t("labelsRequired"));
-  const labels = results.map((r) => r.label.trim().toLocaleLowerCase()).filter(Boolean);
+  const labels = results
+    .map((r) => (r.label.trim() ? `${r.type}:${r.label.trim().toLocaleLowerCase()}` : ""))
+    .filter(Boolean);
   if (
     new Set(labels).size !== labels.length ||
     units.some(
-      (u) => !sources.includes(u.id) && labels.includes(u.label.trim().toLocaleLowerCase()),
+      (u) =>
+        !sources.includes(u.id) &&
+        labels.includes(`${u.type}:${u.label.trim().toLocaleLowerCase()}`),
     )
   )
     issues.push(t("duplicateLabel"));

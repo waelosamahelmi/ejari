@@ -137,5 +137,6 @@ test.describe("contracts", () => {
     await expect(page.getByRole("dialog")).toContainText("0.000 KWD");
     await confirm.click();
     await expect(page.getByText("Contract terminated", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Later", exact: true }).click();
   });
 });

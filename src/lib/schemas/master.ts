@@ -106,7 +106,9 @@ export const createPlannedUnitsSchema = z
     units: z.array(plannedUnitSchema).min(1, "required").max(MAX_PLANNED_UNITS),
   })
   .refine(
-    (v) => new Set(v.units.map((u) => u.label.trim().toLowerCase())).size === v.units.length,
+    (v) =>
+      new Set(v.units.map((u) => `${u.type}:${u.label.trim().toLowerCase()}`)).size ===
+      v.units.length,
     { message: "duplicate", path: ["units"] },
   );
 export type CreatePlannedUnitsInput = z.input<typeof createPlannedUnitsSchema>;

@@ -22,7 +22,7 @@ export function OwnerFormSheet({
   open: boolean;
   onOpenChange: (o: boolean) => void;
   owner?: (OwnerInput & { id: string }) | null;
-  onSaved?: (id: string) => void;
+  onSaved?: (id: string, owner?: { fullName: string }) => void;
 }) {
   const t = useTranslations("owners");
   const tc = useTranslations("common.actions");
@@ -74,7 +74,7 @@ export function OwnerFormSheet({
       success: t("saved"),
       onSuccess: (id) => {
         onOpenChange(false);
-        onSaved?.(id);
+        onSaved?.(id, { fullName: v.fullName });
         router.refresh();
       },
     }),

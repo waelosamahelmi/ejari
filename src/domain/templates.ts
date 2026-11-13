@@ -557,7 +557,13 @@ export function buildTemplateVars(i: TemplateVarsInput): Vars {
     property_paci: i.property.paciNo ?? "",
     property_type: i.property.propertyType ?? "",
     unit_type_label: unitTypeLabel(i.units.map((u) => u.type)),
-    unit_labels: i.units.map((u) => u.label).join("، "),
+    unit_labels: i.units
+      .map((u) =>
+        i.units.some((other) => other !== u && other.label === u.label)
+          ? `${unitTypeLabel([u.type])} ${u.label}`
+          : u.label,
+      )
+      .join("، "),
     unit_paci: i.units.length === 1 ? (i.units[0]!.paciNo ?? "") : "",
     purpose: i.purpose,
     rent_amount: fromFils(i.monthlyRentFils),

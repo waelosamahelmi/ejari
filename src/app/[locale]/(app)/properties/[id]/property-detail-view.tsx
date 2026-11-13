@@ -541,7 +541,10 @@ export function PropertyDetailView({
         open={bulk}
         onOpenChange={setBulk}
         propertyId={p.id}
-        existingLabels={stack.map((s) => s.label)}
+        existingLabels={stack.map((s) => ({
+          label: s.label,
+          type: s.type as import("@/domain/types").UnitType,
+        }))}
       />
     </div>
   );

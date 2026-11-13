@@ -11,6 +11,7 @@ import { Photo } from "./photo";
  */
 export function PropertyPhotoCard({
   name,
+  nameOutside = false,
   location,
   photo,
   pills,
@@ -25,6 +26,7 @@ export function PropertyPhotoCard({
   priority,
 }: {
   name: string;
+  nameOutside?: boolean;
   location?: ReactNode;
   photo: string | null | undefined;
   pills?: ReactNode;
@@ -40,43 +42,61 @@ export function PropertyPhotoCard({
 }) {
   const L = LinkComponent;
   return (
-    <Photo
-      src={photo}
-      name={name}
-      alt={name}
-      scrim="bottom"
-      priority={priority}
-      sizes="(min-width: 1280px) 25vw, (min-width: 768px) 40vw, 85vw"
-      className={cn("group rounded-[28px] shadow-[var(--sh-card)]", aspect, className)}
+    <div
+      className={
+        nameOutside ? "bg-paper overflow-hidden rounded-[28px] shadow-[var(--sh-card)]" : undefined
+      }
     >
-      <L href={href} className="absolute inset-0 z-0" aria-label={`${ctaLabel} — ${name}`} />
-      {onTogglePin && (
-        <GlassButton
-          onClick={onTogglePin}
-          aria-pressed={pinned}
-          aria-label={pinLabel}
-          className={cn("absolute end-3.5 top-3.5 z-10", pinned && "bg-white text-[#0E0F12]")}
-        >
-          <Pin className={cn(pinned && "fill-current")} />
-        </GlassButton>
+      {nameOutside && (
+        <h3 className="px-4 py-4 text-[18px] leading-relaxed font-semibold break-words">
+          <L href={href}>{name}</L>
+        </h3>
       )}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-4 text-white">
-        {location && (
-          <p className="flex items-center gap-1 text-[13px] text-white/85">
-            <MapPin className="size-3.5" aria-hidden />
-            {location}
-          </p>
+      <Photo
+        src={photo}
+        name={name}
+        alt={name}
+        scrim="bottom"
+        priority={priority}
+        sizes="(min-width: 1280px) 25vw, (min-width: 768px) 40vw, 85vw"
+        className={cn(
+          "group",
+          nameOutside ? "[&_svg_text]:hidden" : "rounded-[28px] shadow-[var(--sh-card)]",
+          aspect,
+          className,
         )}
-        <h3 className="mt-0.5 text-[22px] leading-tight font-semibold">{name}</h3>
-        {pills && <div className="mt-2.5 flex flex-wrap gap-1.5">{pills}</div>}
-        <div className="glass mt-3 flex h-12 items-center justify-between rounded-full ps-5 pe-1.5 text-[15px] font-medium">
-          <span>{ctaLabel}</span>
-          <span className="flex size-9 items-center justify-center rounded-full bg-white text-[#0E0F12]">
-            <ChevronRight className="flip-rtl size-5" aria-hidden />
-          </span>
+      >
+        <L href={href} className="absolute inset-0 z-0" aria-label={`${ctaLabel} — ${name}`} />
+        {onTogglePin && (
+          <GlassButton
+            onClick={onTogglePin}
+            aria-pressed={pinned}
+            aria-label={pinLabel}
+            className={cn("absolute end-3.5 top-3.5 z-10", pinned && "bg-white text-[#0E0F12]")}
+          >
+            <Pin className={cn(pinned && "fill-current")} />
+          </GlassButton>
+        )}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-4 text-white">
+          {location && (
+            <p className="flex items-center gap-1 text-[13px] text-white/85">
+              <MapPin className="size-3.5" aria-hidden />
+              {location}
+            </p>
+          )}
+          {!nameOutside && (
+            <h3 className="mt-0.5 text-[22px] leading-tight font-semibold break-words">{name}</h3>
+          )}
+          {pills && <div className="mt-2.5 flex flex-wrap gap-1.5">{pills}</div>}
+          <div className="glass mt-3 flex h-12 items-center justify-between rounded-full ps-5 pe-1.5 text-[15px] font-medium">
+            <span>{ctaLabel}</span>
+            <span className="flex size-9 items-center justify-center rounded-full bg-white text-[#0E0F12]">
+              <ChevronRight className="flip-rtl size-5" aria-hidden />
+            </span>
+          </div>
         </div>
-      </div>
-    </Photo>
+      </Photo>
+    </div>
   );
 }
 

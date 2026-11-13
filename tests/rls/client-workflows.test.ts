@@ -348,32 +348,48 @@ describe.skipIf(!enabled)("client workflows and property scope", () => {
     }
     expect(
       (
-        await admin
-          .from("contract_discounts")
-          .insert({
-            org_id: org,
-            contract_id: contractB,
-            from_period: "2026-12",
-            to_period: "2026-12",
-            amount_fils: 1000,
-            reason: "Overlap",
-          })
+        await admin.from("contract_discounts").insert({
+          org_id: org,
+          contract_id: contractB,
+          from_period: "2026-12",
+          to_period: "2026-12",
+          amount_fils: 1000,
+          reason: "Overlap",
+        })
       ).error,
     ).not.toBeNull();
     expect(
       (
-        await admin
-          .from("contract_discounts")
-          .insert({
-            org_id: org,
-            contract_id: contractB,
-            from_period: "2027-02",
-            to_period: null,
-            amount_fils: 1000,
-            reason: "Outside lease",
-          })
+        await admin.from("contract_discounts").insert({
+          org_id: org,
+          contract_id: contractB,
+          from_period: "2027-02",
+          to_period: null,
+          amount_fils: 1000,
+          reason: "Outside lease",
+        })
       ).error,
     ).not.toBeNull();
+  });
+  it("keeps active labels unique by type rather than across every unit in a property", async () => {
+    const prop = await admin
+      .from("properties")
+      .insert({ org_id: org, name: "Typed label QA" })
+      .select("id")
+      .single();
+    expect(prop.error).toBeNull();
+    for (const type of ["shop", "office"] as const)
+      expect(
+        (
+          await admin
+            .from("units")
+            .insert({ org_id: org, property_id: prop.data!.id, label: "1", type })
+        ).error,
+      ).toBeNull();
+    const duplicate = await admin
+      .from("units")
+      .insert({ org_id: org, property_id: prop.data!.id, label: " 1 ", type: "office" });
+    expect(duplicate.error?.code).toBe("23505");
   });
   it("splits/merges units atomically, shares PACI and retains originals", async () => {
     const result = await admin.rpc("restructure_units", {
@@ -436,6 +452,57 @@ describe.skipIf(!enabled)("client workflows and property scope", () => {
           .eq("id", contractA)
       ).error,
     ).not.toBeNull();
+  });
+  it("freezes clearances, scopes them to properties and prevents rewriting them", async () => {
+    for (const id of [contractA, contractB])
+      expect(
+        (
+          await admin
+            .from("contracts")
+            .update({ status: "terminated", move_out_date: "2026-11-12" })
+            .eq("id", id)
+        ).error,
+      ).toBeNull();
+    const doc = await admin
+      .from("contract_clearances")
+      .select("id,snapshot")
+      .eq("contract_id", contractA)
+      .single();
+    expect(doc.error).toBeNull();
+    const original = doc.data!.snapshot;
+    expect((await admin.rpc("issue_contract_clearance", { p_contract: contractA })).data).toBe(
+      doc.data!.id,
+    );
+    expect(
+      (await staff.from("contract_clearances").select("id").eq("contract_id", contractB)).data,
+    ).toEqual([]);
+    expect(
+      (await staff.rpc("issue_contract_clearance", { p_contract: contractB })).error,
+    ).not.toBeNull();
+    expect(
+      (
+        await admin
+          .from("tenants")
+          .update({ full_name: "Changed after termination" })
+          .eq("id", tenantA)
+      ).error,
+    ).toBeNull();
+    expect(
+      (await admin.from("contract_clearances").select("snapshot").eq("id", doc.data!.id).single())
+        .data?.snapshot,
+    ).toEqual(original);
+    expect(
+      (
+        await admin
+          .from("contract_clearances")
+          .update({ snapshot: {} })
+          .eq("id", doc.data!.id)
+          .select("id")
+      ).data,
+    ).toEqual([]);
+    expect(
+      (await staff.from("contract_clearances").delete().eq("id", doc.data!.id).select("id")).data,
+    ).toEqual([]);
   });
   it("reassignment and membership removal revoke access immediately", async () => {
     expect(

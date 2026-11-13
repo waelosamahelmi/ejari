@@ -246,5 +246,13 @@
     "requiredReason": "Enter the discount reason to continue.",
     "invalidAmount": "Enter a positive discount no greater than monthly rent.",
     "invalidPeriod": "Choose months within the lease billing term, with the end on or after the start."
+  },
+  "clearance": {
+    "title": "Vacating request",
+    "print": "Print clearance",
+    "create": "Create clearance",
+    "later": "Later",
+    "saved": "The clearance is saved. Print now or later from the lease or unit history.",
+    "help": "The clearance preserves details at termination. For older terminated leases it is saved on first creation and can be reprinted later."
   }
 }

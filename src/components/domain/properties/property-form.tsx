@@ -1,6 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, X } from "lucide-react";
@@ -73,6 +73,12 @@ export function PropertyFormSheet({
   const fe = useFieldError();
   const router = useRouter();
   const { exec, pending } = useAction();
+  const [addedOwners, setAddedOwners] = useState<{ id: string; fullName: string }[]>([]);
+  const ownerOptions = [
+    ...owners,
+    ...addedOwners.filter((a) => !owners.some((o) => o.id === a.id)),
+  ];
+  const opened = useRef(false);
   const [ownerSheet, setOwnerSheet] = useState(false);
   const isCreate = !property;
   const [step, setStep] = useState<"details" | "units">("details");
@@ -94,10 +100,13 @@ export function PropertyFormSheet({
   } = form;
   const ownerRows = useFieldArray({ control, name: "owners" });
   useEffect(() => {
-    if (!open) return;
-    form.reset(
-      property ?? { ...EMPTY, owners: owners[0] ? [{ ownerId: owners[0].id, sharePct: 100 }] : [] },
-    );
+    if (!open) {
+      opened.current = false;
+      return;
+    }
+    if (opened.current) return;
+    opened.current = true;
+    form.reset(property ?? { ...EMPTY, owners: [{ ownerId: "", sharePct: 100 }] });
     setStep("details");
     setUnitMode("now");
     setPlanRows([]);
@@ -242,7 +251,12 @@ export function PropertyFormSheet({
           />
         </Field>
         <Field label={t("fields.block")} htmlFor="p-block" error={fe(errors.block?.message)}>
-          <Input id="p-block" inputMode="numeric" {...register("block")} aria-invalid={!!errors.block} />
+          <Input
+            id="p-block"
+            inputMode="numeric"
+            {...register("block")}
+            aria-invalid={!!errors.block}
+          />
         </Field>
         <Field label={t("fields.street")} htmlFor="p-street" error={fe(errors.street?.message)}>
           <Input id="p-street" {...register("street")} aria-invalid={!!errors.street} />
@@ -289,12 +303,18 @@ export function PropertyFormSheet({
             <div key={f.id} className="flex items-center gap-2">
               <div className="flex-1">
                 <Select aria-label={t("fields.owners")} {...register(`owners.${i}.ownerId`)}>
-                  {owners.map((o) => (
+                  <option value="">{t("fields.chooseOwner")}</option>
+                  {ownerOptions.map((o) => (
                     <option key={o.id} value={o.id}>
                       {o.fullName}
                     </option>
                   ))}
                 </Select>
+                {errors.owners?.[i]?.ownerId && (
+                  <p role="alert" className="text-red-text mt-1 text-sm">
+                    {t("fields.chooseOwner")}
+                  </p>
+                )}
               </div>
               <Input
                 aria-label={t("fields.share")}
@@ -316,7 +336,7 @@ export function PropertyFormSheet({
             {owners.length > 0 && (
               <button
                 type="button"
-                onClick={() => ownerRows.append({ ownerId: owners[0]!.id, sharePct: 0 })}
+                onClick={() => ownerRows.append({ ownerId: "", sharePct: 0 })}
                 className="text-link flex items-center gap-1 text-[14px] font-medium"
               >
                 <Plus className="size-4" />
@@ -345,9 +365,13 @@ export function PropertyFormSheet({
             ]}
             value={commission ? commission.kind : "none"}
             onChange={(k) =>
-              setValue("commission", k === "none" ? null : { kind: k as "percent" | "fixed", value: 0 }, {
-                shouldDirty: true,
-              })
+              setValue(
+                "commission",
+                k === "none" ? null : { kind: k as "percent" | "fixed", value: 0 },
+                {
+                  shouldDirty: true,
+                },
+              )
             }
           />
           {commission?.kind === "percent" && (
@@ -463,11 +487,22 @@ export function PropertyFormSheet({
       <OwnerFormSheet
         open={ownerSheet}
         onOpenChange={setOwnerSheet}
-        onSaved={(id) => {
+        onSaved={(id, saved) => {
+          if (saved)
+            setAddedOwners((prev) => [
+              ...prev.filter((o) => o.id !== id),
+              { id, fullName: saved.fullName },
+            ]);
           const rows = form.getValues("owners");
           form.setValue(
             "owners",
-            rows.length ? [...rows, { ownerId: id, sharePct: 0 }] : [{ ownerId: id, sharePct: 100 }],
+            rows.some((r) => !r.ownerId)
+              ? rows.map((r, i) =>
+                  i === rows.findIndex((x) => !x.ownerId) ? { ...r, ownerId: id } : r,
+                )
+              : rows.length
+                ? [...rows, { ownerId: id, sharePct: 0 }]
+                : [{ ownerId: id, sharePct: 100 }],
           );
         }}
       />

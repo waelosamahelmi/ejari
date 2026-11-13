@@ -22,7 +22,8 @@
     "brand:assets": "tsx scripts/brand/build-brand.ts && tsx scripts/generate-brand-assets.ts",
     "vapid": "tsx scripts/generate-vapid.ts",
     "screenshots": "tsx scripts/capture-screenshots.ts",
-    "i18n:check": "tsx scripts/check-i18n.ts"
+    "i18n:check": "tsx scripts/check-i18n.ts",
+    "backup": "node scripts/ops/backup.mjs"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",

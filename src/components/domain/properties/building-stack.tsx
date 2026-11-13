@@ -46,6 +46,14 @@ export function BuildingStack({
   isDisabled?: (u: StackTile) => string | null;
 }) {
   const t = useTranslations("properties.stack");
+  const tType = useTranslations("enums.unitType");
+  const unitLabel = (u: StackTile) =>
+    units.some(
+      (other) =>
+        other.id !== u.id && other.label.trim().toLowerCase() === u.label.trim().toLowerCase(),
+    )
+      ? `${tType(u.type as import("@/domain/types").UnitType)} ${u.label}`
+      : u.label;
   const tStatus = useTranslations("enums.unitStatus");
   const tPeriod = useTranslations("enums.periodStatus");
   const money = useMoney();
@@ -86,7 +94,7 @@ export function BuildingStack({
                   const content = (
                     <>
                       <div className="flex items-center justify-between gap-1">
-                        <span className="truncate text-[14px] font-semibold">{u.label}</span>
+                        <span className="truncate text-[14px] font-semibold">{unitLabel(u)}</span>
                         {u.status === "legal" ? (
                           <Gavel className="text-red-text size-3.5 shrink-0" aria-hidden />
                         ) : u.underMaintenance ? (
@@ -117,7 +125,7 @@ export function BuildingStack({
                     isSel && "bg-ink text-on-ink ring-ink [&_.text-label-2]:text-on-ink/70",
                     disabled && "cursor-not-allowed opacity-45",
                   );
-                  const aria = `${u.label} — ${u.tenantName ?? tStatus(u.status)}${u.status !== "vacant" ? ` — ${tPeriod(u.periodStatus)}` : ""}${disabled ? ` — ${disabled}` : ""}`;
+                  const aria = `${unitLabel(u)} — ${u.tenantName ?? tStatus(u.status)}${u.status !== "vacant" ? ` — ${tPeriod(u.periodStatus)}` : ""}${disabled ? ` — ${disabled}` : ""}`;
                   if (mode === "select")
                     return (
                       <button

@@ -142,3 +142,7 @@ URLs and branded email templates.
 - `docs/DOMAIN.md` — glossary and business rules
 - `docs/BRAND.md` · `docs/CREDITS.md` — brand system and photo credits
 - `docs/DESIGN_REVIEW.md` — QA/design review record
+
+## Backups and handover
+
+See [verified access, encrypted backups and fallback-site planning](docs/SECURITY_BACKUP_HANDOVER.md). `pnpm backup` creates and verifies an encrypted database/source/Storage snapshot outside Git; keep the recovery key separately. Provider sharing and automatic backup scheduling require separate account setup.

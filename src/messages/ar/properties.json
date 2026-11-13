@@ -8,7 +8,12 @@
   "empty": "لا توجد عقارات بعد",
   "emptyText": "أضف أول عقار ثم وحداته لتبدأ التحصيل.",
   "noResults": "لا توجد عقارات مطابقة",
-  "filters": { "all": "الكل", "owner": "المالك", "type": "النوع", "inactive": "عرض غير النشطة" },
+  "filters": {
+    "all": "الكل",
+    "owner": "المالك",
+    "type": "النوع",
+    "inactive": "عرض غير النشطة"
+  },
   "pills": {
     "units": "{count, plural, zero {لا وحدات} one {وحدة} two {وحدتان} few {# وحدات} many {# وحدة} other {# وحدة}}",
     "occupancy": "{pct}٪ مشغولة",
@@ -49,7 +54,8 @@
     "commissionValueFixed": "المبلغ الشهري",
     "photos": "الصور",
     "addPhoto": "إضافة صورة",
-    "cover": "الغلاف"
+    "cover": "الغلاف",
+    "chooseOwner": "اختر المالك أو أنشئ مالكًا جديدًا"
   },
   "overview": {
     "thisMonth": "هذا الشهر",
@@ -109,13 +115,25 @@
   "next": "التالي",
   "back": "السابق",
   "create": "إنشاء العقار",
-  "steps": { "details": "بيانات العقار", "units": "الوحدات" },
+  "steps": {
+    "details": "بيانات العقار",
+    "units": "الوحدات"
+  },
   "unitsModeLabel": "وحدات العقار",
-  "unitsMode": { "now": "إعداد الوحدات الآن", "later": "إضافة الوحدات لاحقًا" },
+  "unitsMode": {
+    "now": "إعداد الوحدات الآن",
+    "later": "إضافة الوحدات لاحقًا"
+  },
   "unitsLaterHint": "سيتم إنشاء العقار بدون وحدات، ويمكنك إضافتها لاحقًا من تبويب الوحدات.",
   "deactivate": "إيقاف العقار",
   "activate": "تفعيل العقار",
   "inactive": "غير نشط",
   "printStatement": "اطبع الكشف",
-  "collectedOf": "{collected} من {expected}"
+  "collectedOf": "{collected} من {expected}",
+  "views": {
+    "label": "طريقة العرض",
+    "large": "بطاقات كبيرة",
+    "compact": "بطاقات صغيرة",
+    "list": "قائمة"
+  }
 }

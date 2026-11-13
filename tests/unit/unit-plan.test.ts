@@ -68,13 +68,13 @@ describe("unit plan", () => {
       row({ floor: 2, startNumber: 1, count: 1 }),
     ]);
     expect(duplicateLabels(dupWithin)).toEqual(["1"]);
-    expect(duplicateLabels(generatePlannedUnits([row({ startNumber: 5, count: 1 })]), ["5"])).toEqual(
-      ["5"],
-    );
+    expect(
+      duplicateLabels(generatePlannedUnits([row({ startNumber: 5, count: 1 })]), ["5"]),
+    ).toEqual(["5"]);
     expect(duplicateLabels([{ label: "A1" }], [" a1 "])).toEqual(["A1"]);
-    expect(duplicateLabels(generatePlannedUnits([row({ startNumber: 7, count: 1 })]), ["8"])).toEqual(
-      [],
-    );
+    expect(
+      duplicateLabels(generatePlannedUnits([row({ startNumber: 7, count: 1 })]), ["8"]),
+    ).toEqual([]);
   });
 
   it("enforces the maximum unit count", () => {
@@ -89,4 +89,19 @@ describe("unit plan", () => {
     expect(planIssues([row({ floor: FLOOR_MIN - 1 })])).toContainEqual({ code: "floor", row: 0 });
     expect(planIssues([row({ floor: FLOOR_MAX + 1 })])).toContainEqual({ code: "floor", row: 0 });
   });
+});
+
+it("allows equal labels across types while rejecting same-type collisions", () => {
+  expect(
+    duplicateLabels([
+      { label: "1", type: "shop" },
+      { label: "1", type: "office" },
+    ]),
+  ).toEqual([]);
+  expect(
+    duplicateLabels([{ label: "1", type: "office" }], [{ label: " 1 ", type: "office" }]),
+  ).toEqual(["1"]);
+  expect(duplicateLabels([{ label: "1", type: "office" }], [{ label: "1", type: "shop" }])).toEqual(
+    [],
+  );
 });

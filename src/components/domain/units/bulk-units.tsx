@@ -24,7 +24,7 @@ export function BulkUnitsSheet({
   open: boolean;
   onOpenChange: (o: boolean) => void;
   propertyId: string;
-  existingLabels?: string[];
+  existingLabels?: (string | { label: string; type: import("@/domain/types").UnitType })[];
 }) {
   const t = useTranslations("properties.bulk");
   const router = useRouter();

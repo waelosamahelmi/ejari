@@ -789,10 +789,17 @@ export async function terminateContract(
     }
     if (c.security_deposit_fils > 0)
       await db.from("contracts").update({ deposit_status: settle.depositStatus }).eq("id", id);
+    const { data: clearance, error: clearanceError } = await db
+      .from("contract_clearances")
+      .select("id")
+      .eq("contract_id", id)
+      .single();
+    if (clearanceError) throw clearanceError;
     await notifyVacated(ctx, id, d.moveOutDate);
     reval();
     return {
       ...q.data,
+      clearanceId: clearance.id,
       depositAppliedFils: settle.depositAppliedFils,
       refundFils: settle.refundFils,
     };

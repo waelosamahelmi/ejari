@@ -1,4 +1,5 @@
 "use client";
+import { ClearanceActions } from "@/components/domain/contracts/clearance-actions";
 import { DiscountSheet } from "@/components/domain/contracts/discount-sheet";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
@@ -141,6 +142,7 @@ export function ContractDetailView({
   const money = useMoney();
   const router = useRouter();
   const { exec, pending } = useAction();
+  const [clearancePrompt, setClearancePrompt] = useState<string | null>(null);
   const [sheet, setSheet] = useState<SheetKind>(null);
   const [confirmEnd, setConfirmEnd] = useState(false);
   const [adjust, setAdjust] = useState(false);
@@ -755,7 +757,8 @@ export function ContractDetailView({
                   }),
                 {
                   success: t("terminate.done"),
-                  onSuccess: () => {
+                  onSuccess: (data) => {
+                    setClearancePrompt(data.clearanceId);
                     setSheet(null);
                     router.refresh();
                   },
@@ -866,6 +869,31 @@ export function ContractDetailView({
         </div>
       </Sheet>
 
+      {c.status === "terminated" && <ClearanceActions contractId={c.id} canIssue={canManage} />}
+      <Sheet
+        open={!!clearancePrompt}
+        onOpenChange={(open) => {
+          if (!open) setClearancePrompt(null);
+        }}
+        title={t("clearance.title")}
+        footer={
+          <div className="flex gap-3">
+            <Button
+              onClick={() => {
+                window.open(`/print/clearance/${clearancePrompt}?lang=${locale}`, "_blank");
+                setClearancePrompt(null);
+              }}
+            >
+              {t("clearance.print")}
+            </Button>
+            <Button variant="secondary" onClick={() => setClearancePrompt(null)}>
+              {t("clearance.later")}
+            </Button>
+          </div>
+        }
+      >
+        <p>{t("clearance.saved")}</p>
+      </Sheet>
       {canManage && ["active", "notice_given"].includes(c.status) && (
         <div className="my-4">
           <DiscountSheet

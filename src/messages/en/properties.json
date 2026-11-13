@@ -8,7 +8,12 @@
   "empty": "No properties yet",
   "emptyText": "Add your first building, then its units, to start collecting.",
   "noResults": "No matching properties",
-  "filters": { "all": "All", "owner": "Owner", "type": "Type", "inactive": "Show inactive" },
+  "filters": {
+    "all": "All",
+    "owner": "Owner",
+    "type": "Type",
+    "inactive": "Show inactive"
+  },
   "pills": {
     "units": "{count, plural, =0 {No units} one {# unit} other {# units}}",
     "occupancy": "{pct}% occupied",
@@ -49,7 +54,8 @@
     "commissionValueFixed": "Monthly amount",
     "photos": "Photos",
     "addPhoto": "Add photo",
-    "cover": "Cover"
+    "cover": "Cover",
+    "chooseOwner": "Choose an owner or create a new one"
   },
   "overview": {
     "thisMonth": "This month",
@@ -109,13 +115,25 @@
   "next": "Next",
   "back": "Back",
   "create": "Create property",
-  "steps": { "details": "Property details", "units": "Units" },
+  "steps": {
+    "details": "Property details",
+    "units": "Units"
+  },
   "unitsModeLabel": "Property units",
-  "unitsMode": { "now": "Configure units now", "later": "Add units later" },
+  "unitsMode": {
+    "now": "Configure units now",
+    "later": "Add units later"
+  },
   "unitsLaterHint": "The property will be created without units; you can add them later from the Units tab.",
   "deactivate": "Deactivate property",
   "activate": "Activate property",
   "inactive": "Inactive",
   "printStatement": "Print statement",
-  "collectedOf": "{collected} of {expected}"
+  "collectedOf": "{collected} of {expected}",
+  "views": {
+    "label": "View",
+    "large": "Large cards",
+    "compact": "Small cards",
+    "list": "List"
+  }
 }

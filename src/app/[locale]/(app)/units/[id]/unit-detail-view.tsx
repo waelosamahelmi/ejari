@@ -72,6 +72,7 @@ export function UnitDetailView({
   status,
   current,
   history,
+  clearances,
   cells,
   vacantSince,
   canEdit,
@@ -79,6 +80,7 @@ export function UnitDetailView({
   paymentAction,
 }: {
   unit: UnitDetail;
+  clearances: { id: string; issued_at: string }[];
   status: UnitStatus;
   current: {
     id: string;
@@ -269,6 +271,26 @@ export function UnitDetailView({
               ))
             )}
           </GroupedSection>
+          {clearances.length > 0 && (
+            <GroupedSection header={t("clearances")}>
+              {clearances.map((doc) => (
+                <ListRow
+                  key={doc.id}
+                  title={
+                    <a
+                      className="text-link"
+                      href={`/print/clearance/${doc.id}?lang=${locale}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {t("printClearance")}
+                    </a>
+                  }
+                  subtitle={formatDate(doc.issued_at)}
+                />
+              ))}
+            </GroupedSection>
+          )}
           <section>
             <h3 className="text-label-2 px-5 pb-2 text-[13px] font-medium">
               {t("sections.documents")}

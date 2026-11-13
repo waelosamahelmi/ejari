@@ -280,11 +280,15 @@ export async function createPlannedUnits(input: CreatePlannedUnitsInput) {
     if (!property) throw new ActionError("notFound");
     const { data: existing } = await db
       .from("units")
-      .select("label, sort_order")
-      .eq("property_id", d.propertyId);
-    const existingLabels = new Set((existing ?? []).map((u) => u.label.trim().toLowerCase()));
+      .select("label, type, sort_order")
+      .eq("property_id", d.propertyId)
+      .eq("active", true);
+    const existingLabels = new Set(
+      (existing ?? []).map((u) => `${u.type}:${u.label.trim().toLowerCase()}`),
+    );
     for (const u of d.units) {
-      if (existingLabels.has(u.label.trim().toLowerCase())) throw new ActionError("duplicate");
+      if (existingLabels.has(`${u.type}:${u.label.trim().toLowerCase()}`))
+        throw new ActionError("duplicate");
     }
     const startSort = Math.max(0, ...(existing ?? []).map((u) => u.sort_order));
     const rows = plannedUnitRows(ctx.orgId, d.propertyId, d.units, startSort);

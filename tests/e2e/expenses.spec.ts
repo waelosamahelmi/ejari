@@ -33,6 +33,8 @@ test.describe("expenses & deposits", () => {
     await expect(page.getByText("5.000 د.ك").first()).toBeVisible();
     await page.getByRole("button", { name: "ترحيل السند" }).click();
     await expect(page).toHaveURL(/\/ar\/expenses\/[0-9a-f-]{36}$/, { timeout: 20_000 });
-    await expect(page.getByText("السالمية 88")).toBeVisible();
+    await expect(
+      page.locator("main").getByRole("listitem").filter({ hasText: "السالمية 88" }),
+    ).toBeVisible();
   });
 });

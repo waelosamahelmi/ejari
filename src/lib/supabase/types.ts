@@ -209,6 +209,49 @@ isOneToOne: false
       referencedColumns: ["unit_id"]
     }
                   ]
+                },"contract_clearances": {
+                  Row: {
+                    "contract_id": string,"created_at": string,"created_by": string | null,"id": string,"issued_at": string,"org_id": string,"property_id": string,"snapshot": NonNullable<Json>,"unit_ids": (string)[]
+                  }
+                  Insert: {
+                    "contract_id": string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"issued_at"?: string,"org_id": string,"property_id": string,"snapshot": NonNullable<Json>,"unit_ids": (string)[]
+                  }
+                  Update: {
+                    "contract_id"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"issued_at"?: string,"org_id"?: string,"property_id"?: string,"snapshot"?: NonNullable<Json>,"unit_ids"?: (string)[]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "contract_clearances_contract_id_fkey"
+      columns: ["contract_id"]
+isOneToOne: true
+      referencedRelation: "contracts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "contract_clearances_contract_id_fkey"
+      columns: ["contract_id"]
+isOneToOne: true
+      referencedRelation: "v_contract_balances"
+      referencedColumns: ["contract_id"]
+    },{
+      foreignKeyName: "contract_clearances_contract_id_fkey"
+      columns: ["contract_id"]
+isOneToOne: true
+      referencedRelation: "v_unit_status_today"
+      referencedColumns: ["contract_id"]
+    },{
+      foreignKeyName: "contract_clearances_org_id_fkey"
+      columns: ["org_id"]
+isOneToOne: false
+      referencedRelation: "orgs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "contract_clearances_property_id_fkey"
+      columns: ["property_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"contract_discounts": {
                   Row: {
                     "amount_fils": number,"contract_id": string,"created_at": string,"created_by": string | null,"from_period": string,"id": string,"org_id": string,"reason": string,"to_period": string | null
@@ -1277,6 +1320,9 @@ isOneToOne: false
                            },
 "is_staff":
 { Args: { "p_org": string }; Returns: boolean
+                           },
+"issue_contract_clearance":
+{ Args: { "p_contract": string }; Returns: string
                            },
 "next_number":
 { Args: { "p_key": string,"p_org": string,"p_year"?: number }; Returns: number

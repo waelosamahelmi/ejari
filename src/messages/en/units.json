@@ -71,9 +71,11 @@
     "chooseSplitSource": "Select one source unit to split.",
     "reasonRequired": "Enter the reason for merging or splitting to save.",
     "labelsRequired": "Enter a label for each result unit.",
-    "duplicateLabel": "Result labels must be distinct and must not match another unit in the property.",
+    "duplicateLabel": "This label already exists for the same unit type. Different types can share a label.",
     "invalidResult": "Check result unit details: labels are required and rent cannot be negative.",
     "invalidPaci": "PACI is optional; when supplied it must contain eight digits.",
     "summary": "{sources} source units → {results} result units"
-  }
+  },
+  "clearances": "Past clearances",
+  "printClearance": "Print clearance"
 }

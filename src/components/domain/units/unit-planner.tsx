@@ -38,7 +38,7 @@ export function defaultRow(floor: number): UnitPlanRow {
 export function isUnitPlanValid(
   rows: UnitPlanRow[],
   units: PlannedUnit[],
-  existingLabels: string[] = [],
+  existingLabels: (string | { label: string; type: import("@/domain/types").UnitType })[] = [],
 ): boolean {
   return (
     units.length > 0 &&
@@ -92,7 +92,11 @@ export function UnitPlanner({
           <span className="text-label-2 text-[13px]">{t("total", { count: planTotal(rows) })}</span>
         </div>
         {rows.map((row, i) => (
-          <div key={i} data-testid={`plan-row-${i}`} className="bg-paper space-y-3 rounded-[20px] p-4">
+          <div
+            key={i}
+            data-testid={`plan-row-${i}`}
+            className="bg-paper space-y-3 rounded-[20px] p-4"
+          >
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <Field label={t("floor")} htmlFor={`plan-floor-${i}`}>
                 <Select
@@ -114,10 +118,13 @@ export function UnitPlanner({
                   inputMode="numeric"
                   min={1}
                   max={MAX_PLANNED_UNITS}
-                  value={row.count}
+                  value={row.count === 0 ? "" : row.count}
                   onChange={(e) =>
                     updateRow(i, {
-                      count: Math.max(1, Math.min(MAX_PLANNED_UNITS, Number(e.target.value) || 1)),
+                      count:
+                        e.target.value === ""
+                          ? 0
+                          : Math.max(0, Math.min(MAX_PLANNED_UNITS, Number(e.target.value) || 0)),
                     })
                   }
                 />
@@ -300,7 +307,7 @@ export function UnitPlanValidation({
 }: {
   rows: UnitPlanRow[];
   units: PlannedUnit[];
-  existingLabels?: string[];
+  existingLabels?: (string | { label: string; type: import("@/domain/types").UnitType })[];
 }) {
   const t = useTranslations("properties.planner.errors");
   const issues = planIssues(rows);

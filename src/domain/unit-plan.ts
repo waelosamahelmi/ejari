@@ -58,19 +58,25 @@ export function generatePlannedUnits(rows: readonly UnitPlanRow[]): PlannedUnit[
 }
 
 const norm = (s: string) => s.trim().toLowerCase();
+export interface UnitIdentity {
+  label: string;
+  type?: UnitType;
+}
+export const unitIdentityKey = (u: UnitIdentity) => `${u.type ?? "*"}:${norm(u.label)}`;
 
 /** Labels that collide with an earlier unit in the list or with existing units. */
 export function duplicateLabels(
-  units: readonly { label: string }[],
-  existing: Iterable<string> = [],
+  units: readonly UnitIdentity[],
+  existing: Iterable<string | UnitIdentity> = [],
 ): string[] {
   const seen = new Set<string>();
-  for (const e of existing) seen.add(norm(e));
+  for (const e of existing) seen.add(unitIdentityKey(typeof e === "string" ? { label: e } : e));
   const dupes: string[] = [];
   for (const u of units) {
     const label = u.label.trim();
-    if (seen.has(norm(label)) && !dupes.includes(label)) dupes.push(label);
-    seen.add(norm(label));
+    if ((seen.has(unitIdentityKey(u)) || seen.has(`*:${norm(label)}`)) && !dupes.includes(label))
+      dupes.push(label);
+    seen.add(unitIdentityKey(u));
   }
   return dupes;
 }

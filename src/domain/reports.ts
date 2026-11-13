@@ -16,6 +16,7 @@ import {
   type ISODate,
   type Period,
 } from "./dates";
+import { unitTypeLabel } from "./templates";
 import { coversPeriod, isLive } from "./contracts";
 import {
   arrearsAsOf,
@@ -334,6 +335,13 @@ export function monthlyStatement(
           inRange(p.receivedAt, periodStart(period), to),
         )),
   );
+  const showLabel = (u: RUnit) =>
+    units.some(
+      (other) =>
+        other.id !== u.id && other.label.trim().toLowerCase() === u.label.trim().toLowerCase(),
+    )
+      ? `${unitTypeLabel([u.type])} ${u.label}`
+      : u.label;
   const covered = new Set<string>();
   const rows: StatementRow[] = [];
 
@@ -365,7 +373,7 @@ export function monthlyStatement(
     rows.push({
       contractId: c.id,
       unitIds: cUnits.map((u) => u.id),
-      unitLabels: cUnits.map((u) => u.label).join(", "),
+      unitLabels: cUnits.map(showLabel).join(", "),
       tenantName: c.tenantName,
       legalStatus: legal,
       legalLabel: LEGAL_STATUS_LABELS_AR[legal],
@@ -391,7 +399,7 @@ export function monthlyStatement(
     rows.push({
       contractId: null,
       unitIds: [u.id],
-      unitLabels: u.label,
+      unitLabels: showLabel(u),
       tenantName: null,
       legalStatus: "none",
       legalLabel: LEGAL_STATUS_LABELS_AR.none,

@@ -44,6 +44,11 @@ export default async function UnitPage({ params }: LocaleParams<{ id: string }>)
     photos: { path: string; blur?: string }[];
   };
   const data = await loadOrgData(ctx);
+  const { data: clearances } = await db
+    .from("contract_clearances")
+    .select("id,issued_at")
+    .contains("unit_ids", [id])
+    .order("issued_at", { ascending: false });
   const today = todayKuwait();
   const period = periodOf(today);
   const tile = buildingStack(data, property.id, period, today).find((u) => u.id === id);
@@ -119,6 +124,7 @@ export default async function UnitPage({ params }: LocaleParams<{ id: string }>)
         endDate: c.moveOutDate ?? c.endDate,
         rentFils: c.monthlyRentFils,
       }))}
+      clearances={clearances ?? []}
       cells={
         heat?.cells.map((c) => ({
           period: c.period,

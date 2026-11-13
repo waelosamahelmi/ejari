@@ -151,6 +151,7 @@ test("wizard requires owner and explicit terms, offers all tenants and filters p
   await page.locator("#t-reason").fill("انتهاء اختبار العقد المشترك");
   await page.getByRole("button", { name: "تأكيد الفسخ", exact: true }).click();
   await expect(page.getByText("تم فسخ العقد", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "لاحقًا", exact: true }).click();
   // Remove this test-only concession so seeded accounting totals remain independent.
   const adjustments = await db.from("adjustments").delete().eq("contract_id", id);
   expect(adjustments.error).toBeNull();
