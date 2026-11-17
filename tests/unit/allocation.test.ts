@@ -3,6 +3,7 @@ import fc from "fast-check";
 import {
   AllocationError,
   allocateFIFO,
+  assertChronologicalAllocation,
   allocateManual,
   allocateToPeriods,
   amountDue,
@@ -111,4 +112,26 @@ describe("manual & periods", () => {
     expect(creditBalance([{ amountFils: 500 }], [{ amountFils: 300 }])).toBe(200);
     expect(amountDue(open, "2026-08-31")).toBe(70000);
   });
+});
+
+it("rejects skipping arrears or future months, including partially paid earlier months", () => {
+  const charges = [ch("a", "2026-11", 100), ch("b", "2026-12", 100), ch("c", "2027-01", 100)];
+  expect(() =>
+    assertChronologicalAllocation(charges, allocateToPeriods(100, charges, ["2027-01"])),
+  ).toThrow(/Earlier unpaid/);
+  expect(() =>
+    assertChronologicalAllocation(
+      charges,
+      allocateManual(150, charges, [
+        { chargeId: "a", amountFils: 50 },
+        { chargeId: "b", amountFils: 100 },
+      ]),
+    ),
+  ).toThrow();
+  expect(() =>
+    assertChronologicalAllocation(charges, allocateToPeriods(150, charges, ["2026-11", "2026-12"])),
+  ).not.toThrow();
+  expect(() =>
+    assertChronologicalAllocation(charges.slice(1), allocateFIFO(100, charges.slice(1))),
+  ).not.toThrow();
 });

@@ -69,7 +69,12 @@ export function allocateFIFO(amount: Fils, charges: readonly OpenCharge[]): Allo
 
 export class AllocationError extends Error {
   constructor(
-    public readonly code: "unknown_charge" | "exceeds_outstanding" | "exceeds_payment" | "negative",
+    public readonly code:
+      | "unknown_charge"
+      | "exceeds_outstanding"
+      | "exceeds_payment"
+      | "negative"
+      | "payment_period_gap",
     message: string,
   ) {
     super(message);
@@ -149,4 +154,21 @@ export function amountDue(charges: readonly OpenCharge[], asOf: ISODate): Fils {
   return charges
     .filter((c) => c.dueDate <= asOf)
     .reduce((a, c) => a + Math.max(0, c.outstandingFils), 0);
+}
+
+/** Reject payment allocations that jump over an earlier unpaid calendar month. */
+export function assertChronologicalAllocation(
+  charges: readonly OpenCharge[],
+  result: AllocationResult,
+): void {
+  const paid = new Map<string, number>();
+  for (const a of result.allocations)
+    paid.set(a.chargeId, (paid.get(a.chargeId) ?? 0) + a.amountFils);
+  const latest = charges
+    .filter((c) => (paid.get(c.id) ?? 0) > 0)
+    .map((c) => c.period)
+    .sort()
+    .at(-1);
+  if (latest && charges.some((c) => c.period < latest && c.outstandingFils > (paid.get(c.id) ?? 0)))
+    throw new AllocationError("payment_period_gap", "Earlier unpaid months must be paid first");
 }

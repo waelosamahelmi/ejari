@@ -110,7 +110,10 @@ test("wizard requires owner and explicit terms, offers all tenants and filters p
   await page.getByRole("button", { name: /^1 — / }).click();
   await next.click();
   await expect(next).toBeDisabled();
-  await page.getByRole("radio", { name: "الطرف الأول", exact: true }).click();
+  await page
+    .getByRole("radiogroup", { name: "الكهرباء على", exact: true })
+    .getByRole("radio", { name: "الطرف الأول", exact: true })
+    .click();
   await expect(next).toBeDisabled();
   await page.locator("#w-notice").selectOption("0");
   await expect(next).toBeEnabled();
@@ -122,7 +125,10 @@ test("wizard requires owner and explicit terms, offers all tenants and filters p
   // Resuming a draft must still require explicit utilities and notice confirmation.
   await page.reload();
   await expect(next).toBeDisabled();
-  await page.getByRole("radio", { name: "الطرف الأول", exact: true }).click();
+  await page
+    .getByRole("radiogroup", { name: "الكهرباء على", exact: true })
+    .getByRole("radio", { name: "الطرف الأول", exact: true })
+    .click();
   await page.locator("#w-notice").selectOption("0");
   await next.click();
   await expect(page.getByText("خصم شهري مؤقت", { exact: false })).toBeVisible();

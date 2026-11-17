@@ -37,7 +37,7 @@ export default async function PrintReceipt({
   const { data: p } = await db
     .from("payments")
     .select(
-      "*, tenants(full_name), contracts(contract_no, properties(name, governorate, area, block, street, avenue, house_or_plot, paci_no), contract_units(units(label,type))), payment_allocations(amount_fils, charges(period))",
+      "*, tenants(full_name), contracts(contract_no, properties(name, governorate, area, block, street, avenue, house_or_plot, paci_no), contract_units(units(label,type,type_label))), payment_allocations(amount_fils, charges(period))",
     )
     .eq("id", id)
     .maybeSingle();
@@ -64,7 +64,9 @@ export default async function PrintReceipt({
       house_or_plot: string | null;
       paci_no: string | null;
     };
-    contract_units: { units: { label: string; type: import("@/domain/types").UnitType } }[];
+    contract_units: {
+      units: { label: string; type_label?: string | null; type: import("@/domain/types").UnitType };
+    }[];
   };
   const periods = [
     ...new Set(
@@ -87,7 +89,9 @@ export default async function PrintReceipt({
           <h2 className="text-[17pt] font-bold">{c.properties.name}</h2>
           <p className="text-[10pt] leading-6">{fullPropertyAddress(c.properties, lang)}</p>
           <p className="text-[11pt] font-semibold">
-            {c.contract_units.map((u) => `${tUnit(u.units.type)} ${u.units.label}`).join("، ")}
+            {c.contract_units
+              .map((u) => `${u.units.type_label || tUnit(u.units.type)} ${u.units.label}`)
+              .join("، ")}
           </p>
         </header>
         <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-4">

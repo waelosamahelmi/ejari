@@ -112,6 +112,7 @@ describe("termination", () => {
     monthlyRentFils: 650000,
   };
   it("early exit penalty = free months value within 12 months", () => {
+    expect(c.earlyExitPenalty(inv, "2026-09-30")).toBe(0);
     expect(c.earlyExitPenalty(inv, "2027-05-31")).toBe(1300000);
     expect(c.earlyExitPenalty(inv, "2027-10-01")).toBe(0);
     expect(c.earlyExitPenalty({ ...inv, freeMonths: 0 }, "2027-01-01")).toBe(0);

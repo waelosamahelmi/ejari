@@ -33,7 +33,7 @@ import {
   terminationSettlement,
   validateTerms,
 } from "@/domain/contracts";
-import { generateSchedule } from "@/domain/schedule";
+import { generateSchedule, rentForPeriod } from "@/domain/schedule";
 import { allocateFIFO } from "@/domain/allocation";
 import { arrearsAsOf } from "@/domain/ledger";
 import { validateCivilId } from "@/domain/validation";
@@ -106,6 +106,7 @@ function rowFrom(orgId: string, d: ReturnType<typeof contractDraftSchema.parse>)
     monthly_rent_fils: d.monthlyRentFils,
     purpose: d.purpose,
     utilities_party: d.utilitiesParty,
+    water_party: d.waterParty ?? d.utilitiesParty,
     electricity_fixed_fils: d.electricityFixedFils,
     free_months: d.freeMonths,
     free_months_penalty_window_months: d.freeMonthsPenaltyWindowMonths,
@@ -248,6 +249,7 @@ export async function previewContract(
           monthlyRentFils: d.monthlyRentFils,
           purpose: d.purpose,
           utilitiesParty: d.utilitiesParty,
+          waterParty: d.waterParty ?? d.utilitiesParty,
           electricityFixedFils: d.electricityFixedFils,
           freeMonths: d.freeMonths,
           noticePeriodMonths: d.noticePeriodMonths,
@@ -327,6 +329,7 @@ async function renderFor(
         monthlyRentFils: c.monthly_rent_fils,
         purpose: c.purpose,
         utilitiesParty: c.utilities_party,
+        waterParty: (c.water_party as "owner" | "tenant" | null) ?? c.utilities_party,
         electricityFixedFils: c.electricity_fixed_fils,
         freeMonths: c.free_months,
         noticePeriodMonths: c.notice_period_months,
@@ -437,7 +440,7 @@ export async function reviseRent(
     const ctx = await requireActionContext("manage_contracts");
     const d = revisionSchema.parse(input);
     const db = await supabaseServer();
-    const { data: c } = await db.from("contracts").select("status").eq("id", id).single();
+    const { data: c } = await db.from("contracts").select("*").eq("id", id).single();
     if (!c || !canPerform(c.status as ContractStatus, "revise_rent"))
       throw new ActionError("invalid_transition");
     const ins = await db.from("contract_rent_revisions").insert({
@@ -448,6 +451,26 @@ export async function reviseRent(
       reason: d.reason,
     });
     if (ins.error) throw ins.error;
+    const { data: revisions, error: revisionsError } = await db
+      .from("contract_rent_revisions")
+      .select("effective_from,monthly_rent_fils,created_at")
+      .eq("contract_id", id);
+    if (revisionsError) throw revisionsError;
+    const rentAt = (period: string) =>
+      rentForPeriod(
+        {
+          startDate: c.start_date,
+          endDate: c.end_date,
+          firstCollectionDate: c.first_collection_date,
+          monthlyRentFils: c.monthly_rent_fils,
+          revisions: (revisions ?? []).map((r) => ({
+            effectiveFrom: r.effective_from,
+            monthlyRentFils: r.monthly_rent_fils,
+            createdAt: r.created_at,
+          })),
+        },
+        period,
+      );
     const { data: charges } = await db
       .from("v_charge_balances")
       .select("charge_id, period, kind, allocated_fils")
@@ -455,21 +478,24 @@ export async function reviseRent(
       .eq("kind", "rent")
       .gte("period", periodOf(d.effectiveFrom));
     for (const ch of charges ?? []) {
-      if ((ch.allocated_fils ?? 0) > d.monthlyRentFils) continue;
+      if ((ch.allocated_fils ?? 0) > rentAt(ch.period!)) continue;
       const u = await db
         .from("charges")
-        .update({ amount_fils: d.monthlyRentFils })
+        .update({ amount_fils: rentAt(ch.period!) })
         .eq("id", ch.charge_id!);
       if (u.error && u.error.hint !== "period_closed") throw u.error;
     }
     const free = await db
       .from("charges")
-      .select("id")
+      .select("id,period")
       .eq("contract_id", id)
       .eq("kind", "free")
       .gte("period", periodOf(d.effectiveFrom));
     for (const f of free.data ?? [])
-      await db.from("charges").update({ waived_value_fils: d.monthlyRentFils }).eq("id", f.id);
+      await db
+        .from("charges")
+        .update({ waived_value_fils: rentAt(f.period) })
+        .eq("id", f.id);
     reval();
   });
 }
@@ -536,6 +562,7 @@ export async function renewContract(
         monthly_rent_fils: terms.monthlyRentFils,
         purpose: c.purpose,
         utilities_party: c.utilities_party,
+        water_party: c.water_party,
         electricity_fixed_fils: c.electricity_fixed_fils,
         free_months: 0,
         free_months_penalty_window_months: c.free_months_penalty_window_months,
@@ -851,6 +878,7 @@ export async function duplicateContract(id: string) {
         monthly_rent_fils: c.monthly_rent_fils,
         purpose: c.purpose,
         utilities_party: c.utilities_party,
+        water_party: c.water_party,
         electricity_fixed_fils: c.electricity_fixed_fils,
         free_months: c.free_months,
         notice_period_months: c.notice_period_months,

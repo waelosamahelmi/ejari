@@ -25,7 +25,7 @@ export async function ensureChargesUntil(
   let q = db
     .from("contracts")
     .select(
-      "id, org_id, start_date, end_date, first_collection_date, monthly_rent_fils, electricity_fixed_fils, move_out_date, status, annual_increase_kind, annual_increase_value, annual_increase_every_months, contract_rent_revisions(effective_from, monthly_rent_fils), contract_units(unit_id)",
+      "id, org_id, start_date, end_date, first_collection_date, monthly_rent_fils, electricity_fixed_fils, move_out_date, status, annual_increase_kind, annual_increase_value, annual_increase_every_months, contract_rent_revisions(effective_from, monthly_rent_fils, created_at), contract_units(unit_id)",
     )
     .eq("org_id", orgId)
     .in("status", ["active", "notice_given", "ended", "terminated", "renewed"]);
@@ -67,6 +67,7 @@ export async function ensureChargesUntil(
         moveOutDate: c.move_out_date,
         revisions: (c.contract_rent_revisions ?? []).map((r) => ({
           effectiveFrom: r.effective_from,
+          createdAt: r.created_at,
           monthlyRentFils: r.monthly_rent_fils,
         })),
         annualIncrease:
@@ -158,16 +159,14 @@ export async function applyCredit(orgId: string, contractIds: string[]) {
       if (credit <= 0) continue;
       const r = allocateFIFO(credit, open);
       if (!r.allocations.length) continue;
-      const { error } = await db
-        .from("payment_allocations")
-        .insert(
-          r.allocations.map((a) => ({
-            org_id: orgId,
-            payment_id: p.id,
-            charge_id: a.chargeId,
-            amount_fils: a.amountFils,
-          })),
-        );
+      const { error } = await db.from("payment_allocations").insert(
+        r.allocations.map((a) => ({
+          org_id: orgId,
+          payment_id: p.id,
+          charge_id: a.chargeId,
+          amount_fils: a.amountFils,
+        })),
+      );
       if (error) throw error;
       for (const a of r.allocations) {
         const o = open.find((x) => x.id === a.chargeId)!;

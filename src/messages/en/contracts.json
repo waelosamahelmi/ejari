@@ -82,7 +82,7 @@
       "rent": "Monthly rent",
       "purpose": "Purpose",
       "purposeCustom": "Other purpose",
-      "utilities": "Utilities paid by",
+      "utilities": "Electricity paid by",
       "electricityFixed": "Fixed monthly electricity (charged to tenant)",
       "freeMonths": "Free months",
       "penaltyWindow": "Penalty if leaving within (months)",
@@ -95,7 +95,8 @@
       "notes": "Internal notes",
       "chooseNotice": "Choose notice period (default zero)",
       "chooseUtilities": "Choose the responsible party before continuing.",
-      "completeRequired": "To continue: confirm utilities and notice, and complete the amount, dates and reason for any discount."
+      "completeRequired": "To continue: confirm utilities and notice, and complete the amount, dates and reason for any discount.",
+      "water": "Water paid by"
     },
     "clauses": {
       "title": "Clauses",

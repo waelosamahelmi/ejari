@@ -45,7 +45,8 @@
     "nothingDue": "Nothing is due — this payment will be kept as advance credit.",
     "partial": "Partial",
     "full": "Full",
-    "confirmText": "We received {amount} KWD for {periods}. Thank you — {org}"
+    "confirmText": "We received {amount} KWD for {periods}. Thank you — {org}",
+    "orderHelp": "Start with the oldest unpaid month. Pay one or more consecutive months, or part of the oldest month."
   },
   "detail": {
     "title": "Receipt {no}",

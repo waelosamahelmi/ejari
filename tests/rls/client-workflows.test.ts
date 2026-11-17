@@ -386,6 +386,29 @@ describe.skipIf(!enabled)("client workflows and property scope", () => {
             .insert({ org_id: org, property_id: prop.data!.id, label: "1", type })
         ).error,
       ).toBeNull();
+    for (const row of [
+      { type: "studio" as const },
+      { type: "other" as const, type_label: "دوبلكس" },
+      { type: "other" as const, type_label: "شاليه" },
+    ])
+      expect(
+        (
+          await admin
+            .from("units")
+            .insert({ org_id: org, property_id: prop.data!.id, label: "1", ...row })
+        ).error,
+      ).toBeNull();
+    expect(
+      (
+        await admin.from("units").insert({
+          org_id: org,
+          property_id: prop.data!.id,
+          label: "1",
+          type: "other",
+          type_label: " دوبلكس ",
+        })
+      ).error?.code,
+    ).toBe("23505");
     const duplicate = await admin
       .from("units")
       .insert({ org_id: org, property_id: prop.data!.id, label: " 1 ", type: "office" });
@@ -459,7 +482,17 @@ describe.skipIf(!enabled)("client workflows and property scope", () => {
         (
           await admin
             .from("contracts")
-            .update({ status: "terminated", move_out_date: "2026-11-12" })
+            .update({
+              status: "terminated",
+              move_out_date: "2026-11-12",
+              ...(id === contractA
+                ? {
+                    start_date: "2027-02-01",
+                    first_collection_date: "2027-02-01",
+                    end_date: "2028-01-31",
+                  }
+                : {}),
+            })
             .eq("id", id)
         ).error,
       ).toBeNull();
@@ -470,6 +503,11 @@ describe.skipIf(!enabled)("client workflows and property scope", () => {
       .single();
     expect(doc.error).toBeNull();
     const original = doc.data!.snapshot;
+    expect(
+      (
+        await admin.from("contract_units").select("occupancy,is_live").eq("contract_id", contractA)
+      ).data?.every((u) => u.occupancy === "empty" && !u.is_live),
+    ).toBe(true);
     expect((await admin.rpc("issue_contract_clearance", { p_contract: contractA })).data).toBe(
       doc.data!.id,
     );

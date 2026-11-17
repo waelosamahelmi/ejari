@@ -64,6 +64,7 @@ export interface OrgData {
       propertyId: string;
       label: string;
       type: UnitType;
+      typeLabel?: string | null;
       floor: number | null;
       underMaintenance: boolean;
       askingRentFils: number;
@@ -130,7 +131,7 @@ export async function fetchOrgData(
       db
         .from("units")
         .select(
-          "id, property_id, label, sort_order, type, floor, area_m2, bedrooms, bathrooms, asking_rent_fils, active, under_maintenance, photos, available_since, retired_on",
+          "id, property_id, label, sort_order, type, type_label, floor, area_m2, bedrooms, bathrooms, asking_rent_fils, active, under_maintenance, photos, available_since, retired_on",
         )
         .eq("org_id", orgId)
         .range(f, t),
@@ -286,6 +287,7 @@ export async function fetchOrgData(
       label: u.label,
       sortOrder: u.sort_order,
       type: u.type,
+      typeLabel: u.type_label,
       floor: u.floor,
       areaM2: u.area_m2 === null ? null : Number(u.area_m2),
       askingRentFils: u.asking_rent_fils,
@@ -449,6 +451,7 @@ export async function fetchOrgData(
           propertyId: u.property_id,
           label: u.label,
           type: u.type,
+          typeLabel: u.type_label,
           floor: u.floor,
           underMaintenance: u.under_maintenance,
           askingRentFils: u.asking_rent_fils,

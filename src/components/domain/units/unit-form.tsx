@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -10,7 +10,7 @@ import { Field, Input, Select, Textarea } from "@/components/ui/input";
 import { MoneyInput } from "@/components/ui/money-input";
 import { Toggle } from "@/components/ui/toggle";
 import { unitSchema, type UnitInput } from "@/lib/schemas/master";
-import { saveUnit } from "@/server/actions/master";
+import { saveUnit, customUnitTypes } from "@/server/actions/master";
 import { useAction, useFieldError } from "@/hooks/use-action";
 import { UNIT_TYPES } from "@/domain/types";
 
@@ -27,6 +27,13 @@ export function UnitFormSheet({
   propertyId: string;
   unit?: (UnitInput & { id: string }) | null;
 }) {
+  const [customTypes, setCustomTypes] = useState<string[]>([]);
+  useEffect(() => {
+    if (open)
+      void customUnitTypes().then((r) => {
+        if (r.ok) setCustomTypes(r.data);
+      });
+  }, [open]);
   const t = useTranslations("units");
   const tc = useTranslations("common.actions");
   const tType = useTranslations("enums.unitType");
@@ -91,6 +98,21 @@ export function UnitFormSheet({
               ))}
             </Select>
           </Field>
+          {form.watch("type") === "other" && (
+            <Field
+              label={t("fields.typeLabel")}
+              htmlFor="u-type-label"
+              hint={t("typeLabelHint")}
+              className="col-span-2"
+            >
+              <Input id="u-type-label" list="custom-unit-types" {...register("typeLabel")} />
+              <datalist id="custom-unit-types">
+                {customTypes.map((name) => (
+                  <option key={name} value={name} />
+                ))}
+              </datalist>
+            </Field>
+          )}
           <Field
             label={t("fields.floor")}
             htmlFor="u-floor"

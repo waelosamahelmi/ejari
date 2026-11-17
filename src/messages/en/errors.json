@@ -52,5 +52,6 @@
   "units_have_live_contracts": "Resolve the unit leases before merging or splitting.",
   "discount_exceeds_rent": "The discount exceeds the remaining rent charge.",
   "overlapping_discount": "A discount already covers part of this range.",
-  "discount_period_outside_contract": "The discount range must be within the lease billing period."
+  "discount_period_outside_contract": "The discount range must be within the lease billing period.",
+  "payment_period_gap": "Pay earlier months first; choose months in order without skipping an unpaid month."
 }

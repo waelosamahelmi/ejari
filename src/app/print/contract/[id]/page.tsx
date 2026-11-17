@@ -65,6 +65,7 @@ export default async function PrintContract({
           monthlyRentFils: c.monthly_rent_fils,
           purpose: c.purpose,
           utilitiesParty: c.utilities_party,
+          waterParty: (c.water_party as "owner" | "tenant" | null) ?? c.utilities_party,
           electricityFixedFils: c.electricity_fixed_fils,
           freeMonths: c.free_months,
           noticePeriodMonths: c.notice_period_months,

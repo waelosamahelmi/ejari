@@ -75,3 +75,30 @@ describe("contract print presentation", () => {
     expect(result.preambleParts?.[1]?.[1]?.text).toBe("<script>alert(1)</script>");
   });
 });
+
+it("supplements a missing unit PACI without rewriting the saved clause or an existing PACI", () => {
+  const saved = {
+    preamble: [],
+    closing: [],
+    clauses: [{ key: "unit", number: 1, text: "استأجر شقة 1." }],
+  };
+  const current = renderContract(
+    {
+      type: "residential",
+      name: "test",
+      preamble: "",
+      clauses: [{ key: "unit", position: 1, body: "استأجر شقة 1." }],
+    },
+    { unit_paci: "12345678" },
+  );
+  const repaired = restoreContractPresentation(saved, current);
+  expect(repaired.clauses[0]?.text).toBe("استأجر شقة 1. الرقم الآلي للوحدة: 12345678.");
+  const existing = {
+    ...saved,
+    clauses: [{ key: "unit", number: 1, text: "شقة 1 الرقم الآلي: 87654321." }],
+  };
+  expect(restoreContractPresentation(existing, current).clauses[0]?.text).toBe(
+    existing.clauses[0]?.text,
+  );
+  expect(saved.clauses[0]?.text).toBe("استأجر شقة 1.");
+});

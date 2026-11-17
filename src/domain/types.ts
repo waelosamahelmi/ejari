@@ -4,6 +4,7 @@ import type { Fils } from "./money";
 
 export const UNIT_TYPES = [
   "apartment",
+  "studio",
   "shop",
   "room",
   "basement",
@@ -19,6 +20,7 @@ export type UnitType = (typeof UNIT_TYPES)[number];
 
 export const UNIT_TYPE_LABELS_AR: Record<UnitType, string> = {
   apartment: "شقة",
+  studio: "استوديو",
   shop: "محل",
   room: "غرفة",
   basement: "سرداب",
@@ -33,6 +35,7 @@ export const UNIT_TYPE_LABELS_AR: Record<UnitType, string> = {
 
 export const UNIT_TYPE_PLURAL_AR: Record<UnitType, string> = {
   apartment: "الشقق",
+  studio: "الاستوديوهات",
   shop: "المحلات",
   room: "الغرف",
   basement: "السراديب",
@@ -47,6 +50,7 @@ export const UNIT_TYPE_PLURAL_AR: Record<UnitType, string> = {
 
 export const UNIT_TYPE_LABELS_EN: Record<UnitType, string> = {
   apartment: "Apartment",
+  studio: "Studio",
   shop: "Shop",
   room: "Room",
   basement: "Basement",

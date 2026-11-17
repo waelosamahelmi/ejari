@@ -6,6 +6,7 @@ import { requireActionContext, ActionError } from "@/lib/auth";
 import { run } from "@/server/action";
 import {
   allocateFIFO,
+  assertChronologicalAllocation,
   allocateManual,
   allocateToPeriods,
   type OpenCharge,
@@ -232,6 +233,7 @@ export async function recordPayment(input: RecordPaymentInput) {
               open,
               d.allocation.lines.filter((l) => l.amountFils > 0),
             );
+    assertChronologicalAllocation(open, result);
     const year = Number(d.receivedAt.slice(0, 4));
     const { data: seq, error: seqErr } = await db.rpc("next_number", {
       p_org: ctx.orgId,

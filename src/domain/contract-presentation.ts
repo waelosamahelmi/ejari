@@ -70,12 +70,30 @@ export function restoreContractPresentation(
     ...saved,
     preamble: oldPreamble,
     preambleParts: completeParts,
-    clauses: saved.clauses.map((clause) => ({
-      ...clause,
-      parts:
+    clauses: saved.clauses.map((clause) => {
+      const paci = current.clauses
+        .find((c) => c.key === clause.key)
+        ?.parts?.find((p) => p.variable === "unit_paci")?.text;
+      const supplement =
+        clause.key === "unit" && !/الرقم الآلي/.test(clause.text) && paci
+          ? ` الرقم الآلي للوحدة: ${paci}.`
+          : "";
+      const parts =
         clause.parts ??
-        recoverParts(clause.text, current.clauses.find((c) => c.key === clause.key)?.parts),
-    })),
+        recoverParts(clause.text, current.clauses.find((c) => c.key === clause.key)?.parts);
+      return {
+        ...clause,
+        text: clause.text + supplement,
+        parts: supplement
+          ? [
+              ...(parts ?? [{ text: clause.text }]),
+              { text: " الرقم الآلي للوحدة: " },
+              { text: paci!, variable: "unit_paci" },
+              { text: "." },
+            ]
+          : parts,
+      };
+    }),
     closingParts: saved.closing.map(
       (text, i) =>
         saved.closingParts?.[i] ?? recoverParts(text, current.closingParts?.[i]) ?? [{ text }],

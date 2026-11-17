@@ -26,7 +26,14 @@ test.describe("contracts", () => {
     await page.getByRole("button", { name: "التالي" }).click();
     // terms (rent prefilled from asking rent)
     await expect(page.getByLabel("الإيجار الشهري")).toHaveValue(/550/);
-    await page.getByRole("radio", { name: "الطرف الأول", exact: true }).click();
+    await page
+      .getByRole("radiogroup", { name: "الكهرباء على", exact: true })
+      .getByRole("radio", { name: "الطرف الأول", exact: true })
+      .click();
+    await page
+      .getByRole("radiogroup", { name: "الماء على", exact: true })
+      .getByRole("radio", { name: "الطرف الثاني", exact: true })
+      .click();
     await page.locator("#w-notice").selectOption("0");
     await page.getByRole("button", { name: "التالي" }).click();
     // clauses

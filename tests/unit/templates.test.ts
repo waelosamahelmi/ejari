@@ -287,3 +287,41 @@ describe("investment seed contract", () => {
     expect(rr.closing).toEqual([]);
   });
 });
+
+it("includes all unit PACI numbers and custom type names in the unit clause", () => {
+  const input = {
+    ...residentialInput,
+    units: [
+      { label: "1", type: "other" as const, typeLabel: "دوبلكس", paciNo: "12345678" },
+      { label: "2", type: "studio" as const, paciNo: "87654321" },
+    ],
+  };
+  const vars = buildTemplateVars(input);
+  expect(vars.unit_type_label).toContain("دوبلكس");
+  expect(vars.unit_paci).toContain("12345678");
+  expect(vars.unit_paci).toContain("87654321");
+  const r = renderContract(
+    {
+      type: "residential",
+      name: "test",
+      preamble: "",
+      clauses: [
+        { key: "unit", position: 1, body: "استأجر {{unit_type_label}} رقم {{unit_labels}}." },
+      ],
+    },
+    vars,
+  );
+  expect(r.clauses[0]?.text).toContain("12345678");
+  expect(r.clauses[0]?.parts?.some((p) => p.variable === "unit_paci")).toBe(true);
+});
+it("renders independent electricity/water responsibilities", () => {
+  const v = buildTemplateVars({
+    ...residentialInput,
+    utilitiesParty: "tenant",
+    waterParty: "owner",
+  });
+  expect(v.utilities_split).toBe(true);
+  expect(v.utilities_party_label).toBe("الطرف الثاني");
+  expect(v.water_party_label).toBe("الطرف الأول");
+  expect(buildTemplateVars(residentialInput).utilities_split).toBe(false);
+});

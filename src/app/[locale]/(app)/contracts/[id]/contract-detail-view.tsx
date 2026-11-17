@@ -92,6 +92,7 @@ export interface ContractDetail {
   autoRenew: boolean;
   renewalTermMonths: number | null;
   monthlyRentFils: number;
+  baseRentFils?: number;
   freeMonths: number;
   noticePeriodMonths: number;
   securityDepositFils: number;
@@ -156,6 +157,18 @@ export function ContractDetailView({
   const [revFrom, setRevFrom] = useState(addMonths(today.slice(0, 8) + "01", 1));
   const [revAmount, setRevAmount] = useState<number | null>(c.monthlyRentFils);
   const [revReason, setRevReason] = useState("");
+  useEffect(() => {
+    if (sheet !== "revise") return;
+    const latest = [...c.revisions]
+      .filter((r) => r.effectiveFrom <= revFrom)
+      .sort(
+        (a, b) =>
+          a.effectiveFrom.localeCompare(b.effectiveFrom) || a.createdAt.localeCompare(b.createdAt),
+      )
+      .at(-1);
+    setRevAmount(latest?.monthlyRentFils ?? c.baseRentFils ?? c.monthlyRentFils);
+  }, [sheet, revFrom, c.revisions, c.monthlyRentFils, c.baseRentFils]);
+
   const [renTerm, setRenTerm] = useState(c.renewalTermMonths ?? c.termMonths);
   const [renRent, setRenRent] = useState<number | null>(c.monthlyRentFils);
   const [moveOut, setMoveOut] = useState(c.expectedMoveOut ?? today);

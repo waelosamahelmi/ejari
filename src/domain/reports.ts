@@ -59,6 +59,7 @@ export interface RUnit {
   label: string;
   sortOrder: number;
   type: UnitType;
+  typeLabel?: string | null;
   floor?: string | number | null;
   areaM2?: number | null;
   askingRentFils: Fils;
@@ -340,7 +341,7 @@ export function monthlyStatement(
       (other) =>
         other.id !== u.id && other.label.trim().toLowerCase() === u.label.trim().toLowerCase(),
     )
-      ? `${unitTypeLabel([u.type])} ${u.label}`
+      ? `${u.typeLabel || unitTypeLabel([u.type])} ${u.label}`
       : u.label;
   const covered = new Set<string>();
   const rows: StatementRow[] = [];
@@ -622,6 +623,7 @@ export interface VacantRow {
   propertyName: string;
   label: string;
   type: UnitType;
+  typeLabel?: string | null;
   floor: string | number | null;
   areaM2: number | null;
   askingRentFils: Fils;

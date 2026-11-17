@@ -73,6 +73,7 @@ export default async function NewContractPage({
         monthlyRentFils: c.monthly_rent_fils,
         purpose: c.purpose,
         utilitiesParty: c.utilities_party,
+        waterParty: (c.water_party as "owner" | "tenant" | null) ?? c.utilities_party,
         electricityFixedFils: c.electricity_fixed_fils,
         freeMonths: c.free_months,
         freeMonthsPenaltyWindowMonths: c.free_months_penalty_window_months,

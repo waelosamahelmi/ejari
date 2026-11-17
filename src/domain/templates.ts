@@ -430,7 +430,13 @@ export function renderContract(
   const included: { key: string; body: string; custom?: boolean }[] = [
     ...includedClauses(tpl, vars, overrides).map((c) => ({
       key: c.key,
-      body: overrides.text?.[c.key] ?? c.body,
+      body:
+        (overrides.text?.[c.key] ?? c.body) +
+        (c.key === "unit" &&
+        vars.unit_paci &&
+        !(overrides.text?.[c.key] ?? c.body).includes("unit_paci")
+          ? " الرقم الآلي للوحدة: {{unit_paci}}."
+          : ""),
     })),
     ...custom.filter((c) => c.text.trim()).map((c) => ({ key: c.key, body: c.text, custom: true })),
   ];
@@ -504,6 +510,7 @@ export interface TemplateVarsInput {
   monthlyRentFils: Fils;
   purpose: string;
   utilitiesParty: "owner" | "tenant";
+  waterParty?: "owner" | "tenant";
   electricityFixedFils: Fils;
   freeMonths: number;
   noticePeriodMonths: number;
@@ -525,7 +532,12 @@ export interface TemplateVarsInput {
   } | null;
   coTenants?: readonly { name: string; civilId?: string | null }[];
   property: PropertyAddress & { propertyType?: string | null };
-  units: readonly { label: string; type: UnitType; paciNo?: string | null }[];
+  units: readonly {
+    label: string;
+    type: UnitType;
+    typeLabel?: string | null;
+    paciNo?: string | null;
+  }[];
 }
 
 /** Builds every variable available to templates (§8). */
@@ -556,15 +568,23 @@ export function buildTemplateVars(i: TemplateVarsInput): Vars {
     property_description: propertyDescription(i.property, i.type),
     property_paci: i.property.paciNo ?? "",
     property_type: i.property.propertyType ?? "",
-    unit_type_label: unitTypeLabel(i.units.map((u) => u.type)),
+    unit_type_label: i.units.some((u) => u.typeLabel)
+      ? [...new Set(i.units.map((u) => u.typeLabel || unitTypeLabel([u.type])))].join("، ")
+      : unitTypeLabel(i.units.map((u) => u.type)),
     unit_labels: i.units
       .map((u) =>
         i.units.some((other) => other !== u && other.label === u.label)
-          ? `${unitTypeLabel([u.type])} ${u.label}`
+          ? `${u.typeLabel || unitTypeLabel([u.type])} ${u.label}`
           : u.label,
       )
       .join("، "),
-    unit_paci: i.units.length === 1 ? (i.units[0]!.paciNo ?? "") : "",
+    unit_paci:
+      i.units.length === 1
+        ? (i.units[0]!.paciNo ?? "")
+        : i.units
+            .filter((u) => u.paciNo)
+            .map((u) => `${u.typeLabel || unitTypeLabel([u.type])} ${u.label}: ${u.paciNo}`)
+            .join("؛ "),
     purpose: i.purpose,
     rent_amount: fromFils(i.monthlyRentFils),
     rent_words: amountWords(i.monthlyRentFils),
@@ -580,6 +600,9 @@ export function buildTemplateVars(i: TemplateVarsInput): Vars {
     notice_period_months: i.noticePeriodMonths,
     notice_period_words: tafqeetDuration(i.noticePeriodMonths, { oblique: true }),
     utilities_party: i.utilitiesParty,
+    utilities_split: (i.waterParty ?? i.utilitiesParty) !== i.utilitiesParty,
+    water_party_label:
+      (i.waterParty ?? i.utilitiesParty) === "owner" ? "الطرف الأول" : "الطرف الثاني",
     utilities_owner: utilitiesOwner,
     utilities_party_label: utilitiesOwner ? "الطرف الأول" : "الطرف الثاني",
     electricity_fixed_fils: i.electricityFixedFils,
@@ -626,6 +649,8 @@ export const TEMPLATE_VARIABLES = [
   "free_months_words",
   "notice_period_words",
   "utilities_party_label",
+  "water_party_label",
+  "utilities_split",
   "electricity_fixed_amount",
   "electricity_fixed_words",
   "security_deposit_amount",

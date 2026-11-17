@@ -45,6 +45,7 @@ export const propertySchema = z
 export type PropertyInput = z.input<typeof propertySchema>;
 
 export const unitSchema = z.object({
+  typeLabel: optText(60),
   propertyId: z.string().uuid(),
   label: req(z.string().max(60, "tooLong")),
   sortOrder: z.number().int().min(0).default(0),
@@ -64,6 +65,7 @@ export const unitSchema = z.object({
 export type UnitInput = z.input<typeof unitSchema>;
 
 export const plannedUnitSchema = z.object({
+  typeLabel: optText(60),
   label: req(z.string().max(60, "tooLong")),
   type: z.enum(UNIT_TYPES),
   floor: z
@@ -107,8 +109,12 @@ export const createPlannedUnitsSchema = z
   })
   .refine(
     (v) =>
-      new Set(v.units.map((u) => `${u.type}:${u.label.trim().toLowerCase()}`)).size ===
-      v.units.length,
+      new Set(
+        v.units.map(
+          (u) =>
+            `${u.type}:${u.type === "other" ? (u.typeLabel ?? "").trim().toLowerCase() : ""}:${u.label.trim().toLowerCase()}`,
+        ),
+      ).size === v.units.length,
     { message: "duplicate", path: ["units"] },
   );
 export type CreatePlannedUnitsInput = z.input<typeof createPlannedUnitsSchema>;

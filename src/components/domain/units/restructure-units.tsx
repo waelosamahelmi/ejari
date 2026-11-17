@@ -16,6 +16,7 @@ import { UNIT_TYPES, type UnitType } from "@/domain/types";
 interface ResultUnit {
   label: string;
   type: UnitType;
+  typeLabel?: string | null;
   floor: number;
   askingRentFils: number;
   areaM2: number | null;
@@ -37,6 +38,7 @@ export function RestructureUnits({
     label: string;
     status: string;
     type: string;
+    typeLabel?: string | null;
     askingRentFils: number;
     floor: number | null;
   }[];
@@ -61,6 +63,10 @@ export function RestructureUnits({
       setResults([
         {
           ...blank(),
+          typeLabel:
+            first && selected.every((u) => u.typeLabel === first.typeLabel)
+              ? first.typeLabel
+              : null,
           label: selected.map((u) => u.label).join("+"),
           type:
             first && selected.every((u) => u.type === first.type)
@@ -76,6 +82,7 @@ export function RestructureUnits({
         [0, 1].map((i) => ({
           ...blank(),
           label: first ? `${first.label}-${i + 1}` : "",
+          typeLabel: first?.typeLabel,
           type: first ? (first.type as UnitType) : "apartment",
           floor: first?.floor ?? 0,
           askingRentFils: rents[i]!,
@@ -89,14 +96,16 @@ export function RestructureUnits({
   if (!reason.trim()) issues.push(t("reasonRequired"));
   if (results.some((r) => !r.label.trim())) issues.push(t("labelsRequired"));
   const labels = results
-    .map((r) => (r.label.trim() ? `${r.type}:${r.label.trim().toLocaleLowerCase()}` : ""))
+    .map((r) =>
+      r.label.trim() ? `${r.type}:${r.typeLabel ?? ""}:${r.label.trim().toLocaleLowerCase()}` : "",
+    )
     .filter(Boolean);
   if (
     new Set(labels).size !== labels.length ||
     units.some(
       (u) =>
         !sources.includes(u.id) &&
-        labels.includes(`${u.type}:${u.label.trim().toLocaleLowerCase()}`),
+        labels.includes(`${u.type}:${u.typeLabel ?? ""}:${u.label.trim().toLocaleLowerCase()}`),
     )
   )
     issues.push(t("duplicateLabel"));
@@ -216,7 +225,7 @@ export function RestructureUnits({
                   )
                 }
               />
-              {te(u.type as UnitType)} {u.label}
+              {u.typeLabel || te(u.type as UnitType)} {u.label}
               {u.status !== "vacant" && <span className="text-label-2 text-xs">{t("leased")}</span>}
             </label>
           ))}

@@ -18,7 +18,8 @@
     "waterMeter": "Water meter",
     "notes": "Notes",
     "active": "Active",
-    "sortOrder": "Order"
+    "sortOrder": "Order",
+    "typeLabel": "Custom type name"
   },
   "floorHint": "−1 for basement, 0 for ground; leave empty for roof",
   "sections": {
@@ -77,5 +78,6 @@
     "summary": "{sources} source units → {results} result units"
   },
   "clearances": "Past clearances",
-  "printClearance": "Print clearance"
+  "printClearance": "Print clearance",
+  "typeLabelHint": "Choose Other and enter a new type; saved types appear as suggestions."
 }

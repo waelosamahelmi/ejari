@@ -77,7 +77,10 @@ test("ongoing discount, bilingual month navigation, advance receipt and renewal 
   await page.getByRole("button", { name: /^1 — / }).click();
   await next.click();
   await page.locator("#w-start").fill(formatDate(firstPeriod + "-01"));
-  await page.getByRole("radio", { name: "الطرف الأول", exact: true }).click();
+  await page
+    .getByRole("radiogroup", { name: "الكهرباء على", exact: true })
+    .getByRole("radio", { name: "الطرف الأول", exact: true })
+    .click();
   await page.locator("#w-notice").selectOption("0");
   await page.getByLabel("خصم الإيجار", { exact: true }).check();
   await page.locator("#discount-amount").fill("50");

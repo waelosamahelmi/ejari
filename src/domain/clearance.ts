@@ -8,7 +8,13 @@ export const clearanceSnapshotSchema = z.object({
   address: z.record(z.string(), z.string().nullable()),
   ownerNames: z.array(z.string()),
   tenantNames: z.array(z.string()),
-  units: z.array(z.object({ label: z.string(), type: z.enum(UNIT_TYPES) })),
+  units: z.array(
+    z.object({
+      label: z.string(),
+      type: z.enum(UNIT_TYPES),
+      typeLabel: z.string().nullable().optional(),
+    }),
+  ),
   moveOutDate: z.string().nullable(),
   lastPaymentDate: z.string().nullable(),
   reason: z.string().nullable(),

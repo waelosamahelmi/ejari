@@ -22,6 +22,7 @@ import type { ChargeKind } from "./types";
 export interface RentRevision {
   effectiveFrom: ISODate;
   monthlyRentFils: Fils;
+  createdAt?: string;
 }
 
 export interface AnnualIncrease {
@@ -75,7 +76,11 @@ export function rentForPeriod(c: ScheduleContract, period: Period): Fils {
   const revisions = [...(c.revisions ?? [])]
     .filter((r) => r.effectiveFrom <= pStart || periodOf(r.effectiveFrom) === period)
     .sort((a, b) =>
-      a.effectiveFrom < b.effectiveFrom ? -1 : a.effectiveFrom > b.effectiveFrom ? 1 : 0,
+      a.effectiveFrom < b.effectiveFrom
+        ? -1
+        : a.effectiveFrom > b.effectiveFrom
+          ? 1
+          : (a.createdAt ?? "").localeCompare(b.createdAt ?? ""),
     );
   const latest = revisions.at(-1);
   const anchorDate = latest ? latest.effectiveFrom : c.startDate;

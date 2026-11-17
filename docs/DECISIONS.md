@@ -129,3 +129,13 @@
 - A successful termination freezes an immutable clearance identity/date snapshot through a database trigger. Old terminated leases can issue their first snapshot explicitly. The print route is authenticated/RLS scoped; the document is a request, with utility and owner-approval declarations left unsigned. It does not falsely certify full rent settlement from the last payment date.
 - The infrastructure chat is quoted context. Do not infer permission to email/invite the supplied address, privatise the repository, transfer provider accounts or deploy a mirror. Verified the repository is public, all checked public tables use RLS, six Storage buckets are private, and anonymous access returns no tenants. The configured private secrets were not found in scanned tracked history.
 - Created a private AES-GCM encrypted database/source backup with a Storage inventory outside Git. Verification covers decryption, checksums and PostgreSQL archive index, not a complete restore drill. Automatic backups/provider plan and independent failover remain unconfigured/unverified; the handover guide states those limits.
+
+## 2026-11-17 — Lease follow-up
+
+- A pre-start termination is a cancellation before possession: keep its actual cancellation date and represent occupancy as an empty range. Do not silently move the date to the lease start. Free-month recovery is zero before possession; payments are retained as credit when future charges are voided.
+- Rent revisions remain history; the latest creation wins for equal effective dates. The future-lease header uses the rent at lease start, while current leases use the current period. Do not overwrite the original rent and thereby change earlier billing periods.
+- Enforce chronological month allocation for this office workflow on the authoritative payment action, including manual API submissions; the general allocation primitives remain usable independently.
+- Add Studio as a standard enum. Other unit types carry a user-entered name with office-scoped saved suggestions; keep type names in structured identity rather than encoding them into the unit number.
+- New water responsibility is nullable for legacy rows, falling back to their previous utilities party. Do not rewrite signed clauses. Only fill an absent unit PACI in legacy print presentation, preserving an existing PACI and the saved wording/financial values.
+
+- Visual review exposed a separate touch-media transition that remounted the wizard. Keep the pull-to-refresh indicator in a stable child position, hidden for fine pointers. Test pointer capability changes without losing the wizard step/owner selection.

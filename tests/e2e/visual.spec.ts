@@ -335,7 +335,10 @@ async function captureAll(
   await page.getByRole("button", { name: /الري قسيمة 1674|Al-Rai Plot 1674/ }).click();
   await page.getByRole("button", { name: /^1 — / }).click();
   await next.click();
-  await page.getByRole("radio", { name: t("الطرف الأول", "Party 1 (owner)"), exact: true }).click();
+  await page
+    .getByRole("radiogroup", { name: t("الكهرباء على", "Electricity paid by"), exact: true })
+    .getByRole("radio", { name: t("الطرف الأول", "Party 1 (owner)"), exact: true })
+    .click();
   await page.locator("#w-notice").selectOption("0");
   await page.locator("#w-cdate").fill("01/10/2026");
   await page.locator("#w-start").fill("01/10/2026");
@@ -426,12 +429,18 @@ test.describe("visual regression (§20)", () => {
             await page.getByRole("button", { name: /^1 — / }).click();
             await next.click();
             await page
+              .getByRole("radiogroup", {
+                name: t("الكهرباء على", "Electricity paid by"),
+                exact: true,
+              })
               .getByRole("radio", { name: t("الطرف الأول", "Party 1 (owner)"), exact: true })
               .click();
             await page.locator("#w-notice").selectOption("0");
             await page.locator("#w-cdate").fill("01/10/2026");
             await page.locator("#w-start").fill("01/10/2026");
             await page.locator("#w-first").fill("01/12/2026");
+            await expect(page.locator("#w-first")).toHaveValue("01/12/2026");
+            await shot(page, `${pre}-wizard-4`, { fullPage: true });
             await expect(page.locator("#w-first")).toHaveValue("01/12/2026");
             await next.click();
             await next.click();

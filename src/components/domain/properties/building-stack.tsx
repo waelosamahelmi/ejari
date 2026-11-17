@@ -11,6 +11,7 @@ export interface StackTile {
   id: string;
   label: string;
   type: string;
+  typeLabel?: string | null;
   floor: number | null;
   sortOrder: number;
   status: UnitStatus;
@@ -52,7 +53,7 @@ export function BuildingStack({
       (other) =>
         other.id !== u.id && other.label.trim().toLowerCase() === u.label.trim().toLowerCase(),
     )
-      ? `${tType(u.type as import("@/domain/types").UnitType)} ${u.label}`
+      ? `${u.typeLabel || tType(u.type as import("@/domain/types").UnitType)} ${u.label}`
       : u.label;
   const tStatus = useTranslations("enums.unitStatus");
   const tPeriod = useTranslations("enums.periodStatus");

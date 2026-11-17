@@ -160,7 +160,7 @@ export interface PenaltyInput {
  * months were granted → pay back the value of the free months.
  */
 export function earlyExitPenalty(c: PenaltyInput, moveOutDate: ISODate): Fils {
-  if (c.type !== "investment" || c.freeMonths <= 0) return 0;
+  if (c.type !== "investment" || c.freeMonths <= 0 || moveOutDate < c.startDate) return 0;
   const windowEnd = addMonths(c.startDate, c.freeMonthsPenaltyWindowMonths);
   return moveOutDate < windowEnd ? c.freeMonths * c.monthlyRentFils : 0;
 }

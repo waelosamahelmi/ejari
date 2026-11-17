@@ -9,6 +9,7 @@ export interface UnitPlanRow {
   floor: number;
   count: number;
   type: UnitType;
+  typeLabel?: string | null;
   prefix: string;
   startNumber: number;
   askingRentFils: number;
@@ -20,6 +21,7 @@ export interface UnitPlanRow {
 export interface PlannedUnit {
   label: string;
   type: UnitType;
+  typeLabel?: string | null;
   floor: number;
   areaM2: number | null;
   bedrooms: number | null;
@@ -46,6 +48,7 @@ export function generatePlannedUnits(rows: readonly UnitPlanRow[]): PlannedUnit[
       units.push({
         label: `${prefix}${row.startNumber + i}`,
         type: row.type,
+        typeLabel: row.typeLabel,
         floor: row.floor,
         areaM2: row.areaM2,
         bedrooms: row.bedrooms,
@@ -61,8 +64,10 @@ const norm = (s: string) => s.trim().toLowerCase();
 export interface UnitIdentity {
   label: string;
   type?: UnitType;
+  typeLabel?: string | null;
 }
-export const unitIdentityKey = (u: UnitIdentity) => `${u.type ?? "*"}:${norm(u.label)}`;
+export const unitIdentityKey = (u: UnitIdentity) =>
+  `${u.type ?? "*"}:${u.type === "other" ? norm(u.typeLabel ?? "") : ""}:${norm(u.label)}`;
 
 /** Labels that collide with an earlier unit in the list or with existing units. */
 export function duplicateLabels(
@@ -74,7 +79,7 @@ export function duplicateLabels(
   const dupes: string[] = [];
   for (const u of units) {
     const label = u.label.trim();
-    if ((seen.has(unitIdentityKey(u)) || seen.has(`*:${norm(label)}`)) && !dupes.includes(label))
+    if ((seen.has(unitIdentityKey(u)) || seen.has(`*::${norm(label)}`)) && !dupes.includes(label))
       dupes.push(label);
     seen.add(unitIdentityKey(u));
   }

@@ -56,7 +56,9 @@ export default async function ClearancePrint({
             "Please accept my request to surrender and vacate:",
           )}
         </p>
-        <p className="font-semibold">{d.units.map((u) => `${te(u.type)} ${u.label}`).join("، ")}</p>
+        <p className="font-semibold">
+          {d.units.map((u) => `${u.typeLabel || te(u.type)} ${u.label}`).join("، ")}
+        </p>
         <p>
           {text("العقار:", "Property:")} {d.propertyName}
         </p>

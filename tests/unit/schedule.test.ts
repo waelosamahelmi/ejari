@@ -160,3 +160,14 @@ describe("helpers", () => {
     expect(nextPeriod("2026-12")).toBe("2027-01");
   });
 });
+
+it("uses the last same-date revision independent of database result order", () => {
+  const revisions = [
+    { effectiveFrom: "2026-06-01", monthlyRentFils: 280000, createdAt: "2026-05-02T10:00:00Z" },
+    { effectiveFrom: "2026-06-01", monthlyRentFils: 290000, createdAt: "2026-05-01T10:00:00Z" },
+    { effectiveFrom: "2026-09-01", monthlyRentFils: 310000, createdAt: "2026-05-01T10:00:00Z" },
+  ];
+  expect(rentForPeriod({ ...base, revisions }, "2026-06")).toBe(280000);
+  expect(rentForPeriod({ ...base, revisions }, "2026-09")).toBe(310000);
+  expect(rentForPeriod({ ...base, revisions }, "2026-05")).toBe(300000);
+});

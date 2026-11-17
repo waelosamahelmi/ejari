@@ -58,6 +58,7 @@ export interface StackUnit {
   id: string;
   label: string;
   type: string;
+  typeLabel?: string | null;
   floor: number | null;
   sortOrder: number;
   status: UnitStatus;
@@ -98,6 +99,7 @@ export function buildingStack(
       id: u.id,
       label: u.label,
       type: u.type,
+      typeLabel: u.typeLabel,
       floor: typeof u.floor === "number" ? u.floor : null,
       sortOrder: u.sortOrder,
       status,

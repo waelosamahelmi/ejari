@@ -78,7 +78,7 @@ export interface ContractPartyData {
     paciNo: string | null;
     propertyType: string;
   };
-  units: { label: string; type: UnitType; paciNo: string | null }[];
+  units: { label: string; type: UnitType; typeLabel?: string | null; paciNo: string | null }[];
 }
 
 export async function loadParties(
@@ -104,7 +104,10 @@ export async function loadParties(
       )
       .eq("id", input.propertyId)
       .single(),
-    db.from("units").select("id, label, type, paci_no, sort_order").in("id", input.unitIds),
+    db
+      .from("units")
+      .select("id, label, type, type_label, paci_no, sort_order")
+      .in("id", input.unitIds),
   ]);
   const ownerId =
     input.ownerId ??
@@ -142,7 +145,12 @@ export async function loadParties(
       paciNo: property?.paci_no ?? null,
       propertyType: property?.property_type ?? "residential",
     },
-    units: ordered.map((u) => ({ label: u.label, type: u.type, paciNo: u.paci_no })),
+    units: ordered.map((u) => ({
+      label: u.label,
+      type: u.type,
+      typeLabel: u.type_label,
+      paciNo: u.paci_no,
+    })),
   };
 }
 

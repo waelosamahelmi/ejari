@@ -74,11 +74,12 @@ export function PullToRefresh({ children }: { children: ReactNode }) {
     if (!pending && !dragging && startY.current === null) setPull((p) => (p === 48 ? 0 : p));
   }, [pending, dragging]);
 
-  if (!touch) return <>{children}</>;
+  // Keep the page at a stable child position when pointer capabilities change.
   const progress = Math.min(1, pull / THRESHOLD);
   return (
     <>
       <div
+        hidden={!touch}
         role="status"
         aria-label={pending ? t("reload") : undefined}
         style={{ height: pull, opacity: progress }}

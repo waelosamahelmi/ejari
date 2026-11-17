@@ -543,6 +543,7 @@ export function PropertyDetailView({
         propertyId={p.id}
         existingLabels={stack.map((s) => ({
           label: s.label,
+          typeLabel: s.typeLabel,
           type: s.type as import("@/domain/types").UnitType,
         }))}
       />

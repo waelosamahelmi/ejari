@@ -390,24 +390,44 @@ export function PaymentSheet({
                   { value: "periods", label: t("choose") },
                 ]}
                 value={allocMode}
-                onChange={setAllocMode}
+                onChange={(m) => {
+                  setAllocMode(m);
+                  if (m === "periods") {
+                    const first = allPeriods.slice(0, 1);
+                    setPeriods(first);
+                    setAmount(
+                      ctx.open
+                        .filter((o) => first.includes(o.period))
+                        .reduce((s, o) => s + o.outstandingFils, 0),
+                    );
+                  }
+                }}
               />
               {allocMode === "periods" && (
-                <ChipScroller>
-                  {allPeriods.map((p) => (
-                    <Chip
-                      key={p}
-                      active={periods.includes(p)}
-                      onClick={() =>
-                        setPeriods((ps) =>
-                          ps.includes(p) ? ps.filter((x) => x !== p) : [...ps, p],
-                        )
-                      }
-                    >
-                      {formatPeriod(p, locale)}
-                    </Chip>
-                  ))}
-                </ChipScroller>
+                <div>
+                  <p className="text-label-2 mb-2 text-sm">{t("orderHelp")}</p>
+                  <ChipScroller>
+                    {allPeriods.map((p, index) => (
+                      <Chip
+                        key={p}
+                        active={periods.includes(p)}
+                        disabled={index > periods.length}
+                        className="disabled:opacity-40"
+                        onClick={() => {
+                          const next = allPeriods.slice(0, periods.includes(p) ? index : index + 1);
+                          setPeriods(next);
+                          setAmount(
+                            ctx.open
+                              .filter((o) => next.includes(o.period))
+                              .reduce((s, o) => s + o.outstandingFils, 0),
+                          );
+                        }}
+                      >
+                        {formatPeriod(p, locale)}
+                      </Chip>
+                    ))}
+                  </ChipScroller>
+                </div>
               )}
               <ul className="bg-paper divide-separator divide-y-[0.5px] rounded-[16px]">
                 {coveredPeriods.map((c) => (

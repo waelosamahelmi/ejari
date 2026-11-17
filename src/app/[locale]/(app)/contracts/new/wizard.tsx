@@ -718,6 +718,17 @@ export function ContractWizard({
                 }}
               />
             </Field>
+            <Field label={t("terms.water")} className="lg:col-span-2">
+              <SegmentedControl
+                ariaLabel={t("terms.water")}
+                options={(["owner", "tenant"] as const).map((x) => ({
+                  value: x,
+                  label: tEnum(`utilitiesParty.${x}`),
+                }))}
+                value={v.waterParty ?? v.utilitiesParty}
+                onChange={(x) => set("waterParty", x as "owner" | "tenant")}
+              />
+            </Field>
             {v.type === "investment" && (
               <>
                 <Field label={t("terms.electricityFixed")} htmlFor="w-elec">

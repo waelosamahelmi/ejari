@@ -47,6 +47,7 @@ export interface UnitDetail {
   id: string;
   label: string;
   type: UnitType;
+  typeLabel?: string | null;
   floor: number | null;
   areaM2: number | null;
   bedrooms: number | null;
@@ -146,7 +147,7 @@ export function UnitDetailView({
             : tp("floor", { n: u.floor });
 
   const amenities = [
-    { icon: <Layers />, label: t("fields.type"), value: tType(u.type) },
+    { icon: <Layers />, label: t("fields.type"), value: u.typeLabel || tType(u.type) },
     { icon: <Gauge />, label: t("fields.floor"), value: floorText },
     ...(u.areaM2
       ? [{ icon: <Ruler />, label: t("fields.area"), value: `${u.areaM2} ${tc("labels.sqm")}` }]
@@ -191,7 +192,7 @@ export function UnitDetailView({
         }
         pills={
           <>
-            <GlassPill>{tType(u.type)}</GlassPill>
+            <GlassPill>{u.typeLabel || tType(u.type)}</GlassPill>
             <GlassPill>{floorText}</GlassPill>
             {current && (
               <GlassPill>
@@ -404,6 +405,7 @@ export function UnitDetailView({
           propertyId: u.propertyId,
           label: u.label,
           type: u.type,
+          typeLabel: u.typeLabel,
           floor: u.floor,
           areaM2: u.areaM2,
           bedrooms: u.bedrooms,

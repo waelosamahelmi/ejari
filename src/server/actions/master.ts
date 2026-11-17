@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireActionContext, ActionError } from "@/lib/auth";
+import { unitIdentityKey } from "@/domain/unit-plan";
 import { run } from "@/server/action";
 import {
   beneficiarySchema,
@@ -108,6 +109,7 @@ function plannedUnitRows(
     label: u.label,
     sort_order: ++sort,
     type: u.type,
+    type_label: u.type === "other" ? u.typeLabel || null : null,
     floor: u.floor,
     area_m2: u.areaM2,
     bedrooms: u.bedrooms,
@@ -227,6 +229,7 @@ function unitRow(orgId: string, d: z.output<typeof unitSchema>) {
     label: d.label,
     sort_order: d.sortOrder,
     type: d.type,
+    type_label: d.type === "other" ? d.typeLabel || null : null,
     floor: d.floor ?? null,
     area_m2: d.areaM2 ?? null,
     bedrooms: d.bedrooms ?? null,
@@ -280,16 +283,16 @@ export async function createPlannedUnits(input: CreatePlannedUnitsInput) {
     if (!property) throw new ActionError("notFound");
     const { data: existing } = await db
       .from("units")
-      .select("label, type, sort_order")
+      .select("label, type, type_label, sort_order")
       .eq("property_id", d.propertyId)
       .eq("active", true);
     const existingLabels = new Set(
-      (existing ?? []).map((u) => `${u.type}:${u.label.trim().toLowerCase()}`),
+      (existing ?? []).map((u) =>
+        unitIdentityKey({ label: u.label, type: u.type, typeLabel: u.type_label }),
+      ),
     );
-    for (const u of d.units) {
-      if (existingLabels.has(`${u.type}:${u.label.trim().toLowerCase()}`))
-        throw new ActionError("duplicate");
-    }
+    for (const u of d.units)
+      if (existingLabels.has(unitIdentityKey(u))) throw new ActionError("duplicate");
     const startSort = Math.max(0, ...(existing ?? []).map((u) => u.sort_order));
     const rows = plannedUnitRows(ctx.orgId, d.propertyId, d.units, startSort);
     const { error } = await db.from("units").insert(rows);
@@ -495,5 +498,18 @@ export async function restructureUnits(input: {
     if (error) throw error;
     reval();
     return data;
+  });
+}
+
+export async function customUnitTypes() {
+  return run(async () => {
+    await requireActionContext();
+    const db = await supabaseServer();
+    const { data, error } = await db
+      .from("units")
+      .select("type_label")
+      .not("type_label", "is", null);
+    if (error) throw error;
+    return [...new Set((data ?? []).map((u) => u.type_label!).filter(Boolean))].sort();
   });
 }

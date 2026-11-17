@@ -52,5 +52,6 @@
   "units_have_live_contracts": "يجب إنهاء عقود الوحدات قبل الدمج أو الفرز.",
   "discount_exceeds_rent": "يتجاوز الخصم قيمة الإيجار المتبقية.",
   "overlapping_discount": "توجد فترة خصم متداخلة لهذا العقد.",
-  "discount_period_outside_contract": "يجب أن تكون فترة الخصم ضمن أشهر التحصيل في العقد."
+  "discount_period_outside_contract": "يجب أن تكون فترة الخصم ضمن أشهر التحصيل في العقد.",
+  "payment_period_gap": "يجب سداد الأشهر الأقدم أولًا؛ اختر الأشهر بالترتيب دون تجاوز شهر غير مسدد."
 }

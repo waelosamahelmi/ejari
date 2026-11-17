@@ -1,10 +1,11 @@
+import { rentForPeriod } from "@/domain/schedule";
 import { notFound, redirect } from "next/navigation";
 import { requireContext } from "@/lib/auth";
 import { pageLocale, type LocaleParams } from "@/lib/i18n";
 import { supabaseServer } from "@/lib/supabase/server";
 import { loadOrgData } from "@/server/queries/dataset";
 import { signPath } from "@/server/storage";
-import { todayKuwait, periodEnd } from "@/domain/dates";
+import { todayKuwait, periodEnd, periodOf } from "@/domain/dates";
 import { balanceSummary, chargeStates, periodStatus } from "@/domain/ledger";
 import { earlyExitPenalty } from "@/domain/contracts";
 import { can } from "@/lib/permissions";
@@ -88,7 +89,21 @@ export default async function ContractPage({ params }: LocaleParams<{ id: string
         termMonths: c.term_months,
         autoRenew: c.auto_renew,
         renewalTermMonths: c.renewal_term_months,
-        monthlyRentFils: c.monthly_rent_fils,
+        baseRentFils: c.monthly_rent_fils,
+        monthlyRentFils: rentForPeriod(
+          {
+            startDate: c.start_date,
+            endDate: c.end_date,
+            firstCollectionDate: c.first_collection_date,
+            monthlyRentFils: c.monthly_rent_fils,
+            revisions: (c.contract_rent_revisions ?? []).map((r) => ({
+              effectiveFrom: r.effective_from,
+              monthlyRentFils: r.monthly_rent_fils,
+              createdAt: r.created_at,
+            })),
+          },
+          periodOf(today < c.start_date ? c.start_date : today),
+        ),
         freeMonths: c.free_months,
         noticePeriodMonths: c.notice_period_months,
         securityDepositFils: c.security_deposit_fils,
@@ -114,7 +129,20 @@ export default async function ContractPage({ params }: LocaleParams<{ id: string
             startDate: c.start_date,
             freeMonths: c.free_months,
             freeMonthsPenaltyWindowMonths: c.free_months_penalty_window_months,
-            monthlyRentFils: c.monthly_rent_fils,
+            monthlyRentFils: rentForPeriod(
+              {
+                startDate: c.start_date,
+                endDate: c.end_date,
+                firstCollectionDate: c.first_collection_date,
+                monthlyRentFils: c.monthly_rent_fils,
+                revisions: (c.contract_rent_revisions ?? []).map((r) => ({
+                  effectiveFrom: r.effective_from,
+                  monthlyRentFils: r.monthly_rent_fils,
+                  createdAt: r.created_at,
+                })),
+              },
+              periodOf(today < c.start_date ? c.start_date : today),
+            ),
           },
           today,
         ),

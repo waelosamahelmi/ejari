@@ -38,7 +38,9 @@ export function defaultRow(floor: number): UnitPlanRow {
 export function isUnitPlanValid(
   rows: UnitPlanRow[],
   units: PlannedUnit[],
-  existingLabels: (string | { label: string; type: import("@/domain/types").UnitType })[] = [],
+  existingLabels: (
+    string | { label: string; type: import("@/domain/types").UnitType; typeLabel?: string | null }
+  )[] = [],
 ): boolean {
   return (
     units.length > 0 &&
@@ -307,7 +309,9 @@ export function UnitPlanValidation({
 }: {
   rows: UnitPlanRow[];
   units: PlannedUnit[];
-  existingLabels?: (string | { label: string; type: import("@/domain/types").UnitType })[];
+  existingLabels?: (
+    string | { label: string; type: import("@/domain/types").UnitType; typeLabel?: string | null }
+  )[];
 }) {
   const t = useTranslations("properties.planner.errors");
   const issues = planIssues(rows);

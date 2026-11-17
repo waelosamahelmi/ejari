@@ -78,6 +78,7 @@ export default async function UnitPage({ params }: LocaleParams<{ id: string }>)
         id: unit.id,
         label: unit.label,
         type: unit.type,
+        typeLabel: unit.type_label,
         floor: unit.floor,
         areaM2: unit.area_m2 === null ? null : Number(unit.area_m2),
         bedrooms: unit.bedrooms,

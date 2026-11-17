@@ -40,6 +40,7 @@ export const contractDraftSchema = z
     monthlyRentFils: z.number().int().positive("positive"),
     purpose: z.string().trim().min(1, "required").max(200, "tooLong"),
     utilitiesParty: z.enum(["owner", "tenant"]),
+    waterParty: z.enum(["owner", "tenant"]).optional(),
     electricityFixedFils: fils,
     freeMonths: z.number().int().min(0).max(24),
     freeMonthsPenaltyWindowMonths: z.number().int().min(0).max(60),
