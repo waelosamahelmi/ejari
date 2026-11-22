@@ -1,11 +1,12 @@
 "use client";
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Link, useRouter } from "@/i18n/navigation";
 import { LargeTitleHeader } from "@/components/shell/large-title-header";
 import { SearchField } from "@/components/ui/search-field";
 import { Chip, ChipScroller, Pill } from "@/components/ui/chip";
+import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { NoPaymentsIllustration } from "@/components/illustrations";
@@ -40,6 +41,13 @@ export function PaymentsView({
   canExport: boolean;
 }) {
   const t = useTranslations("payments");
+  const locale = useLocale();
+  const printBatch = (ids: string[]) =>
+    window.open(
+      `/print/receipt-batch?ids=${ids.slice(0, 100).join(",")}&lang=${locale}`,
+      "_blank",
+      "noopener",
+    );
   const tMethod = useTranslations("enums.paymentMethod");
   const money = useMoney();
   const router = useRouter();
@@ -122,38 +130,54 @@ export function PaymentsView({
           description={t("emptyText")}
         />
       ) : (
-        <DataTable
-          data={filtered}
-          columns={columns}
-          getRowId={(r) => r.id}
-          onRowClick={(r) => router.push(`/payments/${r.id}`)}
-          renderCard={(r) => (
-            <Link
-              href={`/payments/${r.id}`}
-              className="bg-paper press flex items-center gap-3 rounded-[20px] p-4 shadow-[var(--sh-card)]"
+        <>
+          <div className="mb-3">
+            <Button
+              disabled={!filtered.filter((r) => !r.voided).length}
+              onClick={() => printBatch(filtered.filter((r) => !r.voided).map((r) => r.id))}
             >
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-[16px] font-semibold">{r.tenant}</div>
-                <div className="text-label-2 num truncate text-[13px]">
-                  {formatDate(r.date)} · #{r.receiptNo ?? r.systemNo}
+              {locale === "ar" ? "طباعة كل الوصلات (حتى 100)" : "Print all receipts (up to 100)"}
+            </Button>
+          </div>
+          <DataTable
+            selectable={(r) => !r.voided}
+            bulkBar={(rows) => (
+              <Button size="sm" onClick={() => printBatch(rows.map((r) => r.id))}>
+                {locale === "ar" ? "طباعة المختار" : "Print selected"}
+              </Button>
+            )}
+            data={filtered}
+            columns={columns}
+            getRowId={(r) => r.id}
+            onRowClick={(r) => router.push(`/payments/${r.id}`)}
+            renderCard={(r) => (
+              <Link
+                href={`/payments/${r.id}`}
+                className="bg-paper press flex items-center gap-3 rounded-[20px] p-4 shadow-[var(--sh-card)]"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[16px] font-semibold">{r.tenant}</div>
+                  <div className="text-label-2 num truncate text-[13px]">
+                    {formatDate(r.date)} · #{r.receiptNo ?? r.systemNo}
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span
-                  className={cn(
-                    "num text-[16px] font-semibold",
-                    r.voided && "text-label-2 line-through",
+                <div className="flex flex-col items-end gap-1">
+                  <span
+                    className={cn(
+                      "num text-[16px] font-semibold",
+                      r.voided && "text-label-2 line-through",
+                    )}
+                  >
+                    {money(r.amountFils)}
+                  </span>
+                  {r.voided && (
+                    <Pill className="bg-red/14 text-red-text">{t("detail.voidedBadge")}</Pill>
                   )}
-                >
-                  {money(r.amountFils)}
-                </span>
-                {r.voided && (
-                  <Pill className="bg-red/14 text-red-text">{t("detail.voidedBadge")}</Pill>
-                )}
-              </div>
-            </Link>
-          )}
-        />
+                </div>
+              </Link>
+            )}
+          />
+        </>
       )}
     </>
   );

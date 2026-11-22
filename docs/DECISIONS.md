@@ -139,3 +139,15 @@
 - New water responsibility is nullable for legacy rows, falling back to their previous utilities party. Do not rewrite signed clauses. Only fill an absent unit PACI in legacy print presentation, preserving an existing PACI and the saved wording/financial values.
 
 - Visual review exposed a separate touch-media transition that remounted the wizard. Keep the pull-to-refresh indicator in a stable child position, hidden for fine pointers. Test pointer capability changes without losing the wizard step/owner selection.
+
+## 2026-11-22 — Prepared receipts, owner numbering and office reports
+
+- Preparing a receipt reserves an owner-specific number and freezes its amount/identity without inserting a payment. The default covers unpaid charges through the selected month, including arrears and approved discounts. If balances change before collection, require void/reissue rather than silently modifying an already printed document.
+- Collection is an atomic, idempotent database operation; concurrent retries reuse one payment and the reserved number. Cancelling a posted payment voids its linked prepared receipt while retaining history. Voiding never recycles a number.
+- Receipt and expense sequences are independent per owner/year and shared across that owner's buildings. Initialise counters above relevant legacy system numbers, retaining all old identifiers. Multi-owner expenses require an explicit numbering owner; new IDs are immutable.
+- Log authenticated print requests in append-only, property-scoped records. One batch request contributes once to each included document; printing a linked paid receipt counts against the original prepared identity. Browser-native printing is recorded on a best-effort basis. Physical printer success and copy count are unavailable to the web app.
+- Match the voice note by suppressing only the automatically generated discount clause in contract presentation. Do not rewrite frozen clauses or financial rows. Discounts remain reasoned ledger adjustments, and reports preserve contractual rent separately from actual receipts.
+- Exact-date reports use Kuwait business dates. Contract reports include non-draft leases overlapping the chosen range and show rent effective at the range/lease start; they do not replace the historical rent-revision ledger.
+- Fix print dimensions at print-media specificity; do not shrink the entire statement to fit arbitrary data on one page. Compact normal statements fit A4 landscape, while larger content paginates naturally with one final grand total.
+
+- Hosted Supabase did not inherit the local default table grants. Apply explicit SELECT grants to authenticated document readers, service-role maintenance grants, and revoke direct client writes/sequence access. Reload the API schema cache and verify the hosted tables/view before publishing. Both migrations preserved existing business row counts; anonymous reads of the new document/audit tables are denied.

@@ -121,7 +121,8 @@ test("wizard requires owner and explicit terms, offers all tenants and filters p
   await page.locator("#discount-amount").fill("20");
   await page.locator("#discount-reason").fill("عرض مؤقت");
   await next.click();
-  await expect(page.getByText("خصم شهري مؤقت", { exact: false })).toBeVisible();
+  await expect(page.getByText("البنود", { exact: true })).toBeVisible();
+  await expect(page.getByText("خصم شهري مؤقت", { exact: false })).toHaveCount(0);
   // Resuming a draft must still require explicit utilities and notice confirmation.
   await page.reload();
   await expect(next).toBeDisabled();
@@ -131,10 +132,11 @@ test("wizard requires owner and explicit terms, offers all tenants and filters p
     .click();
   await page.locator("#w-notice").selectOption("0");
   await next.click();
-  await expect(page.getByText("خصم شهري مؤقت", { exact: false })).toBeVisible();
+  await expect(page.getByText("البنود", { exact: true })).toBeVisible();
+  await expect(page.getByText("خصم شهري مؤقت", { exact: false })).toHaveCount(0);
   await next.click();
   await expect(page.locator(".contract-doc")).toContainText("المستأجرون الإضافيون");
-  await expect(page.locator(".contract-doc")).toContainText("عرض مؤقت");
+  await expect(page.locator(".contract-doc")).not.toContainText("عرض مؤقت");
   await next.click();
   await page.getByRole("button", { name: "تفعيل العقد", exact: true }).click();
   await expect(page.getByRole("heading", { name: /تم تفعيل العقد/ })).toBeVisible();

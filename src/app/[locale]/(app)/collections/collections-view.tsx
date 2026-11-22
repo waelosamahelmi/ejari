@@ -405,6 +405,14 @@ export function CollectionsView({
                 {t("advance")}
               </Button>
             )}
+            {caps.pay && (
+              <Button asChild variant="secondary">
+                <a href={`/${locale}/collections/receipts?period=${period}&property=${selected}`}>
+                  <Printer />
+                  {locale === "ar" ? "تجهيز وطباعة الوصلات" : "Prepare receipts"}
+                </a>
+              </Button>
+            )}
             {closed && (
               <Pill className="bg-inset text-label-2 h-8 px-3">
                 <Lock className="size-3.5" />
@@ -460,7 +468,7 @@ export function CollectionsView({
             columns={columns}
             getRowId={(r) => r.key}
             showFooter
-            selectable={caps.pay && !closed}
+            selectable={caps.pay && !closed ? (r) => !!r.contractId && !r.vacant : false}
             density="compact"
             maxHeight="calc(100dvh - 300px)"
             groupBy={selected === "all" ? (r) => r.propertyName : undefined}
@@ -471,7 +479,7 @@ export function CollectionsView({
               </span>
             )}
             onRowClick={(r) =>
-              r.contractId && caps.pay && !closed ? setPayFor(r.contractId) : undefined
+              r.contractId && !r.vacant && caps.pay && !closed ? setPayFor(r.contractId) : undefined
             }
             rowClassName={(r) => (r.vacant ? "text-label-2" : undefined)}
             bulkBar={(sel, clear) => (
@@ -489,7 +497,7 @@ export function CollectionsView({
             renderCard={(r) => (
               <button
                 type="button"
-                disabled={!r.contractId || !caps.pay || closed}
+                disabled={r.vacant || !r.contractId || !caps.pay || closed}
                 onClick={() => r.contractId && setPayFor(r.contractId)}
                 className="bg-paper press flex min-h-[76px] w-full items-center gap-3 rounded-[20px] p-4 text-start shadow-[var(--sh-card)] disabled:opacity-80"
               >
@@ -670,6 +678,8 @@ export function CollectionsView({
                     <td className="px-3 py-1.5">
                       <Input
                         aria-label={t("bulk.receipt")}
+                        readOnly
+                        placeholder={locale === "ar" ? "تلقائي حسب المالك" : "Automatic per owner"}
                         dir="ltr"
                         inputMode="numeric"
                         className="num h-10 w-28"

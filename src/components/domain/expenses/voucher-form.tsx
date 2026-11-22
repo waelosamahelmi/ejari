@@ -28,6 +28,8 @@ const BeneficiarySheet = dynamic(
 );
 
 interface PropertyOpt {
+  ownerIds: string[];
+  ownerNames: string[];
   id: string;
   name: string;
   unitCount: number;
@@ -89,7 +91,9 @@ export function VoucherForm({
       reference: "",
       recipientName: "",
       notes: "",
-      lines: [emptyLine(categories[0]?.id ?? "", properties[0]?.id ?? "")],
+      lines: [
+        emptyLine(categories[0]?.id ?? "", properties.find((p) => p.ownerIds.length)?.id ?? ""),
+      ],
     },
   );
   const [files, setFiles] = useState<File[]>([]);
@@ -177,9 +181,36 @@ export function VoucherForm({
   return (
     <div className="space-y-5">
       <Card className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
+        <Field
+          label={locale === "ar" ? "مالك ترقيم السند" : "Voucher numbering owner"}
+          htmlFor="v-owner"
+        >
+          <Select
+            id="v-owner"
+            disabled={!!id && !!initial?.ownerId}
+            value={v.ownerId ?? ""}
+            onChange={(e) => setV({ ...v, ownerId: e.target.value || null })}
+          >
+            <option value="">
+              {locale === "ar" ? "تلقائي إذا كان مالكًا واحدًا" : "Automatic for a single owner"}
+            </option>
+            {[
+              ...new Map(
+                properties.flatMap((p) =>
+                  p.ownerIds.map((id, i) => [id, p.ownerNames[i] ?? id] as const),
+                ),
+              ).entries(),
+            ].map(([id, name]) => (
+              <option key={id} value={id}>
+                {name}
+              </option>
+            ))}
+          </Select>
+        </Field>
         <Field label={t("voucherNo")} htmlFor="v-no" hint={t("voucherNoHint")}>
           <Input
             id="v-no"
+            readOnly
             dir="ltr"
             className="num"
             value={v.voucherNo ?? ""}
@@ -417,7 +448,13 @@ export function VoucherForm({
           onClick={() =>
             setV({
               ...v,
-              lines: [...v.lines, emptyLine(categories[0]?.id ?? "", properties[0]?.id ?? "")],
+              lines: [
+                ...v.lines,
+                emptyLine(
+                  categories[0]?.id ?? "",
+                  properties.find((p) => p.ownerIds.length)?.id ?? "",
+                ),
+              ],
             })
           }
         >

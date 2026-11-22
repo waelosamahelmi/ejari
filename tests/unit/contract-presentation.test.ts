@@ -102,3 +102,16 @@ it("supplements a missing unit PACI without rewriting the saved clause or an exi
   );
   expect(saved.clauses[0]?.text).toBe("استأجر شقة 1.");
 });
+
+it("hides the generated discount clause without rewriting the snapshot or custom discount wording", () => {
+  const saved = renderContract(template, vars);
+  saved.clauses.push(
+    { key: "initial_temporary_discount", number: 2, text: "خصم شهري مؤقت قدره 60 دينار" },
+    { key: "custom_1", number: 3, text: "شروط خصم خاصة اتفق عليها الطرفان" },
+  );
+  const result = restoreContractPresentation(saved, renderContract(template, vars));
+  expect(result.clauses.map((c) => c.key)).toEqual(["rent", "custom_1"]);
+  expect(result.clauses[0]?.text).toContain("625.000");
+  expect(result.clauses[1]?.text).toBe("شروط خصم خاصة اتفق عليها الطرفان");
+  expect(saved.clauses).toHaveLength(3);
+});

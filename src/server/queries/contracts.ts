@@ -178,17 +178,6 @@ export function renderWith(
     tpl,
     buildTemplateVars(input),
     overrides,
-    input.initialDiscount
-      ? [
-          ...custom,
-          {
-            key: "initial_temporary_discount",
-            text:
-              input.initialDiscount.toPeriod === null
-                ? "خصم شهري دائم قدره {{discount_amount}} دينار اعتبارًا من {{discount_from}} وحتى انتهاء هذا العقد. السبب: {{discount_reason}}."
-                : "خصم شهري مؤقت قدره {{discount_amount}} دينار عن الأشهر من {{discount_from}} إلى {{discount_to}}. السبب: {{discount_reason}}.",
-          },
-        ]
-      : custom,
+    custom.filter((c) => c.key !== "initial_temporary_discount"),
   );
 }

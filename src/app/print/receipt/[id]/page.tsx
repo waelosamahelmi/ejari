@@ -28,7 +28,7 @@ export default async function PrintReceipt({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ lang?: string; auto?: string }>;
+  searchParams: Promise<{ lang?: string; auto?: string; embedded?: string }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
@@ -39,6 +39,7 @@ export default async function PrintReceipt({
     .select(
       "*, tenants(full_name), contracts(contract_no, properties(name, governorate, area, block, street, avenue, house_or_plot, paci_no), contract_units(units(label,type,type_label))), payment_allocations(amount_fils, charges(period))",
     )
+    .eq("org_id", ctx.orgId)
     .eq("id", id)
     .maybeSingle();
   if (!p) notFound();
@@ -78,13 +79,21 @@ export default async function PrintReceipt({
   const rtl = lang === "ar";
   return (
     <>
-      <PrintToolbar
-        auto={sp.auto === "1"}
-        lang={lang}
-        labels={{ print: tc("print"), close: tc("close") }}
-      />
+      {sp.embedded !== "1" && (
+        <PrintToolbar
+          documents={{ kind: "payment", ids: [id] }}
+          auto={sp.auto === "1"}
+          lang={lang}
+          labels={{ print: tc("print"), close: tc("close") }}
+        />
+      )}
       <div className="print-page" style={{ minHeight: "148mm" }} dir={rtl ? "rtl" : "ltr"}>
         <style>{`@page { size: A5 landscape; margin: 10mm; }`}</style>
+        {p.voided && (
+          <p className="mb-3 text-center text-xl font-bold">
+            {lang === "ar" ? "ملغى — لا يثبت السداد" : "VOID — not proof of payment"}
+          </p>
+        )}
         <header className="mb-4 border-b border-black pb-4 text-start">
           <h2 className="text-[17pt] font-bold">{c.properties.name}</h2>
           <p className="text-[10pt] leading-6">{fullPropertyAddress(c.properties, lang)}</p>
@@ -120,7 +129,9 @@ export default async function PrintReceipt({
             <div>
               {t("date")}: {formatDate(p.received_at)}
             </div>
-            {p.receipt_no && <div className="text-neutral-500">{p.system_no}</div>}
+            {p.receipt_no && p.system_no !== p.receipt_no && (
+              <div className="text-neutral-500">{p.system_no}</div>
+            )}
           </div>
         </div>
         <div className="mt-6 space-y-3 text-[12pt] leading-8">

@@ -20,6 +20,11 @@ import { IconTile, type Tone } from "@/components/ui/icon-tile";
 import { REPORT_TYPES, type ReportType } from "@/server/reports/build";
 
 const META: Record<ReportType, { icon: typeof FileText; tone: Tone }> = {
+  collections: { icon: ReceiptText, tone: "green" },
+  "expense-ledger": { icon: Wallet, tone: "sand" },
+  "property-contracts": { icon: FileText, tone: "ink" },
+  "uncollected-receipts": { icon: FileClock, tone: "orange" },
+  "print-history": { icon: FileText, tone: "gray" },
   statement: { icon: FileText, tone: "ink" },
   summary: { icon: HandCoins, tone: "green" },
   late: { icon: FileClock, tone: "red" },

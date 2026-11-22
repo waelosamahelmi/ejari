@@ -27,7 +27,7 @@
   },
   "form": {
     "voucherNo": "Voucher no.",
-    "voucherNoHint": "Leave empty for automatic numbering",
+    "voucherNoHint": "Generated automatically for this owner",
     "date": "Date",
     "paidFrom": "Paid from",
     "reference": "Reference",

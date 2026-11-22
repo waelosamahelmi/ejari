@@ -97,3 +97,16 @@ Production: applied `20261113000001_unit_identity` and `20261113000002_contract_
 Verification: typecheck, lint, 300 unit tests and production build pass. Fresh local reset plus 19 database/RLS tests pass, including Studio/custom identity uniqueness and pre-start cancellation with empty occupancy. Full nonvisual browser run: 36/36. After the mobile pointer fix, final client regressions pass 3/3 (rent revision/reload, sequential advance collection, custom receipt/clearance, pre-start termination with preserved credit, custom unit creation and touch/fine-pointer draft preservation). Visual regression passes all four ar/en × light/dark cases across mobile/desktop: 32 captures, with eight terms baselines refreshed. Inspected Arabic mobile terms, English desktop dark terms and the custom-type clearance.
 
 Production: verified an encrypted pre-update database/source backup, then transactionally applied `20261117000001_studio` and `20261117000002_followup`. Existing business row counts were preserved. Re-tested the reported future lease termination inside a rollback-only transaction: the former reversed-range error is gone; the actual customer lease remains unchanged. No customer payment, cancellation or rent revision was posted by this release. Raw media and a readable six-recording/video review are saved outside Git in Downloads.
+
+## Client office workflow (2026-11-22)
+
+- [x] Review Nov19 voice, written requirements and seven images; source map in `CLIENT_EDITS_2026-11-22.md`.
+- [x] Prepared receipts, batch printing, owner numbering, print audit and operational reports.
+- [x] Vacant-unit collection guard, voucher notes and discount-free legal presentation.
+- [x] Quality gates: typecheck, lint, 301 unit tests and production build.
+- [x] Fresh local migrations and 25 database/RLS tests; all 40 distinct nonvisual browser cases, with updated receipt/discount expectations rerun.
+- [x] Actual PDF verification: one A4 landscape statement for 29 units (27 lease/vacancy rows), one final total/signatures; two prepared/paid receipts per A4; voucher notes print once.
+- [x] Encrypted pre-update database/source backup verified outside Git.
+- [x] Final visual check: all four Arabic/English × light/dark cases passed, covering 64 mobile/desktop captures.
+- [x] Production migrations `20261122000001_receipt_workflow` and `20261122000002_receipt_api_grants`; existing business row counts preserved, hosted API schema ready, anonymous document/audit reads denied.
+- [x] Commit and publish the verified phase 19 release to `origin/master`.

@@ -29,6 +29,9 @@ export function errorCode(e: unknown): string {
   if (db?.code === "23503") return "has_dependents";
   if (db?.code === "42501" || /row-level security/.test(msg)) return "forbidden";
   for (const code of [
+    "owner_required",
+    "receipt_changed",
+    "nothing_due",
     "tenant_has_live_contract",
     "units_have_live_contracts",
     "discount_exceeds_rent",

@@ -62,6 +62,10 @@ export function ReportView({
   const set = (patch: Partial<Record<keyof ReportParams, string | null>>) =>
     start(() => {
       const q = new URLSearchParams(query);
+      if (patch.preset || patch.from || patch.to) {
+        q.delete("dateFrom");
+        q.delete("dateTo");
+      }
       for (const [k, v] of Object.entries(patch)) {
         if (v === null || v === "") q.delete(k);
         else q.set(k, v);
@@ -107,7 +111,14 @@ export function ReportView({
     "last_year",
     "custom",
   ] as const;
-  const usesRange = ["accounting", "owner", "expenses"].includes(spec.type);
+  const exactRange = [
+    "collections",
+    "expense-ledger",
+    "property-contracts",
+    "uncollected-receipts",
+    "print-history",
+  ].includes(spec.type);
+  const usesRange = exactRange || ["accounting", "owner", "expenses"].includes(spec.type);
   const usesPeriod = ["statement", "summary"].includes(spec.type);
   const usesAsOf = ["late", "vacant", "ledger"].includes(spec.type);
   const usesProperty = [
@@ -118,15 +129,25 @@ export function ReportView({
     "expiring",
     "expenses",
     "grace",
+    "collections",
+    "expense-ledger",
+    "property-contracts",
+    "uncollected-receipts",
+    "print-history",
   ].includes(spec.type);
-  const usesOwner = ["summary", "accounting", "owner"].includes(spec.type);
+  const usesOwner =
+    exactRange || ["summary", "accounting", "owner", "expenses"].includes(spec.type);
 
   const rowHref = (r: Row) =>
-    r._contractId
-      ? `/contracts/${String(r._contractId)}`
-      : r._unitId
-        ? `/units/${String(r._unitId)}`
-        : null;
+    r._paymentId
+      ? `/payments/${String(r._paymentId)}`
+      : r._voucherId
+        ? `/expenses/${String(r._voucherId)}`
+        : r._contractId
+          ? `/contracts/${String(r._contractId)}`
+          : r._unitId
+            ? `/units/${String(r._unitId)}`
+            : null;
 
   const sections = useMemo(
     () =>
@@ -282,9 +303,17 @@ export function ReportView({
             {p.preset === "custom" && (
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span className="text-label-2 text-[14px]">{t("params.from")}</span>
-                <MonthPicker value={p.from} onChange={(v) => set({ from: v })} />
+                {exactRange ? (
+                  <DatePicker value={p.dateFrom} onChange={(v) => v && set({ dateFrom: v })} />
+                ) : (
+                  <MonthPicker value={p.from} onChange={(v) => set({ from: v })} />
+                )}
                 <span className="text-label-2 text-[14px]">{t("params.to")}</span>
-                <MonthPicker value={p.to} onChange={(v) => set({ to: v })} />
+                {exactRange ? (
+                  <DatePicker value={p.dateTo} onChange={(v) => v && set({ dateTo: v })} />
+                ) : (
+                  <MonthPicker value={p.to} onChange={(v) => set({ to: v })} />
+                )}
               </div>
             )}
           </>

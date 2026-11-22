@@ -24,7 +24,8 @@ describe.skipIf(!enabled)("client workflows and property scope", () => {
     chargeA = "",
     chargeB = "",
     paymentA = "",
-    sourceUnit = "";
+    sourceUnit = "",
+    numberingOwner = "";
   beforeAll(async () => {
     expect(new URL(url).hostname).toMatch(/^(localhost|127\.0\.0\.1)$/);
     service = createClient<Database>(url, process.env.SUPABASE_SERVICE_ROLE_KEY!, options);
@@ -63,6 +64,23 @@ describe.skipIf(!enabled)("client workflows and property scope", () => {
     if (props.error) throw props.error;
     a = props.data.find((p) => p.name === "Allowed A")!.id;
     b = props.data.find((p) => p.name === "Hidden B")!.id;
+    const owner = await admin
+      .from("owners")
+      .insert({ org_id: org, full_name: "Workflow owner" })
+      .select("id")
+      .single();
+    if (owner.error) throw owner.error;
+    numberingOwner = owner.data.id;
+    const po = await admin.from("property_owners").insert(
+      [a, b].map((id) => ({
+        org_id: org,
+        property_id: id,
+        owner_id: numberingOwner,
+        share_pct: 100,
+      })),
+    );
+    if (po.error) throw po.error;
+
     const mem = await admin
       .from("org_members")
       .insert({ org_id: org, user_id: staffId, role: "collector", property_ids: [a] })
@@ -219,7 +237,13 @@ describe.skipIf(!enabled)("client workflows and property scope", () => {
     expect(cat.error).toBeNull();
     const v = await staff
       .from("expense_vouchers")
-      .insert({ org_id: org, voucher_no: "ENTRY-1", voucher_date: "2026-11-02", status: "posted" })
+      .insert({
+        org_id: org,
+        owner_id: numberingOwner,
+        voucher_no: "ENTRY-1",
+        voucher_date: "2026-11-02",
+        status: "posted",
+      })
       .select("id")
       .single();
     expect(v.error).toBeNull();

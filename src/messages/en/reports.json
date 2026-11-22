@@ -38,7 +38,30 @@
       "title": "Expense report",
       "desc": "By category, property, beneficiary or month."
     },
-    "grace": { "title": "First collections", "desc": "Contracts whose rent starts within 60 days." }
+    "grace": {
+      "title": "First collections",
+      "desc": "Contracts whose rent starts within 60 days."
+    },
+    "collections": {
+      "title": "Collection ledger",
+      "desc": "By property, owner and selected date range"
+    },
+    "expense-ledger": {
+      "title": "Expense ledger",
+      "desc": "By property, owner and selected date range"
+    },
+    "property-contracts": {
+      "title": "Property contracts",
+      "desc": "By property, owner and selected date range"
+    },
+    "uncollected-receipts": {
+      "title": "Printed uncollected receipts",
+      "desc": "By property, owner and selected date range"
+    },
+    "print-history": {
+      "title": "Receipt print history",
+      "desc": "By property, owner and selected date range"
+    }
   },
   "params": {
     "period": "Period",

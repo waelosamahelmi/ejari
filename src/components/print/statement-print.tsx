@@ -17,7 +17,7 @@ export function StatementPrint({
   labels: Record<string, string>;
 }) {
   return (
-    <section className="break-inside-avoid" dir="rtl">
+    <section className="statement-document" dir="rtl">
       <div className="mb-3 grid grid-cols-3 items-end gap-3 text-[10.5pt]">
         <div>
           <div>
@@ -105,7 +105,7 @@ export function StatementPrint({
           </tr>
         </tfoot>
       </table>
-      <div className="mt-8 grid grid-cols-2 gap-10 text-[10.5pt]">
+      <div className="statement-signatures mt-8 grid grid-cols-2 gap-10 text-[10.5pt]">
         <div>
           {labels.recipient}:{" "}
           <span className="inline-block w-48 border-b border-dotted border-black" />

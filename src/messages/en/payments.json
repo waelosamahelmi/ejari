@@ -25,7 +25,7 @@
     "method": "Method",
     "date": "Received on",
     "receipt": "Receipt no.",
-    "receiptHint": "From the receipt book",
+    "receiptHint": "Generated automatically for this owner",
     "reference": "Reference (cheque / transfer)",
     "collectedBy": "Collected by",
     "notes": "Notes",

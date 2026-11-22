@@ -20,6 +20,12 @@ need an admin to assign their properties in Settings → Users.
 
 The [10 November follow-up](docs/CLIENT_EDITS_2026-11-10.md) adds ongoing discounts with renewal carry-forward, bilingual discount month selection, advance collection for future leases and staff login guidance.
 
+## Prepared receipts and office reports
+
+Open **Collections → Prepare collection receipts** to reserve automatic owner-specific receipt numbers without recording income. Print all/selected receipts (up to 100), then record collection against the same document. Changed balances require void/reissue. Paid receipts also support batch printing. Expense vouchers use a separate owner-specific sequence; choose the numbering owner when allocating across different owners. Historical numbers remain unchanged.
+
+Reports include exact-date collection/expense ledgers, property contracts, printed uncollected receipts and print-request history. Counts begin with this release and track print-dialog requests, including PDF saves/cancellations, rather than physical printer copies. Apply migrations `20261122000001_receipt_workflow.sql` and `20261122000002_receipt_api_grants.sql` before deploying this version.
+
 ## Stack
 
 Next.js 15 (App Router, Server Components, Server Actions) · React 19 · TypeScript strict ·

@@ -209,6 +209,61 @@ isOneToOne: false
       referencedColumns: ["unit_id"]
     }
                   ]
+                },"collection_receipts": {
+                  Row: {
+                    "amount_fils": number,"contract_id": string,"created_at": string,"created_by": string | null,"document_no": string,"id": string,"org_id": string,"owner_id": string,"payment_id": string | null,"period": string,"property_id": string,"snapshot": NonNullable<Json>,"status": string,"void_reason": string | null
+                  }
+                  Insert: {
+                    "amount_fils": number,"contract_id": string,"created_at"?: string,"created_by"?: string | null,"document_no": string,"id"?: string,"org_id": string,"owner_id": string,"payment_id"?: string | null,"period": string,"property_id": string,"snapshot": NonNullable<Json>,"status"?: string,"void_reason"?: string | null
+                  }
+                  Update: {
+                    "amount_fils"?: number,"contract_id"?: string,"created_at"?: string,"created_by"?: string | null,"document_no"?: string,"id"?: string,"org_id"?: string,"owner_id"?: string,"payment_id"?: string | null,"period"?: string,"property_id"?: string,"snapshot"?: NonNullable<Json>,"status"?: string,"void_reason"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "collection_receipts_contract_id_fkey"
+      columns: ["contract_id"]
+isOneToOne: false
+      referencedRelation: "contracts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "collection_receipts_contract_id_fkey"
+      columns: ["contract_id"]
+isOneToOne: false
+      referencedRelation: "v_contract_balances"
+      referencedColumns: ["contract_id"]
+    },{
+      foreignKeyName: "collection_receipts_contract_id_fkey"
+      columns: ["contract_id"]
+isOneToOne: false
+      referencedRelation: "v_unit_status_today"
+      referencedColumns: ["contract_id"]
+    },{
+      foreignKeyName: "collection_receipts_org_id_fkey"
+      columns: ["org_id"]
+isOneToOne: false
+      referencedRelation: "orgs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "collection_receipts_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "owners"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "collection_receipts_payment_id_fkey"
+      columns: ["payment_id"]
+isOneToOne: true
+      referencedRelation: "payments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "collection_receipts_property_id_fkey"
+      columns: ["property_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"contract_clearances": {
                   Row: {
                     "contract_id": string,"created_at": string,"created_by": string | null,"id": string,"issued_at": string,"org_id": string,"property_id": string,"snapshot": NonNullable<Json>,"unit_ids": (string)[]
@@ -511,6 +566,37 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"document_prints": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"document_id": string,"document_no": string,"id": string,"job_id": string,"kind": string,"org_id": string,"owner_id": string | null,"property_id": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"document_id": string,"document_no": string,"id"?: string,"job_id": string,"kind": string,"org_id": string,"owner_id"?: string | null,"property_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"document_id"?: string,"document_no"?: string,"id"?: string,"job_id"?: string,"kind"?: string,"org_id"?: string,"owner_id"?: string | null,"property_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "document_prints_org_id_fkey"
+      columns: ["org_id"]
+isOneToOne: false
+      referencedRelation: "orgs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "document_prints_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "owners"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "document_prints_property_id_fkey"
+      columns: ["property_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"expense_allocations": {
                   Row: {
                     "amount_fils": number,"created_at": string,"created_by": string | null,"expense_line_id": string,"id": string,"org_id": string,"property_id": string,"unit_id": string | null,"updated_at": string
@@ -612,13 +698,13 @@ isOneToOne: false
                   ]
                 },"expense_vouchers": {
                   Row: {
-                    "attachment_paths": (string)[],"created_at": string,"created_by": string | null,"id": string,"notes": string | null,"org_id": string,"paid_from": Database["public"]['Enums']["paid_from"],"recipient_name": string | null,"reference": string | null,"status": Database["public"]['Enums']["voucher_status"],"updated_at": string,"void_reason": string | null,"voucher_date": string,"voucher_no": string
+                    "attachment_paths": (string)[],"created_at": string,"created_by": string | null,"id": string,"notes": string | null,"org_id": string,"owner_id": string | null,"paid_from": Database["public"]['Enums']["paid_from"],"recipient_name": string | null,"reference": string | null,"status": Database["public"]['Enums']["voucher_status"],"updated_at": string,"void_reason": string | null,"voucher_date": string,"voucher_no": string
                   }
                   Insert: {
-                    "attachment_paths"?: (string)[],"created_at"?: string,"created_by"?: string | null,"id"?: string,"notes"?: string | null,"org_id": string,"paid_from"?: Database["public"]['Enums']["paid_from"],"recipient_name"?: string | null,"reference"?: string | null,"status"?: Database["public"]['Enums']["voucher_status"],"updated_at"?: string,"void_reason"?: string | null,"voucher_date": string,"voucher_no": string
+                    "attachment_paths"?: (string)[],"created_at"?: string,"created_by"?: string | null,"id"?: string,"notes"?: string | null,"org_id": string,"owner_id"?: string | null,"paid_from"?: Database["public"]['Enums']["paid_from"],"recipient_name"?: string | null,"reference"?: string | null,"status"?: Database["public"]['Enums']["voucher_status"],"updated_at"?: string,"void_reason"?: string | null,"voucher_date": string,"voucher_no": string
                   }
                   Update: {
-                    "attachment_paths"?: (string)[],"created_at"?: string,"created_by"?: string | null,"id"?: string,"notes"?: string | null,"org_id"?: string,"paid_from"?: Database["public"]['Enums']["paid_from"],"recipient_name"?: string | null,"reference"?: string | null,"status"?: Database["public"]['Enums']["voucher_status"],"updated_at"?: string,"void_reason"?: string | null,"voucher_date"?: string,"voucher_no"?: string
+                    "attachment_paths"?: (string)[],"created_at"?: string,"created_by"?: string | null,"id"?: string,"notes"?: string | null,"org_id"?: string,"owner_id"?: string | null,"paid_from"?: Database["public"]['Enums']["paid_from"],"recipient_name"?: string | null,"reference"?: string | null,"status"?: Database["public"]['Enums']["voucher_status"],"updated_at"?: string,"void_reason"?: string | null,"voucher_date"?: string,"voucher_no"?: string
                   }
                   Relationships: [
                     {
@@ -626,6 +712,12 @@ isOneToOne: false
       columns: ["org_id"]
 isOneToOne: false
       referencedRelation: "orgs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "expense_vouchers_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "owners"
       referencedColumns: ["id"]
     }
                   ]
@@ -805,6 +897,31 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"owner_document_sequences": {
+                  Row: {
+                    "kind": string,"last_value": number,"org_id": string,"owner_id": string,"year": number
+                  }
+                  Insert: {
+                    "kind": string,"last_value"?: number,"org_id": string,"owner_id": string,"year": number
+                  }
+                  Update: {
+                    "kind"?: string,"last_value"?: number,"org_id"?: string,"owner_id"?: string,"year"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "owner_document_sequences_org_id_fkey"
+      columns: ["org_id"]
+isOneToOne: false
+      referencedRelation: "orgs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "owner_document_sequences_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "owners"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"owners": {
                   Row: {
                     "address": string | null,"bank_name": string | null,"civil_id": string | null,"created_at": string,"created_by": string | null,"email": string | null,"full_name": string,"iban": string | null,"id": string,"notes": string | null,"org_id": string,"phones": (string)[],"portal_user_id": string | null,"updated_at": string
@@ -863,16 +980,22 @@ isOneToOne: false
                   ]
                 },"payments": {
                   Row: {
-                    "amount_fils": number,"attachment_path": string | null,"client_id": string | null,"collected_by": string | null,"contract_id": string,"created_at": string,"created_by": string | null,"id": string,"method": Database["public"]['Enums']["payment_method"],"notes": string | null,"org_id": string,"receipt_no": string | null,"received_at": string,"reference": string | null,"system_no": string | null,"tenant_id": string,"updated_at": string,"void_reason": string | null,"voided": boolean,"voided_at": string | null,"voided_by": string | null
+                    "amount_fils": number,"attachment_path": string | null,"client_id": string | null,"collected_by": string | null,"collection_receipt_id": string | null,"contract_id": string,"created_at": string,"created_by": string | null,"id": string,"method": Database["public"]['Enums']["payment_method"],"notes": string | null,"org_id": string,"owner_id": string | null,"receipt_no": string | null,"received_at": string,"reference": string | null,"system_no": string | null,"tenant_id": string,"updated_at": string,"void_reason": string | null,"voided": boolean,"voided_at": string | null,"voided_by": string | null
                   }
                   Insert: {
-                    "amount_fils": number,"attachment_path"?: string | null,"client_id"?: string | null,"collected_by"?: string | null,"contract_id": string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"method"?: Database["public"]['Enums']["payment_method"],"notes"?: string | null,"org_id": string,"receipt_no"?: string | null,"received_at": string,"reference"?: string | null,"system_no"?: string | null,"tenant_id": string,"updated_at"?: string,"void_reason"?: string | null,"voided"?: boolean,"voided_at"?: string | null,"voided_by"?: string | null
+                    "amount_fils": number,"attachment_path"?: string | null,"client_id"?: string | null,"collected_by"?: string | null,"collection_receipt_id"?: string | null,"contract_id": string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"method"?: Database["public"]['Enums']["payment_method"],"notes"?: string | null,"org_id": string,"owner_id"?: string | null,"receipt_no"?: string | null,"received_at": string,"reference"?: string | null,"system_no"?: string | null,"tenant_id": string,"updated_at"?: string,"void_reason"?: string | null,"voided"?: boolean,"voided_at"?: string | null,"voided_by"?: string | null
                   }
                   Update: {
-                    "amount_fils"?: number,"attachment_path"?: string | null,"client_id"?: string | null,"collected_by"?: string | null,"contract_id"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"method"?: Database["public"]['Enums']["payment_method"],"notes"?: string | null,"org_id"?: string,"receipt_no"?: string | null,"received_at"?: string,"reference"?: string | null,"system_no"?: string | null,"tenant_id"?: string,"updated_at"?: string,"void_reason"?: string | null,"voided"?: boolean,"voided_at"?: string | null,"voided_by"?: string | null
+                    "amount_fils"?: number,"attachment_path"?: string | null,"client_id"?: string | null,"collected_by"?: string | null,"collection_receipt_id"?: string | null,"contract_id"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"method"?: Database["public"]['Enums']["payment_method"],"notes"?: string | null,"org_id"?: string,"owner_id"?: string | null,"receipt_no"?: string | null,"received_at"?: string,"reference"?: string | null,"system_no"?: string | null,"tenant_id"?: string,"updated_at"?: string,"void_reason"?: string | null,"voided"?: boolean,"voided_at"?: string | null,"voided_by"?: string | null
                   }
                   Relationships: [
                     {
+      foreignKeyName: "payments_collection_receipt_id_fkey"
+      columns: ["collection_receipt_id"]
+isOneToOne: true
+      referencedRelation: "collection_receipts"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "payments_contract_id_fkey"
       columns: ["contract_id"]
 isOneToOne: false
@@ -895,6 +1018,12 @@ isOneToOne: false
       columns: ["org_id"]
 isOneToOne: false
       referencedRelation: "orgs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "owners"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "payments_tenant_id_fkey"
@@ -1244,6 +1373,19 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"v_document_print_counts": {
+                  Row: {
+                    "document_id": string | null,"kind": string | null,"last_print_at": string | null,"org_id": string | null,"print_count": number | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "document_prints_org_id_fkey"
+      columns: ["org_id"]
+isOneToOne: false
+      referencedRelation: "orgs"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"v_property_month_summary": {
                   Row: {
                     "allocated_fils": number | null,"expected_fils": number | null,"org_id": string | null,"outstanding_fils": number | null,"period": string | null,"property_id": string | null,"waived_fils": number | null
@@ -1291,11 +1433,17 @@ isOneToOne: false
 "assert_period_open":
 { Args: { "p_date": string,"p_org": string }; Returns: undefined
                            },
+"collect_prepared_receipt":
+{ Args: { "p_collected_by"?: string,"p_date": string,"p_method": Database["public"]['Enums']["payment_method"],"p_notes"?: string,"p_receipt": string,"p_reference"?: string }; Returns: Json
+                           },
 "create_org":
 { Args: { "p_name": string,"p_name_en"?: string }; Returns: string
                            },
 "current_org_ids":
 { Args: Record<PropertyKey, never>; Returns: string[]
+                           },
+"document_owner":
+{ Args: { "p_contract": string }; Returns: string
                            },
 "entry_owns_line":
 { Args: { "p_id": string }; Returns: boolean
@@ -1327,6 +1475,9 @@ isOneToOne: false
 "next_number":
 { Args: { "p_key": string,"p_org": string,"p_year"?: number }; Returns: number
                            },
+"next_owner_document":
+{ Args: { "p_kind": string,"p_org": string,"p_owner": string,"p_year": number }; Returns: string
+                           },
 "owner_can_see_contract":
 { Args: { "p_contract": string }; Returns: boolean
                            },
@@ -1335,6 +1486,12 @@ isOneToOne: false
                            },
 "owner_property_ids":
 { Args: Record<PropertyKey, never>; Returns: string[]
+                           },
+"prepare_collection_receipt":
+{ Args: { "p_contract": string,"p_period": string }; Returns: string
+                           },
+"record_document_print":
+{ Args: { "p_ids": (string)[],"p_job": string,"p_kind": string }; Returns: undefined
                            },
 "restructure_units":
 { Args: { "p_property": string,"p_reason": string,"p_sources": (string)[],"p_units": Json }; Returns: (string)[]
@@ -1356,6 +1513,9 @@ isOneToOne: false
                            },
 "staff_can_tenant":
 { Args: { "p_id": string }; Returns: boolean
+                           },
+"void_collection_receipt":
+{ Args: { "p_id": string,"p_reason": string }; Returns: undefined
                            },
 "void_payment":
 { Args: { "p_payment": string,"p_reason": string }; Returns: undefined

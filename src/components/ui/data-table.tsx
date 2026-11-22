@@ -15,7 +15,12 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { ArrowDown, ArrowUp, Columns3 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "./menu";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "./menu";
 
 declare module "@tanstack/react-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -36,7 +41,7 @@ export interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
   /** Sticky totals footer (renders meta.footer per column). */
   showFooter?: boolean;
-  selectable?: boolean;
+  selectable?: boolean | ((row: T) => boolean);
   bulkBar?: (rows: T[], clear: () => void) => ReactNode;
   density?: "comfortable" | "compact";
   initialSorting?: SortingState;
@@ -123,7 +128,8 @@ export function DataTable<T>({
     onColumnVisibilityChange: setVisibility,
     onRowSelectionChange: setSelection,
     getRowId,
-    enableRowSelection: selectable,
+    enableRowSelection:
+      typeof selectable === "function" ? (row) => selectable(row.original) : selectable,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });

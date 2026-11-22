@@ -50,12 +50,19 @@ export function PaymentSheet({
   open,
   onOpenChange,
   contractId,
+  preparedReceipt,
   offlineContext,
   onSaved,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   contractId: string | null;
+  preparedReceipt?: {
+    id: string;
+    documentNo: string;
+    amountFils: number;
+    periods: string[];
+  } | null;
   /** Prefilled context when offline (from IndexedDB). */
   offlineContext?: PaymentContext | null;
   onSaved?: () => void;
@@ -115,14 +122,23 @@ export function PaymentSheet({
 
   useEffect(() => {
     if (!ctx) return;
+    if (preparedReceipt) {
+      setMode("custom");
+      setAmount(preparedReceipt.amountFils);
+      setReceipt(preparedReceipt.documentNo);
+      setAllocMode("periods");
+      setPeriods(preparedReceipt.periods);
+      return;
+    }
     const due = ctx.dueNowFils;
     const initial = due > 0 ? due : monthlyPaymentAmount(ctx);
     setMode(due > 0 ? "due" : "custom");
     setAmount(initial);
     setPeriods([...new Set(ctx.open.map((o) => o.period))].slice(0, 1));
-  }, [ctx]);
+  }, [ctx, preparedReceipt]);
 
   const pickMode = (m: AmountMode) => {
+    if (preparedReceipt) return;
     setMode(m);
     if (!ctx) return;
     if (m === "month") setAmount(monthlyPaymentAmount(ctx));
@@ -154,7 +170,7 @@ export function PaymentSheet({
   }, [ctx, preview]);
 
   const onReceiptBlur = async () => {
-    if (!receipt.trim() || isOffline()) return setDup(null);
+    if (preparedReceipt || !receipt.trim() || isOffline()) return setDup(null);
     setDup(await checkReceiptNo(receipt.trim()));
   };
 
@@ -163,6 +179,7 @@ export function PaymentSheet({
     setSaving(true);
     const input = {
       contractId: ctx.contractId,
+      ...(preparedReceipt ? { collectionReceiptId: preparedReceipt.id } : {}),
       amountFils: amount,
       method,
       receivedAt: date,
@@ -296,13 +313,17 @@ export function PaymentSheet({
           <Field label={t("amount")} htmlFor="p-amount">
             <div className="space-y-2">
               <ChipScroller>
-                <Chip active={mode === "month"} onClick={() => pickMode("month")}>
+                <Chip
+                  active={mode === "month"}
+                  disabled={!!preparedReceipt}
+                  onClick={() => pickMode("month")}
+                >
                   {t("thisMonth")}
                 </Chip>
                 <Chip
                   active={mode === "due"}
                   onClick={() => pickMode("due")}
-                  disabled={ctx.dueNowFils <= 0}
+                  disabled={!!preparedReceipt || ctx.dueNowFils <= 0}
                 >
                   {t("allDue")}
                 </Chip>
@@ -312,6 +333,7 @@ export function PaymentSheet({
               </ChipScroller>
               <MoneyInput
                 id="p-amount"
+                disabled={!!preparedReceipt}
                 size="lg"
                 value={amount}
                 onChange={(v) => {
@@ -341,6 +363,8 @@ export function PaymentSheet({
             <Field label={t("receipt")} htmlFor="p-receipt" hint={t("receiptHint")}>
               <Input
                 id="p-receipt"
+                readOnly
+                placeholder={t("receiptHint")}
                 inputMode="numeric"
                 dir="ltr"
                 className="num"
@@ -391,6 +415,7 @@ export function PaymentSheet({
                 ]}
                 value={allocMode}
                 onChange={(m) => {
+                  if (preparedReceipt) return;
                   setAllocMode(m);
                   if (m === "periods") {
                     const first = allPeriods.slice(0, 1);
@@ -411,7 +436,7 @@ export function PaymentSheet({
                       <Chip
                         key={p}
                         active={periods.includes(p)}
-                        disabled={index > periods.length}
+                        disabled={!!preparedReceipt || index > periods.length}
                         className="disabled:opacity-40"
                         onClick={() => {
                           const next = allPeriods.slice(0, periods.includes(p) ? index : index + 1);

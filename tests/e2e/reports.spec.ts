@@ -13,6 +13,11 @@ const TYPES = [
   "expiring",
   "expenses",
   "grace",
+  "collections",
+  "expense-ledger",
+  "property-contracts",
+  "uncollected-receipts",
+  "print-history",
 ];
 
 test.describe("reports", () => {

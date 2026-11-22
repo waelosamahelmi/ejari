@@ -64,6 +64,7 @@ export default async function PrintVoucher({
   return (
     <>
       <PrintToolbar
+        documents={{ kind: "voucher", ids: [id] }}
         auto={sp.auto === "1"}
         lang={lang}
         labels={{ print: tc("print"), close: tc("close") }}
@@ -103,7 +104,7 @@ export default async function PrintVoucher({
           {t("amountWords")}: <strong>{rtl ? tafqeetKWD(total) : wordsEN(total)}</strong>
         </p>
         {v.notes && (
-          <p className="mt-1 text-[11pt]">
+          <p className="mt-1 text-[11pt] whitespace-pre-wrap">
             {t("notes")}: {v.notes}
           </p>
         )}

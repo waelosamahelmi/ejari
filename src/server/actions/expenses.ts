@@ -10,7 +10,6 @@ import {
   voucherTotal,
   type AllocationTarget,
 } from "@/domain/expenses";
-import { formatSequenceNo } from "@/domain/contracts";
 import { makeDate, periodOf, parsePeriod } from "@/domain/dates";
 import { isoDate } from "@/lib/schemas/common";
 import { notifyEvent } from "@/server/notify/events";
@@ -34,6 +33,7 @@ const lineSchema = z.object({
 });
 
 const voucherSchema = z.object({
+  ownerId: z.string().uuid().nullable().optional(),
   voucherNo: z.string().trim().max(40).optional().nullable(),
   voucherDate: isoDate,
   paidFrom: z.enum(["cash_box", "bank", "cheque"]),
@@ -104,26 +104,26 @@ export async function saveVoucher(id: string | null, input: VoucherInput, post: 
         .single();
       if (cur?.status !== "draft") throw new ActionError("invalid_transition");
     }
-    let voucherNo = d.voucherNo?.trim() || null;
-    if (!voucherNo && (post || !id)) {
-      const year = Number(d.voucherDate.slice(0, 4));
-      const { data: seq, error } = await db.rpc("next_number", {
-        p_org: ctx.orgId,
-        p_key: "voucher",
-        p_year: year,
-      });
-      if (error) throw error;
-      voucherNo = formatSequenceNo(ctx.settings.numbering.voucher, year, seq as number);
-    }
+    const propIds = [...new Set(d.lines.flatMap((l) => l.targets.map((t) => t.propertyId)))];
+    const { data: ownership, error: oe } = await db
+      .from("property_owners")
+      .select("owner_id")
+      .in("property_id", propIds);
+    if (oe) throw oe;
+    const ownerIds = [...new Set((ownership ?? []).map((p) => p.owner_id))];
+    const ownerId = d.ownerId ?? (ownerIds.length === 1 ? ownerIds[0] : null);
+    if (!ownerId) throw new ActionError("owner_required");
+    if (!ownerIds.includes(ownerId)) throw new ActionError("forbidden");
+    let voucherNo = "";
     const header = {
       org_id: ctx.orgId,
+      owner_id: ownerId,
       voucher_date: d.voucherDate,
       paid_from: d.paidFrom,
       reference: d.reference || null,
       recipient_name: d.recipientName || null,
       notes: d.notes || null,
       status: post ? ("posted" as const) : ("draft" as const),
-      ...(voucherNo ? { voucher_no: voucherNo } : {}),
     };
     let vid = id;
     if (id) {
@@ -134,11 +134,12 @@ export async function saveVoucher(id: string | null, input: VoucherInput, post: 
     } else {
       const ins = await db
         .from("expense_vouchers")
-        .insert({ ...header, voucher_no: voucherNo! })
-        .select("id")
+        .insert({ ...header, voucher_no: "AUTO" })
+        .select("id,voucher_no")
         .single();
       if (ins.error) throw ins.error;
       vid = ins.data.id;
+      voucherNo = ins.data.voucher_no;
     }
     for (const [i, l] of d.lines.entries()) {
       const { data: line, error } = await db

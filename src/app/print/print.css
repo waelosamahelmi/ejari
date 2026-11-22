@@ -61,9 +61,10 @@ body {
   body {
     background: #fff;
   }
-  .print-page {
+  .print-page,
+  .print-page.landscape {
     width: auto;
-    min-height: 0;
+    min-height: 0 !important;
     margin: 0;
     padding: 0;
     box-shadow: none;
@@ -77,4 +78,33 @@ body {
   color: #c62828;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
+}
+
+@media print {
+  .print-table tr {
+    break-inside: avoid;
+  }
+  .print-table tfoot {
+    display: table-row-group;
+  }
+  .statement-document {
+    break-inside: auto;
+  }
+  .statement-document .print-table {
+    font-size: 8.5pt;
+    line-height: 1.15;
+  }
+  .statement-document .print-table th,
+  .statement-document .print-table td {
+    padding: 1pt 3pt;
+  }
+  .statement-document .statement-signatures {
+    margin-top: 5mm;
+  }
+}
+
+@media print {
+  .statement-document + div {
+    margin-top: 4mm;
+  }
 }

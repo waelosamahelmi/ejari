@@ -28,9 +28,11 @@ test.describe("expenses & deposits", () => {
     await page.goto("/ar/expenses/new");
     await page.getByLabel("المبلغ").first().fill("10");
     await page.getByLabel("البيان").first().fill("تنظيف مداخل");
+    await page.getByRole("button", { name: "الجابرية 157", exact: true }).click();
     await page.getByRole("button", { name: "بالتساوي" }).click();
     await page.getByRole("button", { name: "السالمية 88" }).click();
     await expect(page.getByText("5.000 د.ك").first()).toBeVisible();
+    await page.locator("#v-owner").selectOption("0c000000-0000-4000-8000-000000000001");
     await page.getByRole("button", { name: "ترحيل السند" }).click();
     await expect(page).toHaveURL(/\/ar\/expenses\/[0-9a-f-]{36}$/, { timeout: 20_000 });
     await expect(

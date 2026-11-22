@@ -37,6 +37,7 @@ export default async function VoucherPage({ params }: LocaleParams<{ id: string 
           id={v.id}
           {...opts}
           initial={{
+            ownerId: v.owner_id,
             voucherNo: v.voucher_no,
             voucherDate: v.voucher_date,
             paidFrom: v.paid_from,

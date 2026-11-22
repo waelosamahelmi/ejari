@@ -15,7 +15,9 @@ export async function voucherFormOptions(_ctx: SessionContext, date = todayKuwai
     db.from("beneficiaries").select("id, name").eq("active", true).order("name"),
     db
       .from("properties")
-      .select("id, name, units(id, label, sort_order, active)")
+      .select(
+        "id, name, property_owners(owner_id,owners(full_name)), units(id, label, sort_order, active)",
+      )
       .eq("active", true)
       .order("name"),
     db
@@ -31,6 +33,8 @@ export async function voucherFormOptions(_ctx: SessionContext, date = todayKuwai
         .filter((u) => u.active)
         .sort((a, b) => a.sort_order - b.sort_order);
       return {
+        ownerIds: p.property_owners.map((po) => po.owner_id),
+        ownerNames: p.property_owners.map((po) => po.owners.full_name),
         id: p.id,
         name: p.name,
         unitCount: units.length,

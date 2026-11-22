@@ -309,7 +309,6 @@ async function captureAll(
   await expect(sheet).toBeVisible();
   await sheet.locator("#p-amount").fill("300");
   await sheet.locator("#p-date").fill("25/08/2026");
-  await sheet.locator("#p-receipt").fill("41230");
   await shot(page, `${pre}-payment-sheet`);
   await page.keyboard.press("Escape");
 

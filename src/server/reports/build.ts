@@ -1,4 +1,5 @@
 import "server-only";
+import { operationReport, OPERATION_REPORTS } from "./operations";
 import { getTranslations } from "next-intl/server";
 import type { SessionContext } from "@/lib/auth";
 import { loadOrgData } from "@/server/queries/dataset";
@@ -18,6 +19,7 @@ import {
 } from "@/domain/reports";
 import { buildLedger } from "@/domain/ledger";
 import {
+  periodEnd,
   formatDate,
   formatPeriod,
   isValidDate,
@@ -45,6 +47,7 @@ export const REPORT_TYPES = [
   "expiring",
   "expenses",
   "grace",
+  ...OPERATION_REPORTS,
 ] as const;
 export type ReportType = (typeof REPORT_TYPES)[number];
 
@@ -95,6 +98,8 @@ export interface ReportParams {
   groupBy: ExpenseGroupBy;
   period: string;
   compare: boolean;
+  dateFrom: string;
+  dateTo: string;
 }
 
 const PRESETS: RangePreset[] = [
@@ -129,7 +134,11 @@ export function parseParams(
   )
     ? (sp.groupBy as ExpenseGroupBy)
     : "category";
+  const dateFrom = sp.dateFrom && isValidDate(sp.dateFrom) ? sp.dateFrom : from + "-01";
+  const requestedTo = sp.dateTo && isValidDate(sp.dateTo) ? sp.dateTo : periodEnd(to);
   return {
+    dateFrom,
+    dateTo: requestedTo < dateFrom ? dateFrom : requestedTo,
     preset,
     from,
     to,
@@ -154,6 +163,8 @@ export function paramsToQuery(p: ReportParams): string {
     groupBy: p.groupBy,
     period: p.period,
     compare: p.compare ? "1" : "0",
+    dateFrom: p.dateFrom,
+    dateTo: p.dateTo,
   });
   if (p.property) q.set("property", p.property);
   if (p.owner) q.set("owner", p.owner);
@@ -171,6 +182,8 @@ export async function buildReport(
   const tc = await getTranslations({ locale, namespace: "collections" });
   const tEnum = await getTranslations({ locale, namespace: "enums" });
   const data = await loadOrgData(ctx);
+  if ((OPERATION_REPORTS as readonly string[]).includes(type))
+    return operationReport(ctx, type, p, locale, data);
   const idx = data.idx;
   const propIds = data.ds.properties
     .filter(
@@ -804,6 +817,7 @@ export async function buildReport(
       };
     }
   }
+  throw new Error("Unknown report type");
 }
 
 /** Options for the parameter bar. */

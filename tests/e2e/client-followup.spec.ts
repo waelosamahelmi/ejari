@@ -98,7 +98,7 @@ test("ongoing discount, bilingual month navigation, advance receipt and renewal 
   await expect(next).toBeEnabled();
   await page.screenshot({ path: "test-results/client-ongoing-discount.png", fullPage: true });
   await next.click();
-  await expect(page.getByText(/خصم شهري دائم قدره/)).toBeVisible();
+  await expect(page.getByText(/خصم شهري دائم قدره/)).toHaveCount(0);
   await next.click();
   await next.click();
   await page.getByRole("button", { name: "تفعيل العقد", exact: true }).click();
@@ -123,7 +123,6 @@ test("ongoing discount, bilingual month navigation, advance receipt and renewal 
   const sheet = page.getByRole("dialog");
   await expect(sheet.locator("#p-amount")).toHaveValue("550.000");
   await sheet.locator("#p-amount").fill("100");
-  await sheet.locator("#p-receipt").fill("ADV-" + Date.now());
   await sheet.getByRole("button", { name: /حفظ الدفعة/ }).click();
   await expect(sheet).not.toBeVisible();
   const payment = await db

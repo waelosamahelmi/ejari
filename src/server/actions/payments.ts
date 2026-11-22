@@ -11,7 +11,6 @@ import {
   allocateToPeriods,
   type OpenCharge,
 } from "@/domain/allocation";
-import { formatSequenceNo } from "@/domain/contracts";
 import { fromFils } from "@/domain/money";
 import { addPeriods, formatPeriod, periodOf, todayKuwait } from "@/domain/dates";
 import { isoDate } from "@/lib/schemas/common";
@@ -151,6 +150,7 @@ export async function checkReceiptNo(receiptNo: string, excludeId?: string) {
 
 const paymentSchema = z.object({
   contractId: z.string().uuid(),
+  collectionReceiptId: z.string().uuid().optional(),
   amountFils: z.number().int().positive("positive"),
   method: z.enum(PAYMENT_METHODS),
   receivedAt: isoDate,
@@ -181,6 +181,26 @@ export async function recordPayment(input: RecordPaymentInput) {
     const ctx = await requireActionContext("record_payment");
     const d = paymentSchema.parse(input);
     const db = await supabaseServer();
+    if (d.collectionReceiptId) {
+      const { data: prepared, error: pe } = await db
+        .from("collection_receipts")
+        .select("contract_id")
+        .eq("id", d.collectionReceiptId)
+        .single();
+      if (pe) throw pe;
+      if (prepared.contract_id !== d.contractId) throw new ActionError("forbidden");
+      const { data, error } = await db.rpc("collect_prepared_receipt", {
+        p_receipt: d.collectionReceiptId,
+        p_method: d.method,
+        p_date: d.receivedAt,
+        p_notes: d.notes ?? undefined,
+        p_reference: d.reference ?? undefined,
+        p_collected_by: d.collectedBy ?? undefined,
+      });
+      if (error) throw error;
+      reval();
+      return data as { id: string; systemNo: string; duplicate: boolean; creditFils: number };
+    }
     if (d.clientId) {
       const { data: existing } = await db
         .from("payments")
@@ -234,14 +254,6 @@ export async function recordPayment(input: RecordPaymentInput) {
               d.allocation.lines.filter((l) => l.amountFils > 0),
             );
     assertChronologicalAllocation(open, result);
-    const year = Number(d.receivedAt.slice(0, 4));
-    const { data: seq, error: seqErr } = await db.rpc("next_number", {
-      p_org: ctx.orgId,
-      p_key: "receipt",
-      p_year: year,
-    });
-    if (seqErr) throw seqErr;
-    const systemNo = formatSequenceNo(ctx.settings.numbering.receipt, year, seq as number);
     const { data: pay, error } = await db
       .from("payments")
       .insert({
@@ -252,13 +264,13 @@ export async function recordPayment(input: RecordPaymentInput) {
         method: d.method,
         received_at: d.receivedAt,
         receipt_no: d.receiptNo || null,
-        system_no: systemNo,
+
         reference: d.reference || null,
         collected_by: ctx.role === "collector" ? ctx.userId : (d.collectedBy ?? ctx.userId),
         notes: d.notes || null,
         client_id: d.clientId ?? null,
       })
-      .select("id")
+      .select("id,system_no")
       .single();
     if (error) {
       if (error.code === "23505" && d.clientId) {
@@ -276,6 +288,7 @@ export async function recordPayment(input: RecordPaymentInput) {
       }
       throw error;
     }
+    const systemNo = pay.system_no!;
     if (result.allocations.length) {
       const al = await db.from("payment_allocations").insert(
         result.allocations.map((a) => ({
