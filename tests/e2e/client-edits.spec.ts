@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import { config } from "dotenv";
-import { login, supabaseUp, IDS } from "./helpers";
+import { login, supabaseUp, IDS, choosePurpose } from "./helpers";
 config({ path: ".env.local" });
 const org = "0a000000-0000-4000-8000-000000000001";
 function service() {
@@ -110,6 +110,7 @@ test("wizard requires owner and explicit terms, offers all tenants and filters p
   await page.getByRole("button", { name: /^1 — / }).click();
   await next.click();
   await expect(next).toBeDisabled();
+  await choosePurpose(page);
   await page
     .getByRole("radiogroup", { name: "الكهرباء على", exact: true })
     .getByRole("radio", { name: "الطرف الأول", exact: true })
@@ -126,6 +127,7 @@ test("wizard requires owner and explicit terms, offers all tenants and filters p
   // Resuming a draft must still require explicit utilities and notice confirmation.
   await page.reload();
   await expect(next).toBeDisabled();
+  await choosePurpose(page);
   await page
     .getByRole("radiogroup", { name: "الكهرباء على", exact: true })
     .getByRole("radio", { name: "الطرف الأول", exact: true })

@@ -18,7 +18,14 @@ import {
 import { createClient } from "@supabase/supabase-js";
 import { config } from "dotenv";
 import { execSync } from "node:child_process";
-import { IDS, signInAndSave, supabaseUp, waitForSupabase, type Role } from "./helpers";
+import {
+  IDS,
+  signInAndSave,
+  supabaseUp,
+  waitForSupabase,
+  type Role,
+  choosePurpose,
+} from "./helpers";
 
 config({ path: ".env.local" });
 
@@ -334,6 +341,7 @@ async function captureAll(
   await page.getByRole("button", { name: /الري قسيمة 1674|Al-Rai Plot 1674/ }).click();
   await page.getByRole("button", { name: /^1 — / }).click();
   await next.click();
+  await choosePurpose(page);
   await page
     .getByRole("radiogroup", { name: t("الكهرباء على", "Electricity paid by"), exact: true })
     .getByRole("radio", { name: t("الطرف الأول", "Party 1 (owner)"), exact: true })
@@ -427,6 +435,7 @@ test.describe("visual regression (§20)", () => {
             await page.getByRole("button", { name: /الري قسيمة 1674|Al-Rai Plot 1674/ }).click();
             await page.getByRole("button", { name: /^1 — / }).click();
             await next.click();
+            await choosePurpose(page);
             await page
               .getByRole("radiogroup", {
                 name: t("الكهرباء على", "Electricity paid by"),

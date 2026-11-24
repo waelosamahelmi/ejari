@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import { config } from "dotenv";
-import { login, supabaseUp } from "./helpers";
+import { login, supabaseUp, choosePurpose } from "./helpers";
 import { addPeriods, todayKuwait, formatDate } from "../../src/domain/dates";
 config({ path: ".env.local" });
 const org = "0a000000-0000-4000-8000-000000000001";
@@ -77,6 +77,7 @@ test("ongoing discount, bilingual month navigation, advance receipt and renewal 
   await page.getByRole("button", { name: /^1 — / }).click();
   await next.click();
   await page.locator("#w-start").fill(formatDate(firstPeriod + "-01"));
+  await choosePurpose(page);
   await page
     .getByRole("radiogroup", { name: "الكهرباء على", exact: true })
     .getByRole("radio", { name: "الطرف الأول", exact: true })

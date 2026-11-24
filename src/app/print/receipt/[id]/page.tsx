@@ -2,12 +2,13 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requirePrintContext } from "@/server/print";
-import { PoweredBy } from "@/components/print/letterhead";
+import {
+  ReceiptSheets,
+  layoutSwitcher,
+  parseReceiptLayout,
+} from "@/components/print/receipt-sheets";
+import { PaymentReceiptDocument } from "@/components/print/payment-receipt";
 import { PrintToolbar } from "@/components/print/print-toolbar";
-import { formatDate, formatPeriod } from "@/domain/dates";
-import { fullPropertyAddress } from "@/domain/property-address";
-import { fromFils, splitDinarFils } from "@/domain/money";
-import { tafqeetKWD, wordsEN } from "@/domain/tafqeet";
 
 export async function generateMetadata({
   searchParams,
@@ -28,7 +29,7 @@ export default async function PrintReceipt({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ lang?: string; auto?: string; embedded?: string }>;
+  searchParams: Promise<{ lang?: string; auto?: string; embedded?: string; layout?: string }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
@@ -50,9 +51,7 @@ export default async function PrintReceipt({
         .eq("user_id", p.collected_by)
         .maybeSingle()
     : { data: null };
-  const t = await getTranslations({ locale: lang, namespace: "payments.receipt" });
   const tc = await getTranslations({ locale: lang, namespace: "common.actions" });
-  const tMethod = await getTranslations({ locale: lang, namespace: "enums.paymentMethod" });
   const c = p.contracts as unknown as {
     contract_no: string;
     properties: {
@@ -74,95 +73,37 @@ export default async function PrintReceipt({
       (p.payment_allocations ?? []).map((a) => (a.charges as unknown as { period: string }).period),
     ),
   ].sort();
-  const tUnit = await getTranslations({ locale: lang, namespace: "enums.unitType" });
-  const { dinars, fils } = splitDinarFils(p.amount_fils);
-  const rtl = lang === "ar";
+  const body = (
+    <>
+      <PaymentReceiptDocument
+        lang={lang}
+        poweredBy={ctx.settings.poweredBy}
+        data={{
+          ...p,
+          tenantName: (p.tenants as unknown as { full_name: string }).full_name,
+          periods,
+          collectorName: collector?.display_name ?? null,
+          contract: c,
+        }}
+      />
+    </>
+  );
+  // Embedded receipts are laid out by the batch route; a single receipt gets the same top-of-sheet layout.
+  if (sp.embedded === "1") return body;
+  const layout = parseReceiptLayout(sp.layout);
   return (
     <>
-      {sp.embedded !== "1" && (
-        <PrintToolbar
-          documents={{ kind: "payment", ids: [id] }}
-          auto={sp.auto === "1"}
-          lang={lang}
-          labels={{ print: tc("print"), close: tc("close") }}
-        />
-      )}
-      <div className="print-page" style={{ minHeight: "148mm" }} dir={rtl ? "rtl" : "ltr"}>
-        <style>{`@page { size: A5 landscape; margin: 10mm; }`}</style>
-        {p.voided && (
-          <p className="mb-3 text-center text-xl font-bold">
-            {lang === "ar" ? "ملغى — لا يثبت السداد" : "VOID — not proof of payment"}
-          </p>
-        )}
-        <header className="mb-4 border-b border-black pb-4 text-start">
-          <h2 className="text-[17pt] font-bold">{c.properties.name}</h2>
-          <p className="text-[10pt] leading-6">{fullPropertyAddress(c.properties, lang)}</p>
-          <p className="text-[11pt] font-semibold">
-            {c.contract_units
-              .map((u) => `${u.units.type_label || tUnit(u.units.type)} ${u.units.label}`)
-              .join("، ")}
-          </p>
-        </header>
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-4">
-          <table className="print-table w-full text-center text-[12pt]">
-            <thead>
-              <tr>
-                <th className="px-4">{t("dinar")}</th>
-                <th className="px-4">{t("fils")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="num px-4 font-bold">{dinars.toLocaleString("en")}</td>
-                <td className="num px-4 font-bold">{String(fils).padStart(3, "0")}</td>
-              </tr>
-            </tbody>
-          </table>
-          <h1 className="text-center text-[20pt] font-bold whitespace-nowrap">{t("title")}</h1>
-          <div className="num min-w-0 text-end text-[10pt] leading-6 break-words">
-            <div>
-              {t("no")}:{" "}
-              <strong dir="ltr" className="inline-block">
-                {p.receipt_no ?? p.system_no}
-              </strong>
-            </div>
-            <div>
-              {t("date")}: {formatDate(p.received_at)}
-            </div>
-            {p.receipt_no && p.system_no !== p.receipt_no && (
-              <div className="text-neutral-500">{p.system_no}</div>
-            )}
-          </div>
-        </div>
-        <div className="mt-6 space-y-3 text-[12pt] leading-8">
-          <p>
-            {t("received")}:{" "}
-            <strong>{(p.tenants as unknown as { full_name: string }).full_name}</strong>
-          </p>
-          <p>
-            {t("amount")}:{" "}
-            <strong>{rtl ? tafqeetKWD(p.amount_fils) : wordsEN(p.amount_fils)}</strong>{" "}
-            <span className="num">({fromFils(p.amount_fils)})</span>
-          </p>
-          <p>
-            {t("for")}: {periods.map((x) => formatPeriod(x, lang)).join(rtl ? "، " : ", ")} —{" "}
-            {t("property")} {c.properties.name} · {t("unit")}{" "}
-            {c.contract_units.map((u) => u.units.label).join(", ")}
-          </p>
-          <p>
-            {t("method")}: {tMethod(p.method)}
-            {p.reference ? ` — ${t("reference")}: ${p.reference}` : ""}
-          </p>
-        </div>
-        <div className="mt-10 flex justify-between text-[11pt]">
-          <div>{collector?.display_name}</div>
-          <div>
-            {t("collector")}:{" "}
-            <span className="inline-block w-48 border-b border-dotted border-black" />
-          </div>
-        </div>
-        <PoweredBy show={ctx.settings.poweredBy} />
-      </div>
+      <PrintToolbar
+        documents={{ kind: "payment", ids: [id] }}
+        auto={sp.auto === "1"}
+        lang={lang}
+        labels={{ print: tc("print"), close: tc("close") }}
+      />
+      <ReceiptSheets
+        layout={layout}
+        switcher={layoutSwitcher(`/print/receipt/${id}`, { lang: sp.lang }, layout, lang)}
+        items={[{ key: id, node: body }]}
+      />
     </>
   );
 }

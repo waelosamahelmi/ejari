@@ -53,22 +53,44 @@ export async function login(page: Page, who: Role = "admin", locale = "ar") {
   // Reuse the session saved by global-setup (one real sign-in per role per run).
   const file = `tests/e2e/.auth/${who}.json`;
   if (existsSync(file)) {
-    const state = JSON.parse(readFileSync(file, "utf8")) as { cookies: Parameters<BrowserContext["addCookies"]>[0] };
+    const state = JSON.parse(readFileSync(file, "utf8")) as {
+      cookies: Parameters<BrowserContext["addCookies"]>[0];
+    };
     await page.context().addCookies(state.cookies);
     await page.goto(`/${locale}/${who === "owner" ? "owner" : "dashboard"}`);
     // The middleware redirect to /login can be client-side; wait briefly for either surface.
     await Promise.race([
-      page.locator("#email").waitFor({ state: "visible", timeout: 8000 }).catch(() => {}),
-      page.locator("main").waitFor({ state: "visible", timeout: 8000 }).catch(() => {}),
+      page
+        .locator("#email")
+        .waitFor({ state: "visible", timeout: 8000 })
+        .catch(() => {}),
+      page
+        .locator("main")
+        .waitFor({ state: "visible", timeout: 8000 })
+        .catch(() => {}),
     ]);
-    if (!(await page.locator("#email").isVisible().catch(() => false))) return;
+    if (
+      !(await page
+        .locator("#email")
+        .isVisible()
+        .catch(() => false))
+    )
+      return;
   }
   await page.goto(`/${locale}/login`);
   await page.fill("#email", `${who}@demo.test`);
   await page.fill("#password", "Demo12345!");
-  await Promise.all([page.waitForURL((u) => !u.pathname.endsWith("/login"), { timeout: 30_000 }), page.click('button[type="submit"]')]);
+  await Promise.all([
+    page.waitForURL((u) => !u.pathname.endsWith("/login"), { timeout: 30_000 }),
+    page.click('button[type="submit"]'),
+  ]);
 }
 
 export async function expectNoConsoleErrors(errors: string[]) {
   expect(errors.filter((e) => !/favicon|Download the React DevTools/.test(e))).toEqual([]);
+}
+
+/** The wizard no longer preselects the rental purpose: choose a preset explicitly. */
+export async function choosePurpose(page: Page, name: RegExp = /^(مكتب عقاري|سكن عائلي)$/) {
+  await page.getByRole("button", { name }).first().click();
 }

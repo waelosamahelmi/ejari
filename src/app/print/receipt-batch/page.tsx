@@ -3,15 +3,21 @@ import { z } from "zod";
 import { requirePrintContext } from "@/server/print";
 import { PrintToolbar } from "@/components/print/print-toolbar";
 import PrintReceipt from "../receipt/[id]/page";
+import {
+  ReceiptSheets,
+  layoutSwitcher,
+  parseReceiptLayout,
+} from "@/components/print/receipt-sheets";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ ids?: string; lang?: string; auto?: string }>;
+  searchParams: Promise<{ ids?: string; lang?: string; auto?: string; layout?: string }>;
 }) {
   const sp = await searchParams;
   const ids = z.array(z.string().uuid()).min(1).max(100).safeParse(sp.ids?.split(","));
   if (!ids.success) notFound();
   const { lang } = await requirePrintContext(sp.lang);
+  const layout = parseReceiptLayout(sp.layout);
   const docs = [];
   for (let i = 0; i < ids.data.length; i += 5)
     docs.push(
@@ -35,12 +41,16 @@ export default async function Page({
         }}
         documents={{ kind: "payment", ids: ids.data }}
       />
-      <main className="payment-batch">
-        {docs.map((d, i) => (
-          <section key={ids.data[i]}>{d}</section>
-        ))}
-      </main>
-      <style>{`@page{size:A4 portrait;margin:10mm}@media print{.payment-batch .print-page{min-height:125mm!important;padding:5mm!important;border:1px dashed #aaa;break-inside:avoid}.payment-batch>section:nth-child(2n):not(:last-child){break-after:page}}`}</style>
+      <ReceiptSheets
+        layout={layout}
+        switcher={layoutSwitcher(
+          "/print/receipt-batch",
+          { ids: sp.ids, lang: sp.lang },
+          layout,
+          lang,
+        )}
+        items={docs.map((d, i) => ({ key: ids.data[i]!, node: d }))}
+      />
     </>
   );
 }

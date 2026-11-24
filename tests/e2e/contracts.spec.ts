@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { config } from "dotenv";
 import { test, expect } from "@playwright/test";
-import { login, supabaseUp } from "./helpers";
+import { login, supabaseUp, choosePurpose } from "./helpers";
 
 config({ path: ".env.local" });
 
@@ -26,6 +26,7 @@ test.describe("contracts", () => {
     await page.getByRole("button", { name: "التالي" }).click();
     // terms (rent prefilled from asking rent)
     await expect(page.getByLabel("الإيجار الشهري")).toHaveValue(/550/);
+    await choosePurpose(page);
     await page
       .getByRole("radiogroup", { name: "الكهرباء على", exact: true })
       .getByRole("radio", { name: "الطرف الأول", exact: true })

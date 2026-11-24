@@ -9,6 +9,8 @@ import {
   type TemplateVarsInput,
 } from "@/domain/templates";
 import type { ContractType, UnitType } from "@/domain/types";
+import { contractFileName } from "@/domain/contract-file-name";
+import { restoreContractPresentation } from "@/domain/contract-presentation";
 
 type DB = SupabaseClient<Database>;
 
@@ -180,4 +182,81 @@ export function renderWith(
     overrides,
     custom.filter((c) => c.key !== "initial_temporary_discount"),
   );
+}
+
+export interface PrintableContract {
+  rendered: RenderedContract | null;
+  parties: ContractPartyData;
+  fileName: string;
+  contractNo: string;
+}
+
+/** Everything a printed or exported contract needs: the clauses as saved (drafts: as currently rendered), parties and a descriptive file name. */
+export async function loadPrintableContract(db: DB, id: string): Promise<PrintableContract | null> {
+  const { data: c } = await db
+    .from("contracts")
+    .select("*, contract_units(unit_id, units(label, type, type_label)), properties(name)")
+    .eq("id", id)
+    .maybeSingle();
+  if (!c) return null;
+  const parties = await loadParties(db, {
+    ownerId: c.owner_id,
+    coTenantIds: c.co_tenant_ids,
+    tenantId: c.tenant_id,
+    propertyId: c.property_id,
+    unitIds: (c.contract_units ?? []).map((u) => u.unit_id),
+  });
+  const tpl = await loadTemplate(db, c.type, c.template_id);
+  const current = renderWith(
+    tpl,
+    varsInput(
+      {
+        contractNo: c.contract_no,
+        initialDiscount:
+          c.initial_discount as import("@/domain/templates").TemplateVarsInput["initialDiscount"],
+        type: c.type,
+        contractDate: c.contract_date,
+        startDate: c.start_date,
+        firstCollectionDate: c.first_collection_date,
+        endDate: c.end_date,
+        termMonths: c.term_months,
+        autoRenew: c.auto_renew,
+        monthlyRentFils: c.monthly_rent_fils,
+        purpose: c.purpose,
+        utilitiesParty: c.utilities_party,
+        waterParty: (c.water_party as "owner" | "tenant" | null) ?? c.utilities_party,
+        electricityFixedFils: c.electricity_fixed_fils,
+        freeMonths: c.free_months,
+        noticePeriodMonths: c.notice_period_months,
+        securityDepositFils: c.security_deposit_fils,
+      },
+      parties,
+    ),
+    (c.clause_overrides ?? {}) as {
+      enabled?: Record<string, boolean>;
+      text?: Record<string, string>;
+    },
+    (c.custom_clauses ?? []) as { key: string; text: string }[],
+  );
+  const saved = c.rendered_clauses as unknown as RenderedContract | null;
+  const rendered =
+    !saved || c.status === "draft" ? current : restoreContractPresentation(saved, current);
+  const units = (c.contract_units ?? []).flatMap((u) => {
+    const x = u.units as unknown as {
+      label: string;
+      type: UnitType;
+      type_label: string | null;
+    } | null;
+    return x ? [{ label: x.label, type: x.type, typeLabel: x.type_label }] : [];
+  });
+  return {
+    rendered,
+    parties,
+    contractNo: c.contract_no,
+    fileName: contractFileName({
+      contractNo: c.contract_no,
+      propertyName: (c.properties as unknown as { name: string } | null)?.name,
+      units,
+    }),
+  };
 }

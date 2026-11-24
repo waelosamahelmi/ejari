@@ -290,11 +290,18 @@ export function ContractDetailView({
         subtitle={`${c.tenantName} · ${c.propertyName} · ${c.units.map((u) => u.label).join(", ")}`}
         back={{ href: "/contracts", label: t("title") }}
         actions={
-          <Button asChild variant="secondary" size="icon" aria-label={t("actions.print")}>
-            <a href={`/print/contract/${c.id}?lang=ar`} target="_blank" rel="noreferrer">
-              <Printer />
-            </a>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild variant="secondary" size="icon" aria-label={t("actions.word")}>
+              <a href={`/api/export/contract/${c.id}`} download>
+                <FileText />
+              </a>
+            </Button>
+            <Button asChild variant="secondary" size="icon" aria-label={t("actions.print")}>
+              <a href={`/print/contract/${c.id}?lang=ar`} target="_blank" rel="noreferrer">
+                <Printer />
+              </a>
+            </Button>
+          </div>
         }
       >
         <div className="flex flex-wrap items-center gap-2">
