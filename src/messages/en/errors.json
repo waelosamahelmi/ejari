@@ -15,6 +15,7 @@
   "percent_sum": "Percentages must add up to 100%.",
   "amount_sum": "Amounts must add up to the line amount.",
   "invalid_transition": "This action isn't available for the contract's current status.",
+  "unresolved_clause_ref": "The contract can't be activated: a clause refers to a clause that was removed. Restore the removed clause or edit the clause that refers to it.",
   "contract_not_live": "The contract isn't active.",
   "offline": "This action needs an internet connection.",
   "page": {

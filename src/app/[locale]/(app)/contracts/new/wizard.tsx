@@ -257,6 +257,8 @@ export function ContractWizard({
     );
   }, [tenants, tenantQuery]);
 
+  const hasUnresolvedRefs = !!preview?.warnings.includes("unresolved_clause_ref");
+
   const canNext = (() => {
     switch (STEPS[step]) {
       case "parties":
@@ -282,7 +284,7 @@ export function ContractWizard({
               v.initialDiscount.fromPeriod <= endDate.slice(0, 7)))
         );
       case "review":
-        return true;
+        return !hasUnresolvedRefs;
       default:
         return true;
     }
@@ -1115,10 +1117,16 @@ export function ContractWizard({
                         <AlertTriangle
                           className={cn(
                             "mt-0.5 size-4 shrink-0",
-                            w === "overlap" ? "text-red-text" : "text-orange-text",
+                            w === "overlap" || w === "unresolved_clause_ref"
+                              ? "text-red-text"
+                              : "text-orange-text",
                           )}
                         />
-                        {t(`warnings.${w}` as "warnings.overlap")}
+                        {w === "unresolved_clause_ref"
+                          ? t("clauses.unresolvedRefs", {
+                              numbers: preview.unresolvedClauseNumbers.join("، "),
+                            })
+                          : t(`warnings.${w}` as "warnings.overlap")}
                       </li>
                     ))}
                   </ul>
@@ -1229,6 +1237,13 @@ export function ContractWizard({
                       {t("warnings.overlap")}
                     </p>
                   )}
+                  {hasUnresolvedRefs && (
+                    <p className="bg-red/10 text-red-text rounded-[14px] px-4 py-3 text-[14px]">
+                      {t("clauses.unresolvedRefs", {
+                        numbers: preview?.unresolvedClauseNumbers.join("، ") ?? "",
+                      })}
+                    </p>
+                  )}
                   <div className="grid gap-3 sm:grid-cols-2">
                     <Button
                       size="lg"
@@ -1245,7 +1260,7 @@ export function ContractWizard({
                       size="lg"
                       loading={pending}
                       onClick={activate}
-                      disabled={preview?.warnings.includes("overlap")}
+                      disabled={preview?.warnings.includes("overlap") || hasUnresolvedRefs}
                     >
                       {t("finish.activate")}
                     </Button>
@@ -1295,6 +1310,13 @@ export function ContractWizard({
               transition={{ duration: 0.2 }}
             >
               {stepBody()}
+              {STEPS[step] === "review" && hasUnresolvedRefs && (
+                <p role="status" className="text-red-text bg-red/10 mt-5 rounded-2xl p-4 text-sm">
+                  {t("clauses.unresolvedRefs", {
+                    numbers: preview?.unresolvedClauseNumbers.join("، ") ?? "",
+                  })}
+                </p>
+              )}
               {STEPS[step] === "terms" && !canNext && (
                 <p
                   role="status"
