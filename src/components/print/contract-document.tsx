@@ -1,14 +1,9 @@
 import type { ContractTextPart, RenderedContract } from "@/domain/templates";
 import { cn } from "@/lib/utils";
 
-/** Contract documents are Arabic legal text; their fixed labels belong to the document, not the UI locale. */
-export const DOC_LABELS_AR = {
-  party1: "الطرف الأول",
-  party2: "الطرف الثاني",
-  name: "الاسم",
-  signature: "التوقيع",
-  contractNo: "رقم العقد",
-};
+import { DOC_LABELS_AR } from "./contract-labels";
+
+export { DOC_LABELS_AR };
 
 /**
  * A4 contract layout (§8.3): centered 26pt title, preamble, numbered clauses
