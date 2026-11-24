@@ -107,6 +107,7 @@
       "reset": "Restore original",
       "edited": "Edited",
       "omitted": "Omitted from this contract",
+      "unresolvedRefs": "A clause refers to a clause that is not in this contract: clauses {numbers}. Restore the removed clause or edit the referring clause before continuing.",
       "omitWarning": "Other clauses refer to this clause: {numbers}",
       "addCustom": "Add special clause",
       "customPlaceholder": "Clause text…",
@@ -126,7 +127,8 @@
       "invalid_term": "Invalid term.",
       "free_months_mismatch": "Free months don't match the first collection date.",
       "tenant_civil_id_checksum": "The tenant's civil ID check digit doesn't match.",
-      "overlap": "A unit is already leased for these dates — the contract can't be activated."
+      "overlap": "A unit is already leased for these dates — the contract can't be activated.",
+      "unresolved_clause_ref": "A clause refers to a removed clause: restore it or edit the text before activating."
     },
     "finish": {
       "title": "Ready",
