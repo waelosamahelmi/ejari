@@ -1356,4 +1356,4 @@ export function ContractWizard({
       />
     </>
   );
-      }
+}
