@@ -194,11 +194,24 @@ test("paid receipts batch and voucher notes print with tracked requests", async 
   await page.goto(
     `/print/receipt-batch?ids=${seedPayments.data!.map((p) => p.id).join(",")}&lang=ar`,
   );
-  await expect(page.locator(".payment-batch>section")).toHaveCount(2);
+  await expect(page.locator(".receipt-slot")).toHaveCount(2);
   await page.evaluate(() => document.fonts.ready);
   const batch = test.info().outputPath("paid-receipts-a4.pdf");
   await page.pdf({ path: batch, preferCSSPageSize: true, printBackground: true });
   expect(pages(batch)).toBe(1);
+  // A single receipt sits in the top half of one A4 page; the A5 layout gives each receipt its own page.
+  await page.goto(`/print/receipt/${seedPayments.data![0]!.id}?lang=ar`);
+  await page.evaluate(() => document.fonts.ready);
+  const single = test.info().outputPath("single-receipt-a4.pdf");
+  await page.pdf({ path: single, preferCSSPageSize: true, printBackground: true });
+  expect(pages(single)).toBe(1);
+  await page.goto(
+    `/print/receipt-batch?ids=${seedPayments.data!.map((p) => p.id).join(",")}&lang=ar&layout=a5`,
+  );
+  await page.evaluate(() => document.fonts.ready);
+  const a5 = test.info().outputPath("paid-receipts-a5.pdf");
+  await page.pdf({ path: a5, preferCSSPageSize: true, printBackground: true });
+  expect(pages(a5)).toBe(2);
   await page.goto("/ar/expenses/new");
   await page.getByRole("button", { name: "الجابرية 157", exact: true }).click();
   await page.getByLabel("المبلغ").first().fill("10");
