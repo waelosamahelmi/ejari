@@ -4,10 +4,15 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { requirePrintContext } from "@/server/print";
 import { PrintToolbar } from "@/components/print/print-toolbar";
 import { CollectionReceipt } from "@/components/print/collection-receipt";
+import {
+  ReceiptSheets,
+  layoutSwitcher,
+  parseReceiptLayout,
+} from "@/components/print/receipt-sheets";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ ids?: string; lang?: string; auto?: string }>;
+  searchParams: Promise<{ ids?: string; lang?: string; auto?: string; layout?: string }>;
 }) {
   const sp = await searchParams;
   const parsed = z.array(z.string().uuid()).min(1).max(100).safeParse(sp.ids?.split(","));
@@ -21,6 +26,7 @@ export default async function Page({
     .in("id", parsed.data);
   if (error) throw error;
   if (!data || data.length !== new Set(parsed.data).size) notFound();
+  const layout = parseReceiptLayout(sp.layout);
   const receipts = parsed.data.map((id) => data.find((r) => r.id === id)!);
   return (
     <>
@@ -33,19 +39,27 @@ export default async function Page({
         }}
         documents={{ kind: "collection", ids: parsed.data }}
       />
-      <style>{`@page{size:A4 portrait;margin:10mm}.prepared-receipt{padding:8mm;border:1px dashed #888;break-inside:avoid;min-height:125mm;box-sizing:border-box}.receipt-batch{width:190mm;margin:20px auto;background:white}@media print{.receipt-batch{width:auto;margin:0}.prepared-receipt:nth-child(2n):not(:last-child){break-after:page}}`}</style>
-      <main className="receipt-batch">
-        {receipts.map((r) => (
-          <CollectionReceipt
-            key={r.id}
-            number={r.document_no}
-            amount={r.amount_fils}
-            snapshot={r.snapshot as Parameters<typeof CollectionReceipt>[0]["snapshot"]}
-            status={r.status}
-            lang={lang}
-          />
-        ))}
-      </main>
+      <ReceiptSheets
+        layout={layout}
+        switcher={layoutSwitcher(
+          "/print/collection-receipts",
+          { ids: sp.ids, lang: sp.lang },
+          layout,
+          lang,
+        )}
+        items={receipts.map((r) => ({
+          key: r.id,
+          node: (
+            <CollectionReceipt
+              number={r.document_no}
+              amount={r.amount_fils}
+              snapshot={r.snapshot as Parameters<typeof CollectionReceipt>[0]["snapshot"]}
+              status={r.status}
+              lang={lang}
+            />
+          ),
+        }))}
+      />
     </>
   );
 }
