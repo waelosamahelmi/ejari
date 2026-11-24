@@ -13,7 +13,12 @@ import {
   terminateSchema,
   type ContractDraftInput,
 } from "@/lib/schemas/contract";
-import { loadParties, loadTemplate, renderWith, varsInput } from "@/server/queries/contracts";
+import {
+  loadParties,
+  loadTemplate,
+  renderWithChecked,
+  varsInput,
+} from "@/server/queries/contracts";
 import { ensureChargesUntil, MATERIALIZE_AHEAD } from "@/server/billing/ensure-charges";
 import { uploadAttachment } from "./files";
 import {
@@ -215,6 +220,8 @@ export interface ContractPreview {
     dueDate: string;
   }[];
   warnings: string[];
+  /** Numbers of clauses that refer to a clause this contract does not contain. */
+  unresolvedClauseNumbers: number[];
   dayName: string;
 }
 
@@ -233,7 +240,7 @@ export async function previewContract(
       loadParties(db, d),
     ]);
     const endDate = contractEndDate(d.startDate, d.termMonths);
-    const rendered = renderWith(
+    const { rendered, unresolvedRefs } = renderWithChecked(
       tpl,
       varsInput(
         {
@@ -288,8 +295,18 @@ export async function previewContract(
       return c.start_date <= endDate && d.startDate <= end;
     });
     if (overlaps.length) warnings.push("overlap");
+    if (unresolvedRefs.length) warnings.push("unresolved_clause_ref");
+    const unresolvedClauseNumbers = [
+      ...new Set(unresolvedRefs.flatMap((u) => (u.number === null ? [] : [u.number]))),
+    ];
     const { dayNameAr } = await import("@/domain/dates");
-    return { rendered, schedule, warnings, dayName: dayNameAr(d.contractDate) };
+    return {
+      rendered,
+      schedule,
+      warnings,
+      unresolvedClauseNumbers,
+      dayName: dayNameAr(d.contractDate),
+    };
   });
 }
 
@@ -312,7 +329,7 @@ async function renderFor(
     propertyId: c.property_id,
     unitIds: (c.contract_units ?? []).map((u) => u.unit_id),
   });
-  const rendered = renderWith(
+  const { rendered, unresolvedRefs } = renderWithChecked(
     tpl,
     varsInput(
       {
@@ -343,7 +360,13 @@ async function renderFor(
     },
     (c.custom_clauses ?? []) as { key: string; text: string }[],
   );
-  return { contract: c, rendered, templateId: tpl.id, templateVersion: tpl.version };
+  return {
+    contract: c,
+    rendered,
+    unresolvedRefs,
+    templateId: tpl.id,
+    templateVersion: tpl.version,
+  };
 }
 
 /** Activates a draft: allocates the gapless number, freezes the rendered clauses and generates charges. */
@@ -358,6 +381,9 @@ export async function activateContract(id: string) {
       .single();
     if (!c || !canPerform(c.status as ContractStatus, "activate"))
       throw new ActionError("invalid_transition");
+    // Checked before a number is allocated, so a blocked activation never uses up a gapless number.
+    const check = await renderFor(db, id, "—");
+    if (check.unresolvedRefs.length) throw new ActionError("unresolved_clause_ref");
     const year = Number(c.contract_date.slice(0, 4));
     const key = c.type === "residential" ? "contract_residential" : "contract_investment";
     const { data: seq, error: seqErr } = await db.rpc("next_number", {
