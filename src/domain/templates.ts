@@ -423,13 +423,39 @@ function lineParts(src: string, vars: Vars, refs: Record<string, number>): Contr
   return result.filter((line) => line.some((p) => p.text.trim()));
 }
 
-/** Renders a full contract: auto-numbered clauses with resolved clause references. */
-export function renderContract(
+/** A clause reference whose target clause is not part of the contract. `number` is the clause holding it, or null for the preamble or closing. */
+export interface UnresolvedClauseRef {
+  number: number | null;
+  key: string;
+}
+
+/** Wraps `refs` so every clause reference that renders without a target is recorded. */
+function trackedRefs(
+  refs: Record<string, number>,
+  number: number | null,
+  out: UnresolvedClauseRef[],
+): Record<string, number> {
+  return new Proxy(refs, {
+    get(target, prop) {
+      if (typeof prop === "string") {
+        const value = target[prop];
+        if (value === undefined && !out.some((u) => u.number === number && u.key === prop)) {
+          out.push({ number, key: prop });
+        }
+        return value;
+      }
+      return Reflect.get(target, prop);
+    },
+  });
+}
+
+/** Renders a full contract and lists clause references that point at a clause the contract does not contain. */
+export function renderContractChecked(
   tpl: ContractTemplate,
   vars: Vars,
   overrides: ClauseOverrides = {},
   custom: readonly CustomClause[] = [],
-): RenderedContract {
+): { rendered: RenderedContract; unresolvedRefs: UnresolvedClauseRef[] } {
   const included: { key: string; body: string; custom?: boolean }[] = [
     ...includedClauses(tpl, vars, overrides).map((c) => ({
       key: c.key,
@@ -445,19 +471,33 @@ export function renderContract(
   ];
   const refs: Record<string, number> = {};
   included.forEach((c, i) => (refs[c.key] = i + 1));
-  return {
-    preamble: lines(renderText(tpl.preamble, vars, refs)),
+  const unresolvedRefs: UnresolvedClauseRef[] = [];
+  const rendered: RenderedContract = {
+    preamble: lines(renderText(tpl.preamble, vars, trackedRefs(refs, null, unresolvedRefs))),
     preambleParts: lineParts(tpl.preamble, vars, refs),
     clauses: included.map((c, i) => ({
       number: i + 1,
       key: c.key,
-      text: renderText(c.body, vars, refs).replace(/\s+/g, " ").trim(),
+      text: renderText(c.body, vars, trackedRefs(refs, i + 1, unresolvedRefs))
+        .replace(/\s+/g, " ")
+        .trim(),
       parts: textParts(c.body, vars, refs, true),
       ...(c.custom ? { custom: true } : {}),
     })),
-    closing: lines(renderText(tpl.closing ?? "", vars, refs)),
+    closing: lines(renderText(tpl.closing ?? "", vars, trackedRefs(refs, null, unresolvedRefs))),
     closingParts: lineParts(tpl.closing ?? "", vars, refs),
   };
+  return { rendered, unresolvedRefs };
+}
+
+/** Renders a full contract: auto-numbered clauses with resolved clause references. */
+export function renderContract(
+  tpl: ContractTemplate,
+  vars: Vars,
+  overrides: ClauseOverrides = {},
+  custom: readonly CustomClause[] = [],
+): RenderedContract {
+  return renderContractChecked(tpl, vars, overrides, custom).rendered;
 }
 
 // ================================================================ variables
