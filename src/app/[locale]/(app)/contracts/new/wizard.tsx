@@ -103,7 +103,8 @@ function defaults(today: string, type: ContractType): ContractDraftInput {
     autoRenew: d.autoRenew,
     renewalTermMonths: null,
     monthlyRentFils: 0,
-    purpose: PURPOSE_PRESETS[type][0]!,
+    // No preselected purpose: the office must choose it explicitly for every new contract.
+    purpose: "",
     utilitiesParty: "owner",
     electricityFixedFils: 0,
     freeMonths: 0,
@@ -205,7 +206,7 @@ export function ContractWizard({
       type,
       autoRenew: d.autoRenew,
       noticePeriodMonths: d.noticePeriodMonths,
-      purpose: PURPOSE_PRESETS[type][0]!,
+      purpose: "",
       freeMonths: type === "residential" ? 0 : s.freeMonths,
       clauseOverrides: {},
     }));
@@ -634,7 +635,11 @@ export function ContractWizard({
                 onChange={(f) => set("monthlyRentFils", f ?? 0)}
               />
             </Field>
-            <Field label={t("terms.purpose")} className="lg:col-span-2">
+            <Field
+              label={t("terms.purpose")}
+              className="lg:col-span-2"
+              hint={v.purpose.trim() ? undefined : t("terms.choosePurpose")}
+            >
               <div className="space-y-2">
                 <ChipScroller>
                   {presets.map((p) => (
@@ -894,8 +899,17 @@ export function ContractWizard({
               <ol className="bg-paper divide-separator divide-y-[0.5px] overflow-hidden rounded-[20px] shadow-[var(--sh-card)]">
                 {tplMeta.map((c) => {
                   const r = renderedByKey.get(c.key);
-                  const enabled = c.optional ? (overrides.enabled?.[c.key] ?? !!r) : true;
-                  if (!r && !c.optional) return null;
+                  const chosen = overrides.enabled?.[c.key];
+                  const enabled = chosen ?? (c.optional ? !!r : true);
+                  if (!r && !c.optional && chosen !== false) return null;
+                  const pointedAt = tplMeta
+                    .filter(
+                      (o) =>
+                        o.key !== c.key &&
+                        renderedByKey.has(o.key) &&
+                        (overrides.text?.[o.key] ?? o.body).includes(`{{clause_ref:${c.key}}}`),
+                    )
+                    .map((o) => renderedByKey.get(o.key)!.number);
                   const edited = overrides.text?.[c.key] !== undefined;
                   return (
                     <li key={c.key} className={cn("px-4 py-3.5", !enabled && "opacity-50")}>
@@ -923,6 +937,14 @@ export function ContractWizard({
                           <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[13px]">
                             {c.optional && (
                               <span className="text-label-2">{t("clauses.optional")}</span>
+                            )}
+                            {!enabled && (
+                              <span className="text-orange-text">{t("clauses.omitted")}</span>
+                            )}
+                            {!enabled && pointedAt.length > 0 && (
+                              <span className="text-orange-text">
+                                {t("clauses.omitWarning", { numbers: pointedAt.join("، ") })}
+                              </span>
                             )}
                             {edited && (
                               <span className="text-orange-text">{t("clauses.edited")}</span>
@@ -954,7 +976,7 @@ export function ContractWizard({
                             )}
                           </div>
                         </div>
-                        {c.optional && (
+                        {(c.optional || r || chosen === false) && (
                           <Toggle
                             checked={enabled}
                             ariaLabel={c.key}
@@ -1168,6 +1190,12 @@ export function ContractWizard({
                         {t("finish.pdf")}
                       </a>
                     </Button>
+                    <Button asChild size="lg" variant="secondary">
+                      <a href={`/api/export/contract/${draftId}`} download>
+                        <FileText />
+                        {t("finish.word")}
+                      </a>
+                    </Button>
                     <Button size="lg" variant="secondary" onClick={() => fileRef.current?.click()}>
                       <Upload />
                       {t("finish.upload")}
@@ -1306,4 +1334,4 @@ export function ContractWizard({
       />
     </>
   );
-}
+                                      }
