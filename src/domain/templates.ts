@@ -330,7 +330,7 @@ export interface ContractTemplate {
 }
 
 export interface ClauseOverrides {
-  /** Toggle optional clauses (key → enabled). */
+  /** Per-contract inclusion (key → enabled). `false` omits any clause; `true` includes an optional one. */
   enabled?: Record<string, boolean>;
   /** Per-contract text overrides (key → body). */
   text?: Record<string, string>;
@@ -379,7 +379,10 @@ export function includedClauses(
     .sort((a, b) => a.position - b.position)
     .filter((c) => {
       if (!evaluateCondition(c.condition, vars)) return false;
-      if (c.optional) return overrides.enabled?.[c.key] ?? clauseDefaultEnabled(c, vars);
+      const chosen = overrides.enabled?.[c.key];
+      // A per-contract choice to omit a clause applies to any clause, not only optional ones.
+      if (chosen === false) return false;
+      if (c.optional) return chosen ?? clauseDefaultEnabled(c, vars);
       return true;
     });
 }
@@ -656,3 +659,16 @@ export const TEMPLATE_VARIABLES = [
   "security_deposit_amount",
   "security_deposit_words",
 ] as const;
+
+/** Keys of included clauses whose text points at `key` with {{clause_ref:key}}. */
+export function clausesReferencing(
+  tpl: ContractTemplate,
+  key: string,
+  vars: Vars,
+  overrides: ClauseOverrides = {},
+): string[] {
+  const marker = `{{clause_ref:${key}}}`;
+  return includedClauses(tpl, vars, overrides)
+    .filter((c) => c.key !== key && (overrides.text?.[c.key] ?? c.body).includes(marker))
+    .map((c) => c.key);
+}
