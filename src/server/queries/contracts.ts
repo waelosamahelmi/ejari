@@ -3,10 +3,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
 import {
   buildTemplateVars,
-  renderContract,
+  renderContractChecked,
   type ContractTemplate,
   type RenderedContract,
   type TemplateVarsInput,
+  type UnresolvedClauseRef,
 } from "@/domain/templates";
 import type { ContractType, UnitType } from "@/domain/types";
 import { contractFileName } from "@/domain/contract-file-name";
@@ -170,18 +171,27 @@ export function varsInput(
   };
 }
 
+export function renderWithChecked(
+  tpl: ContractTemplate,
+  input: TemplateVarsInput,
+  overrides: { enabled?: Record<string, boolean>; text?: Record<string, string> },
+  custom: { key: string; text: string }[],
+): { rendered: RenderedContract; unresolvedRefs: UnresolvedClauseRef[] } {
+  return renderContractChecked(
+    tpl,
+    buildTemplateVars(input),
+    overrides,
+    custom.filter((c) => c.key !== "initial_temporary_discount"),
+  );
+}
+
 export function renderWith(
   tpl: ContractTemplate,
   input: TemplateVarsInput,
   overrides: { enabled?: Record<string, boolean>; text?: Record<string, string> },
   custom: { key: string; text: string }[],
 ): RenderedContract {
-  return renderContract(
-    tpl,
-    buildTemplateVars(input),
-    overrides,
-    custom.filter((c) => c.key !== "initial_temporary_discount"),
-  );
+  return renderWithChecked(tpl, input, overrides, custom).rendered;
 }
 
 export interface PrintableContract {
