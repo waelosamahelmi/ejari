@@ -2,22 +2,26 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requirePrintContext } from "@/server/print";
-import { loadParties, loadTemplate, renderWith, varsInput } from "@/server/queries/contracts";
+import { loadPrintableContract } from "@/server/queries/contracts";
 import { ContractDocument } from "@/components/print/contract-document";
 import { PrintToolbar } from "@/components/print/print-toolbar";
-import { restoreContractPresentation, type RenderedContract } from "@/domain/contract-presentation";
 
 export async function generateMetadata({
+  params,
   searchParams,
 }: {
+  params: Promise<{ id: string }>;
   searchParams: Promise<{ lang?: string }>;
 }) {
+  const { id } = await params;
   const { lang } = await searchParams;
   const t = await getTranslations({
     locale: lang === "en" ? "en" : "ar",
     namespace: "documents.printTitles",
   });
-  return { title: t("contract") };
+  // The browser uses the page title as the suggested name when saving to PDF.
+  const doc = await loadPrintableContract(await supabaseServer(), id).catch(() => null);
+  return { title: doc?.fileName ?? t("contract") };
 }
 
 export default async function PrintContract({
@@ -32,56 +36,9 @@ export default async function PrintContract({
   const { lang } = await requirePrintContext(sp.lang);
   const t = await getTranslations({ locale: lang, namespace: "common.actions" });
   const db = await supabaseServer();
-  const { data: c } = await db
-    .from("contracts")
-    .select("*, contract_units(unit_id)")
-    .eq("id", id)
-    .maybeSingle();
-  if (!c) notFound();
-  const parties = await loadParties(db, {
-    ownerId: c.owner_id,
-    coTenantIds: c.co_tenant_ids,
-    tenantId: c.tenant_id,
-    propertyId: c.property_id,
-    unitIds: (c.contract_units ?? []).map((u) => u.unit_id),
-  });
-  let rendered = c.rendered_clauses as unknown as RenderedContract | null;
-  {
-    const tpl = await loadTemplate(db, c.type, c.template_id);
-    const current = renderWith(
-      tpl,
-      varsInput(
-        {
-          contractNo: c.contract_no,
-          initialDiscount:
-            c.initial_discount as import("@/domain/templates").TemplateVarsInput["initialDiscount"],
-          type: c.type,
-          contractDate: c.contract_date,
-          startDate: c.start_date,
-          firstCollectionDate: c.first_collection_date,
-          endDate: c.end_date,
-          termMonths: c.term_months,
-          autoRenew: c.auto_renew,
-          monthlyRentFils: c.monthly_rent_fils,
-          purpose: c.purpose,
-          utilitiesParty: c.utilities_party,
-          waterParty: (c.water_party as "owner" | "tenant" | null) ?? c.utilities_party,
-          electricityFixedFils: c.electricity_fixed_fils,
-          freeMonths: c.free_months,
-          noticePeriodMonths: c.notice_period_months,
-          securityDepositFils: c.security_deposit_fils,
-        },
-        parties,
-      ),
-      (c.clause_overrides ?? {}) as {
-        enabled?: Record<string, boolean>;
-        text?: Record<string, string>;
-      },
-      (c.custom_clauses ?? []) as { key: string; text: string }[],
-    );
-    rendered =
-      !rendered || c.status === "draft" ? current : restoreContractPresentation(rendered, current);
-  }
+  const doc = await loadPrintableContract(db, id);
+  if (!doc?.rendered) notFound();
+  const { rendered, parties } = doc;
   return (
     <>
       <PrintToolbar
