@@ -82,6 +82,7 @@
       "rent": "Monthly rent",
       "purpose": "Purpose",
       "purposeCustom": "Other purpose",
+      "choosePurpose": "Choose the purpose of the lease before continuing.",
       "utilities": "Electricity paid by",
       "electricityFixed": "Fixed monthly electricity (charged to tenant)",
       "freeMonths": "Free months",
@@ -100,11 +101,13 @@
     },
     "clauses": {
       "title": "Clauses",
-      "hint": "Toggle optional clauses, edit any clause for this contract only, or add special clauses.",
+      "hint": "Omit any clause from this contract only, edit its text, or add special clauses. The template itself is not changed.",
       "optional": "Optional",
       "edit": "Edit text",
       "reset": "Restore original",
       "edited": "Edited",
+      "omitted": "Omitted from this contract",
+      "omitWarning": "Other clauses refer to this clause: {numbers}",
       "addCustom": "Add special clause",
       "customPlaceholder": "Clause text…",
       "moveUp": "Move up",
@@ -132,6 +135,7 @@
       "activate": "Activate contract",
       "activated": "Contract {no} activated",
       "print": "Print",
+      "word": "Download editable Word file",
       "pdf": "Download PDF",
       "upload": "Upload signed copy",
       "open": "Open contract"
@@ -172,6 +176,7 @@
   },
   "actions": {
     "print": "Print",
+    "word": "Download editable Word file",
     "recordPayment": "Record payment",
     "notice": "Record notice",
     "revise": "Revise rent",
