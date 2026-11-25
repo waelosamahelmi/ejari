@@ -170,7 +170,7 @@ describe("residential seed contract", () => {
     expect(r.preamble[0]).toBe("عقد إيجار");
     expect(r.preamble[1]).toBe("انه في يوم الأحد الموافق 01/02/2026");
     expect(r.preamble).toContain(
-      "حيث إن الطرف الأول يستغل صباح السالم قطعة 12 شارع 5 جادة 3 منزل 43 الرقم الآلي للعنوان 18834506",
+      "حيث إن الطرف الأول يمتلك صباح السالم قطعة 12 شارع 5 جادة 3 منزل 43 الرقم الآلي للعنوان 18834506",
     );
   });
   it("≤ 13 clauses with renumbering (grace & deposit skipped)", () => {
@@ -231,7 +231,7 @@ describe("investment seed contract", () => {
   it("preamble Thursday", () => {
     expect(r.preamble[1]).toBe("انه في يوم الخميس الموافق 01/10/2026");
     expect(r.preamble).toContain(
-      "حيث إن الطرف الأول يستغل القسيمة رقم 1674 في الري قطعة 1 شارع 22 الرقم الآلي للعنوان 30498812",
+      "حيث إن الطرف الأول يمتلك القسيمة رقم 1674 في الري قطعة 1 شارع 22 الرقم الآلي للعنوان 30498812",
     );
   });
   it("25 clauses (fresh water merged, industry authority on for industrial)", () => {

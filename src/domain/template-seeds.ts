@@ -14,7 +14,7 @@ export const RESIDENTIAL_TEMPLATE: ContractTemplate = {
 {{#tenant_licence_no}}رقم الترخيص: {{tenant_licence_no}}{{/tenant_licence_no}}
 {{#tenant_signatory_name}}المفوض بالتوقيع: {{tenant_signatory_name}}{{#tenant_signatory_civil_id}}، رقم مدني: {{tenant_signatory_civil_id}}{{/tenant_signatory_civil_id}}{{/tenant_signatory_name}}
 {{#co_tenants}}المستأجرون الإضافيون: {{co_tenants}}{{/co_tenants}}
-حيث إن الطرف الأول يستغل {{property_description}} الرقم الآلي للعنوان {{property_paci}}
+حيث إن الطرف الأول يمتلك {{property_description}} الرقم الآلي للعنوان {{property_paci}}
 تم الاتفاق وذلك وفق الشروط التالية:`,
   closing: null,
   clauses: [
@@ -99,7 +99,7 @@ export const INVESTMENT_TEMPLATE: ContractTemplate = {
 {{#tenant_licence_no}}رقم الترخيص: {{tenant_licence_no}}{{/tenant_licence_no}}
 {{#tenant_signatory_name}}المفوض بالتوقيع: {{tenant_signatory_name}}{{#tenant_signatory_civil_id}}، رقم مدني: {{tenant_signatory_civil_id}}{{/tenant_signatory_civil_id}}{{/tenant_signatory_name}}
 {{#co_tenants}}المستأجرون الإضافيون: {{co_tenants}}{{/co_tenants}}
-حيث إن الطرف الأول يستغل {{property_description}} الرقم الآلي للعنوان {{property_paci}}
+حيث إن الطرف الأول يمتلك {{property_description}} الرقم الآلي للعنوان {{property_paci}}
 فقد تم الاتفاق بين طرفي هذا العقد على ما يلي:`,
   closing: null,
   clauses: [
