@@ -80,6 +80,7 @@
     "legend": "Legend",
     "bulk": "Add units",
     "addUnit": "New unit",
+    "inactive": "Inactive",
     "maintenance": "Maintenance"
   },
   "bulk": {

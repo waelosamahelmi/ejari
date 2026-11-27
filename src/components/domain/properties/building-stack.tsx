@@ -20,6 +20,19 @@ export interface StackTile {
   rentFils: number;
   askingRentFils: number;
   underMaintenance: boolean;
+  /** false = deactivated unit (shown dimmed so it can be opened and re-activated). */
+  active?: boolean;
+}
+
+const PAYMENT_DOT: PeriodStatus[] = ["paid", "partial", "unpaid", "advance", "free", "legal"];
+
+/** Dot color: payment status when the unit has a real payment state this month, else the unit status color
+ * (so rented units without a payment state are green like the legend, not gray). */
+function dotClass(u: StackTile): string {
+  if (u.active === false) return "bg-gray";
+  if (u.status !== "vacant" && PAYMENT_DOT.includes(u.periodStatus))
+    return PERIOD_STATUS_STYLE[u.periodStatus].dot;
+  return UNIT_STATUS_STYLE[u.status].dot;
 }
 
 function groupKey(u: StackTile): number {
@@ -91,7 +104,6 @@ export function BuildingStack({
                   const disabled = mode === "select" ? (isDisabled?.(u) ?? null) : null;
                   const isSel = selected?.has(u.id);
                   const style = UNIT_STATUS_STYLE[u.status];
-                  const pay = PERIOD_STATUS_STYLE[u.periodStatus];
                   const content = (
                     <>
                       <div className="flex items-center justify-between gap-1">
@@ -104,16 +116,17 @@ export function BuildingStack({
                           <Check className="size-4 shrink-0" aria-hidden />
                         ) : (
                           <span
-                            className={cn(
-                              "size-2 shrink-0 rounded-full",
-                              u.status === "vacant" ? style.dot : pay.dot,
-                            )}
+                            className={cn("size-2 shrink-0 rounded-full", dotClass(u))}
                             aria-hidden
                           />
                         )}
                       </div>
                       <div className="text-label-2 truncate text-[12px]">
-                        {u.tenantName ? firstName(u.tenantName) : tStatus(u.status)}
+                        {u.active === false
+                          ? t("inactive")
+                          : u.tenantName
+                            ? firstName(u.tenantName)
+                            : tStatus(u.status)}
                       </div>
                       <div className="num text-label-2 truncate text-[12px]">
                         {money(u.rentFils || u.askingRentFils, { showCurrency: false })}
@@ -125,6 +138,7 @@ export function BuildingStack({
                     style.tile,
                     isSel && "bg-ink text-on-ink ring-ink [&_.text-label-2]:text-on-ink/70",
                     disabled && "cursor-not-allowed opacity-45",
+                    u.active === false && "opacity-55",
                   );
                   const aria = `${unitLabel(u)} — ${u.tenantName ?? tStatus(u.status)}${u.status !== "vacant" ? ` — ${tPeriod(u.periodStatus)}` : ""}${disabled ? ` — ${disabled}` : ""}`;
                   if (mode === "select")
