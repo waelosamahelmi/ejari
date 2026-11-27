@@ -51,7 +51,7 @@ export default async function UnitPage({ params }: LocaleParams<{ id: string }>)
     .order("issued_at", { ascending: false });
   const today = todayKuwait();
   const period = periodOf(today);
-  const tile = buildingStack(data, property.id, period, today).find((u) => u.id === id);
+  const tile = buildingStack(data, property.id, period, today, { includeInactive: true }).find((u) => u.id === id);
   const contracts = data.ds.contracts
     .filter((c) => c.unitIds.includes(id))
     .sort((a, b) => b.startDate.localeCompare(a.startDate));
