@@ -39,7 +39,7 @@ export default async function PropertyPage({
   const today = todayKuwait();
   const period = periodOf(today);
   const summary = propertySummaries(data, period, today).find((p) => p.id === id)!;
-  const stack = buildingStack(data, id, period, today);
+  const stack = buildingStack(data, id, period, today, { includeInactive: true });
   const trend = periodRange(addPeriods(period, -11), period).map((p) => {
     const row = monthlySummary(data.idx, p, { propertyIds: [id] }).rows[0];
     return { period: p, expected: row?.expectedFils ?? 0, collected: row?.collectedFils ?? 0 };
