@@ -13,7 +13,7 @@ export const RESIDENTIAL_TEMPLATE: ContractTemplate = {
 بطاقة مدنية: {{tenant_civil_id}}، تليفون: {{tenant_phones}}
 {{#tenant_licence_no}}رقم الترخيص: {{tenant_licence_no}}{{/tenant_licence_no}}
 {{#tenant_signatory_name}}المفوض بالتوقيع: {{tenant_signatory_name}}{{#tenant_signatory_civil_id}}، رقم مدني: {{tenant_signatory_civil_id}}{{/tenant_signatory_civil_id}}{{/tenant_signatory_name}}
-{{#co_tenants}}المستأجرون الإضافيون: {{co_tenants}}{{/co_tenants}}
+{{#co_tenants}}و{{co_tenants}}{{/co_tenants}}
 حيث إن الطرف الأول يمتلك {{property_description}} الرقم الآلي للعنوان {{property_paci}}
 تم الاتفاق وذلك وفق الشروط التالية:`,
   closing: null,
@@ -59,7 +59,7 @@ export const RESIDENTIAL_TEMPLATE: ContractTemplate = {
     {
       key: "utilities",
       position: 8,
-      body: "دفع تأمين الكهرباء واستهلاك الكهرباء والماء من حساب {{utilities_party_label}} وحده.",
+      body: "دفع تأمين الكهرباء واستهلاك الكهرباء والماء من حساب {{utilities_party_label}} وحده{{#utilities_owner}} بشرط عدم الإسراف أو سوء استخدام الكهرباء والماء{{/utilities_owner}}.",
     },
     {
       key: "deposit",
@@ -98,7 +98,7 @@ export const INVESTMENT_TEMPLATE: ContractTemplate = {
 ت: {{tenant_phones}}
 {{#tenant_licence_no}}رقم الترخيص: {{tenant_licence_no}}{{/tenant_licence_no}}
 {{#tenant_signatory_name}}المفوض بالتوقيع: {{tenant_signatory_name}}{{#tenant_signatory_civil_id}}، رقم مدني: {{tenant_signatory_civil_id}}{{/tenant_signatory_civil_id}}{{/tenant_signatory_name}}
-{{#co_tenants}}المستأجرون الإضافيون: {{co_tenants}}{{/co_tenants}}
+{{#co_tenants}}و{{co_tenants}}{{/co_tenants}}
 حيث إن الطرف الأول يمتلك {{property_description}} الرقم الآلي للعنوان {{property_paci}}
 فقد تم الاتفاق بين طرفي هذا العقد على ما يلي:`,
   closing: null,
