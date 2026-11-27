@@ -68,6 +68,7 @@ export interface StackUnit {
   rentFils: number;
   askingRentFils: number;
   underMaintenance: boolean;
+  active: boolean;
 }
 
 /** Building Stack data: each active unit with derived status for today and this month's payment status. */
@@ -76,8 +77,11 @@ export function buildingStack(
   propertyId: string,
   period: Period,
   today: ISODate,
+  opts: { includeInactive?: boolean } = {},
 ): StackUnit[] {
-  const units = (d.idx.unitsByProperty.get(propertyId) ?? []).filter((u) => u.active);
+  const units = (d.idx.unitsByProperty.get(propertyId) ?? []).filter(
+    (u) => u.active || opts.includeInactive,
+  );
   const contracts = d.idx.contractsByProperty.get(propertyId) ?? [];
   return units.map((u) => {
     const cs = contracts.filter((c) => c.unitIds.includes(u.id));
@@ -115,6 +119,7 @@ export function buildingStack(
         : 0,
       askingRentFils: u.askingRentFils,
       underMaintenance: meta?.underMaintenance ?? false,
+      active: u.active,
     };
   });
 }
