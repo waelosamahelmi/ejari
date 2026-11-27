@@ -93,7 +93,7 @@ describe("company details on old lease prints", () => {
     type: "investment" as const,
     name: "lease",
     preamble:
-      "عقد إيجار\nالطرف الأول: {{owner_name}}\nالطرف الثاني: {{tenant_name}}\n{{#tenant_licence_no}}رقم الترخيص: {{tenant_licence_no}}{{/tenant_licence_no}}\n{{#tenant_signatory_name}}المفوض: {{tenant_signatory_name}}{{/tenant_signatory_name}}\n{{#co_tenants}}المستأجرون الإضافيون: {{co_tenants}}{{/co_tenants}}\nحيث إن الطرف الأول يستغل {{property_description}}",
+      "عقد إيجار\nالطرف الأول: {{owner_name}}\nالطرف الثاني: {{tenant_name}}\n{{#tenant_licence_no}}رقم الترخيص: {{tenant_licence_no}}{{/tenant_licence_no}}\n{{#tenant_signatory_name}}المفوض: {{tenant_signatory_name}}{{/tenant_signatory_name}}\n{{#co_tenants}}و{{co_tenants}}{{/co_tenants}}\nحيث إن الطرف الأول يستغل {{property_description}}",
     clauses: [{ position: 1, key: "rent", body: "الإيجار {{rent}}" }],
   };
   it("fills absent company details and joint tenants without replacing saved rent or names", () => {
@@ -109,14 +109,14 @@ describe("company details on old lease prints", () => {
       tenant_name: "اسم جديد",
       tenant_licence_no: "2026/123",
       tenant_signatory_name: "المفوض",
-      co_tenants: "مستأجر إضافي",
+      co_tenants: "مستأجر إضافي، بطاقة مدنية: 123",
       property_description: "العقار",
       rent: 900,
     });
     const restored = restoreContractPresentation(saved, current);
     expect(restored.preamble).toContain("الطرف الثاني: الشركة");
     expect(restored.preamble).toContain("رقم الترخيص: 2026/123");
-    expect(restored.preamble).toContain("المستأجرون الإضافيون: مستأجر إضافي");
+    expect(restored.preamble).toContain("ومستأجر إضافي، بطاقة مدنية: 123");
     expect(restored.clauses[0]?.text).toBe("الإيجار 650");
   });
 });
