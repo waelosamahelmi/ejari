@@ -38,7 +38,7 @@ export default async function PrintReceipt({
   const { data: p } = await db
     .from("payments")
     .select(
-      "*, tenants(full_name), contracts(contract_no, properties(name, governorate, area, block, street, avenue, house_or_plot, paci_no), contract_units(units(label,type,type_label))), payment_allocations(amount_fils, charges(period))",
+      "*, tenants(full_name), contracts(contract_no, owners(full_name), properties(property_owners(share_pct, owners(full_name)), name, governorate, area, block, street, avenue, house_or_plot, paci_no), contract_units(units(label,type,type_label))), payment_allocations(amount_fils, charges(period))",
     )
     .eq("org_id", ctx.orgId)
     .eq("id", id)
@@ -54,7 +54,9 @@ export default async function PrintReceipt({
   const tc = await getTranslations({ locale: lang, namespace: "common.actions" });
   const c = p.contracts as unknown as {
     contract_no: string;
+    owners: { full_name: string } | null;
     properties: {
+      property_owners?: { share_pct: number; owners: { full_name: string } | null }[];
       name: string;
       governorate: string | null;
       area: string | null;
@@ -81,6 +83,11 @@ export default async function PrintReceipt({
         data={{
           ...p,
           tenantName: (p.tenants as unknown as { full_name: string }).full_name,
+          ownerName:
+            c.owners?.full_name ??
+            [...(c.properties.property_owners ?? [])].sort((a, b) => b.share_pct - a.share_pct)[0]
+              ?.owners?.full_name ??
+            null,
           periods,
           collectorName: collector?.display_name ?? null,
           contract: c,
