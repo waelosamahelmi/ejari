@@ -78,7 +78,7 @@ insert into public.contract_templates (id, org_id, type, name, version, family_i
 بطاقة مدنية: {{tenant_civil_id}}، تليفون: {{tenant_phones}}
 {{#tenant_licence_no}}رقم الترخيص: {{tenant_licence_no}}{{/tenant_licence_no}}
 {{#tenant_signatory_name}}المفوض بالتوقيع: {{tenant_signatory_name}}{{#tenant_signatory_civil_id}}، رقم مدني: {{tenant_signatory_civil_id}}{{/tenant_signatory_civil_id}}{{/tenant_signatory_name}}
-{{#co_tenants}}المستأجرون الإضافيون: {{co_tenants}}{{/co_tenants}}
+{{#co_tenants}}و{{co_tenants}}{{/co_tenants}}
 حيث إن الطرف الأول يمتلك {{property_description}} الرقم الآلي للعنوان {{property_paci}}
 تم الاتفاق وذلك وفق الشروط التالية:', null, true),
   ('2d000000-0000-4000-8000-000000000002', null, 'investment', 'عقد إيجار استثماري', 1, '2d000000-0000-4000-8000-000000000002', 'عقد إيجار
@@ -90,7 +90,7 @@ insert into public.contract_templates (id, org_id, type, name, version, family_i
 ت: {{tenant_phones}}
 {{#tenant_licence_no}}رقم الترخيص: {{tenant_licence_no}}{{/tenant_licence_no}}
 {{#tenant_signatory_name}}المفوض بالتوقيع: {{tenant_signatory_name}}{{#tenant_signatory_civil_id}}، رقم مدني: {{tenant_signatory_civil_id}}{{/tenant_signatory_civil_id}}{{/tenant_signatory_name}}
-{{#co_tenants}}المستأجرون الإضافيون: {{co_tenants}}{{/co_tenants}}
+{{#co_tenants}}و{{co_tenants}}{{/co_tenants}}
 حيث إن الطرف الأول يمتلك {{property_description}} الرقم الآلي للعنوان {{property_paci}}
 فقد تم الاتفاق بين طرفي هذا العقد على ما يلي:', null, true);
 
