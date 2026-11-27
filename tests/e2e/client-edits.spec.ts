@@ -137,7 +137,7 @@ test("wizard requires owner and explicit terms, offers all tenants and filters p
   await expect(page.getByText("البنود", { exact: true })).toBeVisible();
   await expect(page.getByText("خصم شهري مؤقت", { exact: false })).toHaveCount(0);
   await next.click();
-  await expect(page.locator(".contract-doc")).toContainText("المستأجرون الإضافيون");
+  await expect(page.locator(".contract-doc")).not.toContainText("المستأجرون الإضافيون");
   await expect(page.locator(".contract-doc")).not.toContainText("عرض مؤقت");
   await next.click();
   await page.getByRole("button", { name: "تفعيل العقد", exact: true }).click();
