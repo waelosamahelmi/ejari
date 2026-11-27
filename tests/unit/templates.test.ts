@@ -90,7 +90,7 @@ describe("property description & labels", () => {
         { area: "صباح السالم", block: "12", street: "5", avenue: "", houseOrPlot: "43" },
         "residential",
       ),
-    ).toBe("صباح السالم قطعة 12 شارع 5 منزل 43");
+    ).toBe("صباح السالم قطعة 12 شارع 5 قسيمة 43");
   });
   it("investment", () => {
     expect(
@@ -170,7 +170,7 @@ describe("residential seed contract", () => {
     expect(r.preamble[0]).toBe("عقد إيجار");
     expect(r.preamble[1]).toBe("انه في يوم الأحد الموافق 01/02/2026");
     expect(r.preamble).toContain(
-      "حيث إن الطرف الأول يمتلك صباح السالم قطعة 12 شارع 5 جادة 3 منزل 43 الرقم الآلي للعنوان 18834506",
+      "حيث إن الطرف الأول يمتلك صباح السالم قطعة 12 شارع 5 جادة 3 قسيمة 43 الرقم الآلي للعنوان 18834506",
     );
   });
   it("≤ 13 clauses with renumbering (grace & deposit skipped)", () => {
