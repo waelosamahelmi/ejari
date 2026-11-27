@@ -521,7 +521,7 @@ export function propertyDescription(p: PropertyAddress, type: ContractType): str
           part("قطعة", p.block),
           part("شارع", p.street),
           part("جادة", p.avenue),
-          part("منزل", p.houseOrPlot),
+          part("قسيمة", p.houseOrPlot),
         ]
       : [
           part("القسيمة رقم", p.houseOrPlot),
@@ -604,8 +604,8 @@ export function buildTemplateVars(i: TemplateVarsInput): Vars {
     tenant_signatory_name: i.tenant.signatoryName ?? "",
     tenant_signatory_civil_id: i.tenant.signatoryCivilId ?? "",
     co_tenants: (i.coTenants ?? [])
-      .map((t) => `${t.name}${t.civilId ? `، رقم مدني: ${t.civilId}` : ""}`)
-      .join("؛ "),
+      .map((t) => `${t.name}${t.civilId ? `، بطاقة مدنية: ${t.civilId}` : ""}`)
+      .join("؛ و"),
     tenant_civil_id: i.tenant.civilId ?? "",
     tenant_phones: (i.tenant.phones ?? []).join(" - "),
     property_description: propertyDescription(i.property, i.type),
